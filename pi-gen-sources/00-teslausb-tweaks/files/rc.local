@@ -21,6 +21,26 @@ fi
 
 SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 
+function write_all_leds {
+  for led in /sys/class/leds/*
+  do
+    echo "$1" > "$led/$2" || true
+  done
+}
+
+function error_strobe() {
+  modprobe ledtrig_timer || true
+  write_all_leds timer trigger
+  while true
+  do
+    write_all_leds 1 delay_on
+    write_all_leds 100 delay_off
+    sleep 1
+    write_all_leds 0 delay_on
+    sleep 1
+  done
+}
+
 function setup_progress () {
   echo "$( date ) : $1" >> "$SETUP_LOGFILE" || echo "can't write to $SETUP_LOGFILE"
   echo "$1"
@@ -31,11 +51,19 @@ function get_script () {
   local name="$2"
   local remote_path="${3:-}"
 
+  IFS=". " read -r start_time _ < /proc/uptime
+
   while ! curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/teslausb/"$BRANCH"/"$remote_path"/"$name"
   do
     setup_progress "get_script failed, retrying"
     sntp -S time.google.com || true
     sleep 3
+    IFS=". " read -r now _ < /proc/uptime
+    if [ $((now - start_time)) -gt 60 ]
+    then
+      setup_progress "failed to get script after 60 seconds, exiting"
+      return 1
+    fi
   done
   chmod +x "$local_path/$name"
 }
@@ -85,6 +113,7 @@ EOF
   then
     setup_progress "Error in $1:"
     setup_progress "$(cat /tmp/checksetupconf.out)"
+    error_strobe &
     exit 1
   fi
   # shellcheck disable=SC1090
@@ -151,13 +180,22 @@ then
     BRANCH=${BRANCH:-main-dev}
     # Script doesn't exist, grab it.
     setup_progress "Grabbing main setup file."
-    get_script /root/bin setup-teslausb setup/pi
+    if ! get_script /root/bin setup-teslausb setup/pi
+    then
+      setup_progress "Failed to retrieve setup script. Check network settings."
+      error_strobe &
+      exit 0
+    fi
   fi
 
   setup_progress "Starting setup."
 
   # Start setup. This should take us all the way through to reboot
-  /root/bin/setup-teslausb
+  if ! /root/bin/setup-teslausb
+  then
+    error_strobe &
+    exit 0
+  fi
 
   # reboot for good measure, also restarts the rc.local script
   exec reboot
