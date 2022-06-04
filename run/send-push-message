@@ -27,7 +27,7 @@ function send_discord() {
   log "Sending Discord message."
 
   curl -H "Content-Type: application/json" -d \
-    '{"username": "TeslaUSB", "content": "'"$message"'"}' \
+    '{"username": "'"$title"'", "content": "'"$message"'"}' \
     "$DISCORD_WEBHOOK_URL"
 }
 
@@ -48,13 +48,13 @@ function send_sns () {
 function send_matrix() {
   log "Send Matrix message."
 
-  python3 /root/bin/send_matrix.py "$MATRIX_SERVER_URL" "$MATRIX_USERNAME" "$MATRIX_PASSWORD" "$MATRIX_ROOM" "$message"
+  python3 /root/bin/send_matrix.py "$MATRIX_SERVER_URL" "$MATRIX_USERNAME" "$MATRIX_PASSWORD" "$MATRIX_ROOM" "$title: $message"
 }
 
 function send_telegram () {
   log "Sending Telegram message."
   curl -v -H "Content-Type: application/json" -d \
-    '{"chat_id": "'"$TELEGRAM_CHAT_ID"'", "text": "'"$title $message"'", "disable_notification": '"$TELEGRAM_SILENT_NOTIFY"' }' \
+    '{"chat_id": "'"$TELEGRAM_CHAT_ID"'", "text": "'"$title: $message"'", "disable_notification": '"$TELEGRAM_SILENT_NOTIFY"' }' \
     https://api.telegram.org/"$TELEGRAM_BOT_TOKEN"/sendMessage
 }
 
@@ -69,7 +69,7 @@ function send_webhook () {
 
 function send_slack () {
   log "Sending Slack message."
-  payload="{\"text\":\"$message\",\"username\": \"Tesla\",\"icon_emoji\": \":tesla:\"}"
+  payload="{\"text\":\"$title: $message\",\"username\": \"Tesla\",\"icon_emoji\": \":tesla:\"}"
   curl -X POST --data-urlencode "payload=$payload" "$SLACK_WEBHOOK_URL"
 }
 
