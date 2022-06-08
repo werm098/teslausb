@@ -195,12 +195,14 @@ function ensure_mountpoint_is_mounted_with_retry () {
 
 function ensure_cam_file_is_mounted () {
   log "Ensuring cam file is mounted..."
+  disconnect_usb_drives_from_host
   ensure_mountpoint_is_mounted_with_retry "$CAM_MOUNT"
   log "Ensured cam file is mounted."
 }
 
 function ensure_music_file_is_mounted () {
   log "Ensuring music backing file is mounted..."
+  disconnect_usb_drives_from_host
   ensure_mountpoint_is_mounted_with_retry "$MUSIC_MOUNT"
   log "Ensured music drive is mounted."
 }
@@ -260,7 +262,6 @@ function check_if_usb_gadget_is_mounted () {
 
   log "USB Gadget not mounted. Fixing files and remounting..."
   disconnect_usb_drives_from_host
-  fix_errors_in_images
   connect_usb_drives_to_host
 }
 
@@ -294,9 +295,11 @@ function fix_errors_in_images () {
 
 function disconnect_usb_drives_from_host () {
   log "Disconnecting usb from host..."
-  /root/bin/disable_gadget.sh
+  if /root/bin/disable_gadget.sh
+  then
+    fix_errors_in_images
+  fi
   log "Disconnected usb from host."
-  sleep 5
 }
 
 function convert_seconds_to_nice_time () {
@@ -393,8 +396,6 @@ function clean_cam_mount {
 #   laptelemetry.csv
 function archive_teslacam_clips () {
   log "Checking saved folder count..."
-
-  ensure_cam_file_is_mounted
 
   local -r overlaylower=/mutable/TeslaCam
   local -r overlayupper=/tmp/cam/upper
@@ -592,6 +593,8 @@ function archive_teslacam_clips () {
 
   # overlayfs behavior is undefined if the lower is changed while the overlay is active, so umount first
   umount "$overlaymerged"
+
+  ensure_cam_file_is_mounted
 
   if [[ "$ignore_count" -gt 0 ]]
   then
@@ -853,10 +856,6 @@ do
 
   # take a snapshot before archive_clips starts deleting files
   /root/bin/make_snapshot.sh
-
-  disconnect_usb_drives_from_host
-
-  fix_errors_in_images
 
   archive_clips
 

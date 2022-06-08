@@ -14,7 +14,7 @@ readonly gadget_root="$configfs_root/usb_gadget/teslausb"
 if [ ! -d "$gadget_root" ]
 then
   echo "already released"
-  exit 0
+  exit 2
 fi
 
 echo > "$gadget_root/UDC" || true

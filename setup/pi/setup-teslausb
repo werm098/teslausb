@@ -387,7 +387,9 @@ function create_usb_drive_backing_files () {
 
   # mount cam image and make sure the right directories exist
   umount /mnt/cam > /dev/null || true
-  if /root/bin/disable_gadget.sh && mount /mnt/cam
+  local ret=0
+  /root/bin/disable_gadget.sh || ret=$?
+  if (( (ret == 0) || (ret == 2) )) && mount /mnt/cam
   then
     mkdir -p /mnt/cam/TeslaCam
     mkdir -p /mnt/cam/TeslaTrackMode
