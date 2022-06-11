@@ -291,7 +291,6 @@ function get_ancillary_setup_scripts () {
 function get_common_scripts () {
   get_script /root/bin remountfs_rw run
   get_script /root/bin make_snapshot.sh run
-  get_script /root/bin mount_snapshot.sh run
   get_script /root/bin release_snapshot.sh run
   get_script /root/bin force_sync.sh run
   get_script /root/bin mountoptsforimage run

@@ -809,13 +809,12 @@ set_sys_param /proc/sys/vm/dirty_background_bytes DIRTY_BACKGROUND_BYTES 65536
 set_sys_param /proc/sys/vm/dirty_ratio DIRTY_RATIO 80
 set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVERNOR conservative
 
-/root/bin/make_snapshot.sh
 snapshotloop &
 logrotator &
-
 wifichecker &
 
 fix_errors_in_images
+/root/bin/make_snapshot.sh nofsck
 
 if archive_is_reachable
 then

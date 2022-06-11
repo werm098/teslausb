@@ -175,7 +175,45 @@ function snapshot {
 
   local newsnapname=$newsnapdir/snap.bin
   log "taking snapshot of cam disk in $newsnapdir"
-  /root/bin/mount_snapshot.sh /backingfiles/cam_disk.bin "$newsnapname" "$newsnapmnt"
+
+  if mount | grep /backingfiles/cam_disk.bin
+  then
+    echo "snapshot already mounted"
+  fi
+
+  SNAPDIR=$(dirname "$newsnapname")
+  if [ ! -d "$SNAPDIR" ]
+  then
+    mkdir -p "$SNAPDIR"
+  fi
+
+  if [ -e "$newsnapname" ]
+  then
+    umount "$newsnapmnt" || true
+    rm -rf "$newsnapname"
+  fi
+
+  # make a copy-on-write snapshot of the current image
+  cp --reflink=always /backingfiles/cam_disk.bin "$newsnapname"
+  # at this point we have a snapshot of the cam image, which is completely
+  # independent of the still in-use image exposed to the car
+
+  # create loopback and scan the partition table, this will create an additional
+  # loop device in addition to the main loop device, e.g. /dev/loop0 and
+  # /dev/loop0p1
+
+  # Use -p repair arg. It works with vfat and exfat.
+  LOOP=$(losetup --show -P -f "$newsnapname")
+  PARTLOOP=${LOOP}p1
+
+  if [ "$1" = "fsck" ]
+  then
+    fsck "$PARTLOOP" -- -p || true
+  fi
+
+  # don't need to mount, because autofs will
+  losetup -d "$LOOP"
+
   while ! systemctl --quiet is-active autofs
   do
     log "waiting for autofs to be active"
@@ -198,7 +236,7 @@ function snapshot {
   fi
 }
 
-if ! snapshot
+if ! snapshot "${1:-fsck}"
 then
   log "failed to take snapshot"
 fi
