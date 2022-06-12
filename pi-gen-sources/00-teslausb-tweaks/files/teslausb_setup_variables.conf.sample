@@ -22,6 +22,8 @@ export SHARE_PASSWORD=password
 # export CIFS_SEC="ntlm"
 
 # Variables for rsync archiving
+# For instructions setting up SSH Public Key authentication, view:
+# https://github.com/marcone/teslausb/blob/main-dev/doc/SetupRSync.md#step-1-authentication
 #export ARCHIVE_SYSTEM=rsync
 #export RSYNC_USER=username
 #export RSYNC_SERVER=hostname_or_ip

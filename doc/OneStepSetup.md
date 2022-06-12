@@ -6,7 +6,7 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 
 * Assumes your Pi has access to Wifi, with internet access (during setup). (But all setup methods do currently.) USB networking is still enabled for troubleshooting or manual setup
 * This image will work for either _headless_ (tested) or _manual_ (tested less) setup.
-* Currently not tested with the rsync/rclone methods when using headless setup, however you can specify 'none' as the archive method in the config file, which will configure the pi as a wifi-accessible USB drive, so you can then configure rclone/rsync and rerun the setup-teslausb script.
+* Currently not tested with the rclone method when using headless setup, however you can specify 'none' as the archive method in the config file, which will configure the pi as a wifi-accessible USB drive, so you can then [configure rclone](./SetupRClone.md) or [configure rsync](./SetupRSync.md) and rerun the setup-teslausb script.
 
 ## Configure the SD card before first boot of the Pi
 
@@ -74,6 +74,8 @@ You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files
   * If still no go, re-run `/etc/rc.local`
   * If all else fails, copy `/boot/wpa_supplicant.conf.sample` to `/boot/wpa_supplicant.conf` and edit out the `TEMP` variables to your desired settings.
 * Note: if you get an error about `read-only filesystem`, you may have to `sudo -i` and run `/root/bin/remountfs_rw`.
+* Try `date` to ensure the system clock is set correctly. If it is too far off, SSL/TLS Authentication will fail, preventing the installation from completing. You can set the date like `date -s "2 JAN 2022 15:04:05"`
+* Try `tail -f /boot/teslausb-headless-setup.log` to watch the logs during installation, which may shed some light on any errors occurring. Press `Ctrl-C` to stop watching logs.
 
 More troubleshooting information in the [wiki](https://github.com/marcone/teslausb/wiki/Troubleshooting)
 
