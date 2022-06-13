@@ -75,7 +75,7 @@ then
     # special case: convert existing backingfiles from ext4 to xfs
     log_progress "reformatting existing backingfiles as xfs"
     killall archiveloop || true
-    /root/bin/disable_gadget.sh
+    /root/bin/disable_gadget.sh || true
     if mount | grep -qw "/mnt/cam"
     then
       if ! umount /mnt/cam

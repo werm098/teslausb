@@ -146,7 +146,7 @@ then
   esac
 fi
 killall archiveloop || true
-/root/bin/disable_gadget.sh
+/root/bin/disable_gadget.sh || true
 umount -d /mnt/cam || true
 umount -d /mnt/music || true
 umount -d /backingfiles/snapshots/snap*/mnt || true
