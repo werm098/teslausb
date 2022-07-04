@@ -731,7 +731,9 @@ function starttailing({url, pre, button}) {
 function readfile({url, callback, callbackarg, pre, tail, button}) {
   var request = new XMLHttpRequest();
   request.open('GET', cachebustingurl(url));
+  log("reading " + url);
   request.onreadystatechange = function () {
+    log("read " + url + ", result: " + request.status);
     if (request.readyState === 4 && request.status === 200) {
       var type = request.getResponseHeader('Content-Type');
       if (type.indexOf("text") !== 1) {
