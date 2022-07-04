@@ -1234,6 +1234,7 @@ class VideoSequence {
   isplaying;
   jsonfile;
   jsonparsed;
+  sentryeventrel;
 
   constructor(group, name) {
     this.segments = [];
@@ -1241,6 +1242,9 @@ class VideoSequence {
     this.sequencegroup = group;
     this.sequencename = name;
     this.reset();
+    this.jsonfile = [];
+    this.jsonparsed = [];
+    this.sentryeventrel = [];
   }
 
   reset() {
@@ -1294,13 +1298,35 @@ class VideoSequence {
     this.showSentryLocation();
   }
 
+  currentJson() {
+    var jp = undefined;
+    if (this.sequencegroup == "SentryClips") {
+      jp  = this.jsonparsed[0];
+    } else if (this.sequencegroup == "RecentClips") {
+      // if we're within 5 minutes of a Sentry event, use it
+      var slider=document.getElementById('position');
+      var curposrel = slider.value / slider.max;
+      for (var i = 0; i < this.sentryeventrel.length; i++) {
+        if (this.sentryeventrel[i] != undefined) {
+          var timetoevent = this.sentryeventrel[i] * slider.max - slider.value;
+          if (timetoevent > -30 * 1000 && timetoevent < 5 * 60 * 1000) {
+             jp = this.jsonparsed[i];
+             break;
+          }
+        }
+      }
+    }
+    return jp;
+  }
+
   onMapResize() {
     log("onMapResize");
     var m = document.getElementById('sentrymap');
     log("map resized to " + m.clientWidth + "x" + m.clientHeight);
-    if (this.jsonparsed != undefined && this.jsonparsed.est_lat != undefined && this.jsonparsed.est_lon != undefined) {
+    var jp = this.currentJson();
+    if (jp != undefined && jp.est_lat != undefined && jp.est_lon != undefined) {
       var url = "https://www.bing.com/maps/embed?w=" + m.clientWidth + "&h=" + m.clientHeight +
-                "&cp=" + this.jsonparsed.est_lat + "~" + this.jsonparsed.est_lon + "&lvl=18&typ=d&sty=h&src=SHELL&FORM=MBEDV8";
+                "&cp=" + jp.est_lat + "~" + jp.est_lon + "&lvl=18&typ=d&sty=h&src=SHELL&FORM=MBEDV8";
       log("url: " + url);
       // For some reason resize events are reported even when the size
       // didn't actually change, so don't set the url the same value
@@ -1314,38 +1340,39 @@ class VideoSequence {
 
     m.style.visibility = "hidden";
 
-    this.readJsonIfNeeded();
+    this.readJsonIfNeeded(0);
   }
 
-  readJsonIfNeeded() {
-    if (this.jsonparsed != undefined) {
+  readJsonIfNeeded(idx) {
+    if (this.jsonparsed[idx] != undefined) {
       // no need to parse json again
       log("already parsed json");
       return;
     }
 
-    if (this.jsonfile === null) {
+    if (this.jsonfile[idx] === null) {
       log("json fetch in progress");
       return;
     }
 
-    if (this.jsonfile === undefined) {
+
+    if (this.jsonfile[idx] === undefined) {
       log("no json");
       return;
     }
 
-    var jsonurl = "TeslaCam/" + this.sequencegroup + "/" + this.sequencename + "/" + this.jsonfile;
+    var jsonurl = "TeslaCam/" + this.jsonfile[idx];
     // clear this so we only do this once
-    this.jsonfile = null;
+    this.jsonfile[idx] = null;
     log("starting json fetch");
     readfile({url:jsonurl, callbackarg:this, callback:function(value, thiz) {
-	if (thiz != currentsequence) {
+        if (thiz != currentsequence) {
           return;
         }
         log("json read callback");
         log(value);
-        thiz.jsonparsed = JSON.parse(value);
-        log(thiz.jsonparsed);
+        thiz.jsonparsed[idx] = JSON.parse(value);
+        log(thiz.jsonparsed[idx]);
         thiz.onMapResize();
         thiz.onTickResize();
         thiz.showSentryLocation();
@@ -1365,22 +1392,18 @@ class VideoSequence {
     t.fill();
   }
 
-  onTickResize() {
-    log("onTickResize");
-    var c = document.getElementById('tickmarkscanvas');
-    log("tickmarks resized to " + c.clientWidth + "x" + c.clientHeight);
-    c.width = c.clientWidth;
-    c.height = c.clientHeight;
-    /* TODO: draw tickmarks at Sentry event times */
-    if (this.jsonparsed != undefined && this.jsonparsed.timestamp != undefined) {
-      var eventTimeMs = Date.parse(this.jsonparsed.timestamp);
+  drawTickForIndex(idx) {
+    log("drawTickForIndex(" + idx + ")");
+    var jp = this.jsonparsed[idx];
+    if (jp != undefined && jp.timestamp != undefined) {
+      var eventTimeMs = Date.parse(jp.timestamp);
       var eventSegmentStartMs;
       var segmentIdx;
       for (segmentIdx = this.length() - 1; segmentIdx >= 0; segmentIdx--) {
         var segment = this.getSegmentByIndex(segmentIdx);
         var s = segment.front;
         eventSegmentStartMs = Date.parse(
-		s.substring(0,10) + "T" + s.substring(11,13) + ":" + s.substring(14,16) + ":" + s.substring(17, 19));
+                s.substring(0,10) + "T" + s.substring(11,13) + ":" + s.substring(14,16) + ":" + s.substring(17, 19));
         if (eventSegmentStartMs <= eventTimeMs) {
           break;
         }
@@ -1388,17 +1411,30 @@ class VideoSequence {
       var offsetIntoSegment = eventTimeMs - eventSegmentStartMs;
       var eventOffsetMs = (segmentIdx * 60 * 1000) + offsetIntoSegment;
       var sequenceLengthMs = this.length() * 60 * 1000;
-      this.drawTick(eventOffsetMs / sequenceLengthMs);
+      var reloffset = eventOffsetMs / sequenceLengthMs;
+      this.sentryeventrel[idx] = reloffset;
+      this.drawTick(reloffset);
       log(eventOffsetMs / sequenceLengthMs);
       return;
     }
-    this.readJsonIfNeeded();
+    this.readJsonIfNeeded(idx);
+  }
+
+  onTickResize() {
+    var c = document.getElementById('tickmarkscanvas');
+    log("tickmarks resized to " + c.clientWidth + "x" + c.clientHeight);
+    c.width = c.clientWidth;
+    c.height = c.clientHeight;
+    for (var i = 0; i < this.jsonfile.length; i++) {
+      this.drawTickForIndex(i);
+    }
   }
 
   showSentryLocation() {
     var d = document.getElementById("sequencelocation");
-    if (this.jsonparsed != undefined && this.jsonparsed.city != undefined) {
-      d.innerText = this.jsonparsed.city;
+    var jp = this.currentJson();
+    if (jp != undefined && jp.city != undefined) {
+      d.innerText = jp.city;
     } else {
       d.innerText = "";
     }
@@ -1445,6 +1481,8 @@ class VideoSequence {
       this.currentsegmentidx=index;
     }
     segment.seekTo((seektime % 60000) / 1000);
+    this.onMapResize();
+    this.showSentryLocation();
   }
 
   next() {
@@ -1589,7 +1627,12 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     } else if (filename.includes("thumb")) {
       sequence.thumb=filename;
     } else if (filename.includes("json")) {
-      sequence.jsonfile=filename;
+      var jsonpath = group + "/" + sequencename + "/" + filename;
+      sequence.jsonfile[0] = jsonpath;
+      // add the json to the RecentClips that includes this SentryClip
+      var clipday = sequencename.substr(0,10);
+      videos["RecentClips"][clipday].jsonfile.push(jsonpath);
+      log("added event json to " + clipday);
     }
   }
   newestsequence.select();
