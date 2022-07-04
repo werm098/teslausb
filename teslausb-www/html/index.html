@@ -996,6 +996,7 @@ class VideoSegment {
     this.sequence = sequence;
     this.numangles = 0;
     this.onDurationChange = this.onDurationChange.bind(this);
+    this.onScanError = this.onScanError.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
     this.onVideoEnded = this.onVideoEnded.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
@@ -1014,16 +1015,12 @@ class VideoSegment {
   addVideo(path) {
     if (path.includes('front')) {
       this.front=path;
-      this.numangles++;
     } else if (path.includes('left')) {
       this.left=path;
-      this.numangles++;
     } else if (path.includes('right')) {
       this.right=path;
-      this.numangles++;
     } else if (path.includes('back')) {
       this.back=path;
-      this.numangles++;
     }
   }
 
@@ -1060,6 +1057,15 @@ class VideoSegment {
         log("no autoplay");
       }
     }
+  }
+
+  onScanError(event) {
+    var elem = event.target;
+    log("error on " + elem.src);
+    this.numangles--;
+    elem.onerror = undefined;
+    elem.ondurationchange = undefined;
+    elem.removeAttribute('src');
   }
 
   onTimeUpdate(event) {
@@ -1109,11 +1115,28 @@ class VideoSegment {
     var prefix = "TeslaCam/" + this.group + "/" + this.sequence + "/";
     log("===== segment =====");
     freezeVideoElems();
-    videoelems[0].src = prefix + this.left;
-    videoelems[1].src = prefix + this.front;
-    videoelems[2].src = prefix + this.right;
-    videoelems[3].src = prefix + this.back;
+    if (this.left != undefined) {
+      videoelems[0].src = prefix + this.left;
+    } else {
+      videoelems[0].removeAttribute('src');
+    }
+    if (this.front != undefined) {
+      videoelems[1].src = prefix + this.front;
+    } else {
+      videoelems[1].removeAttribute('src');
+    }
+    if (this.right != undefined) {
+      videoelems[2].src = prefix + this.right;
+    } else {
+      videoelems[2].removeAttribute('src');
+    }
+    if (this.back != undefined) {
+      videoelems[3].src = prefix + this.back;
+    } else {
+      videoelems[3].removeAttribute('src');
+    }
 
+    this.numangles = 0;
     for (var i=0; i < 4;i++) {
       var v = videoelems[i];
       v.ontimeupdate = undefined;
@@ -1121,10 +1144,17 @@ class VideoSegment {
       v.onerror = undefined;
       v.errored = false;
       v.ondblclick = this.onDblClickVideo;
-      if (v.src != undefined) {
+      log("videopath: " + v.src);
+      if (v.src != undefined && v.src != '') {
+        log("waiting for duration for " + v.src);
         v.ondurationchange = this.onDurationChange;
+        v.onerror = this.onScanError;
+        this.numangles++;
+      } else {
+        log("source undefined for vid " + i);
       }
     }
+    log("angles: " + this.numangles);
 
     for (var n of [this.left, this.right, this.front, this.back]) {
       if (n != undefined) {
@@ -1478,6 +1508,7 @@ function freezeVideoElems() {
   for (var i=0; i < 4;i++) {
     var v = videoelems[i];
     var c = canvaselems[i];
+    v.teslausbcanvaslayer = c;
     c.width = v.clientWidth;
     c.height = v.clientHeight;
     var ctx = c.getContext("2d");
@@ -1494,7 +1525,14 @@ function freezeVideoElems() {
 function unfreezeVideoElems() {
   for (var i=0; i < 4;i++) {
     var v = videoelems[i];
-    v.style.visibility="inherit";
+    if (v.src != undefined && v.src != '') {
+      v.style.visibility="inherit";
+    } else {
+      // no src, keep video hidden and clear the canvas
+      var c = v.teslausbcanvaslayer;
+      var ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+    }
   }
 
 }
