@@ -10,12 +10,13 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 
 ## Configure the SD card before first boot of the Pi
 
-1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using Etcher or similar.
+1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using [Etcher](https://www.balena.io/etcher/) or similar.
 
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
-A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available from GitHub via [pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample).
+A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available [from GitHub](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample).
 The sample file contains documentation and suggestions for values.
-**NOTE:** when creating/editing the configuration file on Windows, ensure that it is saved with the correct extension. It is recommended to disable the "hide extensions for known file types" option in Windows so you can see the full file name.
+    >**Note**
+    >When creating/editing the configuration file on Windows, ensure that it is saved with the correct extension. It is recommended to disable the "hide extensions for known file types" option in Windows so you can see the full file name.
 
     Be sure that all values, especially your WiFi SSID and password are properly quoted and/or escaped according to [bash quoting rules](https://www.gnu.org/software/bash/manual/bash.html#Quoting), and that in addition any `&`, `/` and `\` are also escaped by prefixing them with a `\`.
     If the password does not contain a single quote character, you can enclose the entire password in single quotes, like so:
@@ -48,20 +49,36 @@ The sample file contains documentation and suggestions for values.
     export SSID='Foo Bar 2.4 GHz'
     ```
 
-2. Boot it in your Pi, give it a bit, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. The LED flash stages are:
+2. Boot it in your Pi, give it a few minutes, watching for a series of flashes (2, 3, 4, 5) and then a reboot and/or the CAM/music drives to become available on your PC/Mac. If you configured automatic music syncing, the drives won't be available on the PC/Mac until music syncing is complete. The LED flash stages during setup are:
 
-| Stage (number of flashes)  |  Activity |
-|---|---|
-| 2 | Verify the requested configuration is creatable |
-| 3 | Grab scripts to start/continue setup |
-| 4 | Create partition and files to store camera clips/music) |
-| 5 | Setup completed; remounting filesystems as read-only and rebooting |
+    | Stage (number of flashes)  |  Activity |
+    |---|---|
+    | 2 | Verify the requested configuration is creatable |
+    | 3 | Grab scripts to start/continue setup |
+    | 4 | Create partition and files to store camera clips/music) |
+    | 5 | Setup completed; remounting filesystems as read-only and rebooting |
 
-The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc.  The default password for user `pi@teslausb.local` is `raspberry`.  It is recommended that you modify the default password after logging in by issuing the command `passwd` and making it your own.
+The Pi should be available for `ssh` at `pi@teslausb.local`, over Wifi (if automatic setup works) or USB networking (if it doesn't). It takes about 5 minutes, or more depending on network speed, etc.  The default password for user `pi@teslausb.local` is `raspberry`.
 
 If plugged into just a power source, or your car, give it a few minutes until the LED starts pulsing steadily which means the archive loop is running and you're good to go.
 
 You should see in `/boot` the `TESLAUSB_SETUP_FINISHED` and `WIFI_ENABLED` files as markers of headless setup success as well.
+
+## Security
+
+Given that the Pi contains sensitive information like your home wifi password and possible a Tesla account access token, please consider the following:
+
+1. If WiFi Access Point is configured, ensure it is configured with a strong password. Make it something better than Passw0rd, more than 8 characters. The longer the password the better. See [here](https://en.wikipedia.org/wiki/Password_strength) or [here](https://xkcd.com/936/) for password strength.
+
+2. Change the password for the pi account to something other than the default "raspberry". To do that, ssh into the Pi, run the following commands, and enter a new password when prompted:
+```
+   sudo -i
+   /root/bin/remountfs_rw
+   passwd pi
+   reboot
+```
+
+3. Remember that the Pi contains a configuration file with sensitive information. If your Pi is stolen or you suspect an unauthorized person accessed it, immediately change your Tesla account password (if you configured the Pi to use your Tesla credentials to keep the car awake during archiving) and home wifi password. 
 
 
 ### Troubleshooting
