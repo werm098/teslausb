@@ -40,11 +40,16 @@ EOF
 chmod +x /etc/initramfs-tools/hooks/resize2fs
 
 # Execute resize2fs before mounting root filesystem
-cat > /etc/initramfs-tools/scripts/init-premount/resize <<"EOF"
+cat > /etc/initramfs-tools/scripts/init-premount/resize <<EOF
 #!/bin/sh
 
 PREREQ=""
 
+# New size of root filesystem
+ROOT_SIZE=${1:-"8G"}
+
+EOF
+cat >> /etc/initramfs-tools/scripts/init-premount/resize <<"EOF"
 prereqs() {
     echo "$PREREQ"
 }
@@ -55,9 +60,6 @@ case "$1" in
         exit 0
         ;;
 esac
-
-# New size of root filesystem
-ROOT_SIZE="8G"
 
 # Convert root from possible UUID to device name
 echo "root=${ROOT}  "
