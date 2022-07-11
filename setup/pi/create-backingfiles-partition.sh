@@ -159,7 +159,10 @@ NEW_DISK_IDENTIFIER=$( fdisk -l "${BOOT_DISK}" | grep -e "^Disk identifier" | se
 
 log_progress "Writing updated partitions to fstab and /boot/cmdline.txt"
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
-sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
+if [ -e /boot/cmdline.txt ]
+then
+  sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
+fi
 
 log_progress "Formatting new partitions..."
 # Force creation of filesystems even if previous filesystem appears to exist
