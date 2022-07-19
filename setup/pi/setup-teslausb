@@ -164,31 +164,26 @@ then
   REBOOT=true
 fi
 
-readonly BOOT_DISK=$(lsblk -dpno pkname /dev/disk/by-label/boot)
-export BOOT_DISK
-readonly BOOT_PARTITION_DEVICE=$(lsblk -dpno name /dev/disk/by-label/boot)
-readonly BOOT_DEVICE_PARTITION_PREFIX=${BOOT_PARTITION_DEVICE%?}
-export BOOT_DEVICE_PARTITION_PREFIX
-readonly ROOT_PARTITION_DEVICE=$(lsblk -dpno name /dev/disk/by-label/rootfs)
-export ROOT_PARTITION_DEVICE
-readonly ROOT_PART_NUM=${ROOT_PARTITION_DEVICE:0-1}
-export ROOT_PART_NUM;
+readonly BOOT_DEVICE=$(lsblk -dpno pkname /dev/disk/by-label/boot)
+export BOOT_DEVICE
+readonly BOOT_DEVICE_PART=$(lsblk -dpno name /dev/disk/by-label/boot | sed 's/1$//')
+export BOOT_DEVICE_PART
 INCREASE_ROOT_SIZE=$(($(dehumanize "$INCREASE_ROOT_SIZE") / 512))
 
-if [ "$INCREASE_ROOT_SIZE" != "0" ] && [ ! -e "${BOOT_DEVICE_PARTITION_PREFIX}$((ROOT_PART_NUM+1))" ]
+if [ "$INCREASE_ROOT_SIZE" != "0" ] && [ ! -e "${BOOT_DEVICE_PART}3" ]
 then
   if [ ! -e /root/TESLAUSB_ROOT_PARTITION_INCREASED ]
   then
     touch /root/TESLAUSB_ROOT_PARTITION_INCREASED
-    ROOTSTART=$(partx --show -g -o START "${ROOT_PARTITION_DEVICE}")
-    ROOTSIZE=$(partx --show -g -o SECTORS "${ROOT_PARTITION_DEVICE}")
+    ROOTSTART=$(partx --show -g -o START "${BOOT_DEVICE_PART}2")
+    ROOTSIZE=$(partx --show -g -o SECTORS "${BOOT_DEVICE_PART}2")
     ROOTSIZE=$((ROOTSIZE + INCREASE_ROOT_SIZE))
-    echo "$ROOTSTART,$ROOTSIZE" | sfdisk --force "${BOOT_DISK}" -N "${ROOT_PART_NUM}"
+    echo "$ROOTSTART,$ROOTSIZE" | sfdisk --force "${BOOT_DEVICE}" -N 2
     setup_progress "increased root partition size"
     REBOOT=true
   else
     setup_progress "increasing root filesystem size to match partition size"
-    resize2fs "${ROOT_PARTITION_DEVICE}"
+    resize2fs "${BOOT_DEVICE_PART}2"
   fi
 fi
 
@@ -747,7 +742,7 @@ function diagnose {
     checkfsrw /mutable rw
 
     echo -e "====== disk / images ======"
-    parted -s "${BOOT_DISK}" print || true
+    parted -s "${BOOT_DEVICE}" print || true
     if [ -n "${USB_DRIVE:+x}" ]
     then
       parted -s "$USB_DRIVE" print || true

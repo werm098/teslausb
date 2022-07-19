@@ -47,19 +47,24 @@ function check_available_space () {
 function check_available_space_sd () {
   setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
 
-  # The following assumes that all the partitions are at the start
+  # The following assumes that the root and boot partitions are adjacent at the start
   # of the disk, and that all the free space is at the end.
 
+  local totalsize
+  local part1size
+  local part2size
   local available_space
 
-  # query unpartitioned space
-  available_space=$(sfdisk -F "$BOOT_DISK" | grep -o '[0-9]* bytes' | head -1 | awk '{print $1}')
+  totalsize=$(blockdev --getsize64 "${BOOT_DEVICE}")
+  part1size=$(blockdev --getsize64 "${BOOT_DEVICE_PART}1")
+  part2size=$(blockdev --getsize64 "${BOOT_DEVICE_PART}2")
+  available_space=$((totalsize - part1size - part2size))
 
   # Require at least 40 GB of available space.
   if [ "$available_space" -lt  $(( (1<<30) * 40)) ]
   then
     setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
-    setup_progress "$(parted "${BOOT_DISK}" print)"
+    setup_progress "$(parted "${BOOT_DEVICE}" print)"
     exit 1
   fi
 
