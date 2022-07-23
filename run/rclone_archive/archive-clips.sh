@@ -1,5 +1,9 @@
 #!/bin/bash -eu
 
+# when sourced, setup-teslausb sets the config variables in the environment
+# repeat it here because arrays, like RCLONE_FLAGS, don't export to subshells/child scripts
+source /root/bin/setup-teslausb
+
 flags=("-L" "--transfers=1")
 if [[ -v RCLONE_FLAGS ]]
 then
