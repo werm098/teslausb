@@ -149,4 +149,14 @@ then
   echo "tmpfs /var/spool tmpfs nodev,nosuid 0 0" >> /etc/fstab
 fi
 
+if ! grep -w -q "/var/lib/ntp" /etc/fstab
+then
+  if [ ! -d /var/lib/ntp ]
+  then
+    rm -rf /var/lib/ntp
+    mkdir -p /var/lib/ntp
+  fi
+  echo "tmpfs /var/lib/ntp tmpfs nodev,nosuid 0 0" >> /etc/fstab
+fi
+
 log_progress "done"
