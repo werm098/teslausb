@@ -51,7 +51,7 @@ function check_archive_mountable () {
   write_archive_configs_to "$tmp_credentials_file_path"
 
   local mounted=false
-  local try_versions="${CIFS_VERSION:-@@ default 3.0 2.1 2.0 1.0}"
+  local try_versions="${CIFS_VERSION:-default 3.1.1 3.0 2.1 2.0 @@}"
   local try_secs="${CIFS_SEC:-@@ ntlmssp ntlmv2 ntlm}"
 
   echo "Trying all combinations of vers=($try_versions) and sec=($try_secs)"
