@@ -88,6 +88,7 @@ cat <<- EOF > /etc/samba/smb.conf
 	   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
 	   pam password change = yes
 	   map to guest = bad user
+	   min protocol = SMB2
 	   usershare allow guests = yes
            unix extensions = no
            wide links = yes
