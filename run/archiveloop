@@ -458,14 +458,10 @@ function archive_teslacam_clips () {
   # links and looking at the files themselves.
   if [ -s "${sentrylist}" ]
   then
-    ignoretmp=/tmp/ignoretmp
-    rm -rf ${ignorelist} ${ignoretmp}
     (cd "$overlaymerged"; xargs -a "${sentrylist}" echo "find -L" | while read -r line
         do
-          eval "$line \( -name \*.mp4 -a -size -100000c -fprintf ${ignoretmp} '%p\n' \)"
-          cat ${ignoretmp} >> ${ignorelist}
-          rm -rf ${ignoretmp}
-        done)
+          eval "$line \( -name \*.mp4 -a -size -100000c -printf '%p\n' \)"
+        done) > ${ignorelist}
   else
     true > "${ignorelist}"
   fi
