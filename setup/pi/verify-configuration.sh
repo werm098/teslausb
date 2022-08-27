@@ -114,20 +114,12 @@ function check_setup_teslausb () {
     setup_progress "STOP: setup-teslausb is not in /root/bin"
     exit 1
   fi
-  if ! grep selfupdate /root/bin/setup-teslausb > /dev/null
+
+  local parent
+  parent="$(ps -o comm= $PPID)"
+  if [ "$parent" != "setup-teslausb" ]
   then
-    setup_progress "setup-teslausb is outdated, attempting update"
-    if curl --fail -s -o /root/bin/setup-teslausb.new https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/pi/setup-teslausb
-    then
-      if /root/bin/remountfs_rw > /dev/null && mv /root/bin/setup-teslausb.new /root/bin/setup-teslausb && chmod +x /root/bin/setup-teslausb
-      then
-        setup_progress "updated setup-teslausb"
-        setup_progress "restarting updated setup-teslausb"
-        /root/bin/setup-teslausb
-        exit 0
-      fi
-    fi
-    setup_progress "STOP: failed to update setup-teslausb"
+    setup_progress "STOP: $0 must be called from setup-teslausb: $parent"
     exit 1
   fi
 }

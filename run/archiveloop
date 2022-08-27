@@ -46,8 +46,8 @@ export MUSIC_MOUNT=/mnt/music
 export ARCHIVE_MOUNT=/mnt/archive
 export MUSIC_ARCHIVE_MOUNT=/mnt/musicarchive
 
-# when sourced, setup-teslausb sets the config variables in the environment
-source /root/bin/setup-teslausb
+# read the setup variables and define other environment variables and functions
+source /root/bin/envsetup.sh
 
 if [ -z "${ARCHIVE_SERVER+x}" ]
 then
