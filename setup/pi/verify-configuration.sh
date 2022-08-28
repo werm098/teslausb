@@ -27,6 +27,16 @@ function check_supported_hardware () {
   exit 1
 }
 
+function check_udc () {
+  local udc
+  udc=$(find /sys/class/udc -type l -prune | wc -l)
+  if [ "$udc" = "0" ]
+  then
+    setup_progress "STOP: this device ($(cat /sys/firmware/devicetree/base/model)) does not have a UDC driver"
+    exit 1
+  fi
+}
+
 function check_available_space () {
     if [ -z "$USB_DRIVE" ]
     then
@@ -125,6 +135,8 @@ function check_setup_teslausb () {
 }
 
 check_supported_hardware
+
+check_udc
 
 check_setup_teslausb
 
