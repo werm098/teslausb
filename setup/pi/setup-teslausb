@@ -77,6 +77,11 @@ function get_script () {
 THISDIR=$(dirname "$(readlink -f "$0")")
 if [ ! -e "$THISDIR/envsetup.sh" ]
 then
+  # source the conf file directly to get REPO, BRANCH or download_sources
+  # in case they're set
+  source /root/teslausb_setup_variables.conf
+  REPO=${REPO:-marcone}
+  BRANCH=${BRANCH:-main-dev}
   get_script "$THISDIR" envsetup.sh setup/pi
 fi
 # SC can't follow non-constant source
