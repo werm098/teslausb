@@ -108,3 +108,35 @@ then
   complete -W "diagnose upgrade install" setup-teslausb
 fi
 
+function isPi4 {
+  grep -q "Pi 4" /sys/firmware/devicetree/base/model
+}
+export -f isPi4
+
+function isPi2 {
+  grep -q "Zero 2" /sys/firmware/devicetree/base/model
+}
+export -f isPi2
+
+function isRockPi4 {
+  grep -q "ROCK Pi 4" /sys/firmware/devicetree/base/model
+}
+export -f isRockPi4
+
+if isPi4 || isPi2
+then
+  STATUSLED=/sys/class/leds/led0
+elif isRockPi4
+then
+  STATUSLED=/sys/class/leds/user-led2
+else
+  STATUSLED=/tmp/fakeled
+fi
+
+if [ ! -d "$STATUSLED" ]
+then
+  STATUSLED=/tmp/fakeled
+  rm -rf "$STATUSLED"
+  mkdir -p "$STATUSLED"
+fi
+

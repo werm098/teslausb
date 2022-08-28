@@ -1,12 +1,6 @@
 #!/bin/bash -eu
 
-function isPi4 {
-  grep -q "Pi 4" /sys/firmware/devicetree/base/model
-}
-
-function isPi2 {
-  grep -q "Zero 2" /sys/firmware/devicetree/base/model
-}
+source /root/bin/envsetup.sh
 
 if ! configfs_root=$(findmnt -o TARGET -n configfs)
 then

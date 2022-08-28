@@ -68,10 +68,6 @@ then
   esac
 fi
 
-function isPi4 {
-  grep -q "Pi 4" /sys/firmware/devicetree/base/model
-}
-
 function isKernel5 {
   grep -q '^5\.' <<< "$(uname -r)"
 }
@@ -672,7 +668,7 @@ function truncate_log () {
 }
 
 function slowblink () {
-  echo timer > /sys/class/leds/led0/trigger
+  echo timer > "$STATUSLED/trigger"
   local ON=on
   local OFF=off
   if isPi4 || isKernel5
@@ -680,12 +676,12 @@ function slowblink () {
     ON=off
     OFF=on
   fi
-  echo 900 > /sys/class/leds/led0/delay_$ON
-  echo 100 > /sys/class/leds/led0/delay_$OFF
+  echo 900 > "$STATUSLED/delay_$ON"
+  echo 100 > "$STATUSLED/delay_$OFF"
 }
 
 function fastblink () {
-  echo timer > /sys/class/leds/led0/trigger
+  echo timer > "$STATUSLED/trigger"
   local ON=on
   local OFF=off
   if isPi4 || isKernel5
@@ -693,18 +689,18 @@ function fastblink () {
     ON=off
     OFF=on
   fi
-  echo 150 > /sys/class/leds/led0/delay_$ON
-  echo 50 > /sys/class/leds/led0/delay_$OFF
+  echo 150 > "$STATUSLED/delay_$ON"
+  echo 50 > "$STATUSLED/delay_$OFF"
 }
 
 
 function doubleblink () {
-  echo heartbeat > /sys/class/leds/led0/trigger
+  echo heartbeat > "$STATUSLED/trigger"
   if isPi4 || isKernel5
   then
-    echo 0 > /sys/class/leds/led0/invert
+    echo 0 > "$STATUSLED/invert"
   else
-    echo 1 > /sys/class/leds/led0/invert
+    echo 1 > "$STATUSLED/invert"
   fi
 }
 

@@ -146,10 +146,6 @@ function headless_setup_mark_setup_success () {
   touch /boot/TESLAUSB_SETUP_FINISHED
 }
 
-function isPi4 {
-  grep -q "Pi 4" /sys/firmware/devicetree/base/model
-}
-
 function flash () {
   local ON=0
   local OFF=1
@@ -158,14 +154,14 @@ function flash () {
     ON=1
     OFF=0
   fi
-  echo none > /sys/class/leds/led0/trigger
-  echo $OFF > /sys/class/leds/led0/brightness
+  echo none > "$STATUSLED/trigger"
+  echo $OFF > "$STATUSLED/brightness"
   sleep 1
   for ((i=1; i<=$1; i++))
   do
-    echo $ON > /sys/class/leds/led0/brightness
+    echo $ON > "$STATUSLED/brightness"
     sleep .2
-    echo $OFF > /sys/class/leds/led0/brightness
+    echo $OFF > "$STATUSLED/brightness"
     sleep .8
   done
 }
