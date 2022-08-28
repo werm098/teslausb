@@ -37,6 +37,27 @@ function check_udc () {
   fi
 }
 
+function check_xfs () {
+  setup_progress "Checking XFS support"
+  # install XFS tools if needed
+  if ! hash mkfs.xfs
+  then
+    apt-get -y --force-yes install xfsprogs
+  fi
+  truncate -s 1GB /tmp/xfs.img
+  mkfs.xfs -m reflink=1 -f /tmp/xfs.img > /dev/null
+  mkdir -p /tmp/xfsmnt
+  if ! mount /tmp/xfs.img /tmp/xfsmnt
+  then
+    setup_progress "STOP: xfs does not support required features"
+    exit 1
+  fi
+
+  umount /tmp/xfsmnt
+  rm -rf /tmp/xfs.img /tmp/xfsmnt
+  setup_progress "XFS supported"
+}
+
 function check_available_space () {
     if [ -z "$USB_DRIVE" ]
     then
@@ -137,6 +158,8 @@ function check_setup_teslausb () {
 check_supported_hardware
 
 check_udc
+
+check_xfs
 
 check_setup_teslausb
 
