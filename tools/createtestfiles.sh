@@ -8,7 +8,7 @@ mkdir -p /mnt/cam/TeslaCam/SentryClips
 
 cd /mnt/cam/TeslaCam/SentryClips
 
-readonly dir=$(date '+%Y-%m-%d_%H-%M-%S')
+dir=$(date '+%Y-%m-%d_%H-%M-%S')
 mkdir "$dir"
 cd "$dir"
 

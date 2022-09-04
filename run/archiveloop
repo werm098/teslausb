@@ -133,7 +133,7 @@ function retry () {
   local attempts=0
   while true
   do
-    if eval "$@"
+    if "$@"
     then
       true
       return
