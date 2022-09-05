@@ -27,7 +27,7 @@ then
   # partition to match if it hasn't been already
 
   devsectorsize=$(cat "/sys/block/${rootname}/queue/hw_sector_size")
-  read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ')
+  read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ' | (cat; echo))
   fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize ))
 
   partnumsectors=$(sfdisk -l -N 5 -o Sectors "${rootdev}" | tail -1)
@@ -47,7 +47,7 @@ then
     chmod a+x /etc/rc.local
 
     {
-      while ! curl -s https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/tools/debian-resizefs.sh
+      while ! curl -s https://raw.githubusercontent.com/marcone/teslausb/main-dev/tools/debian-resizefs.sh
       do
         sleep 1
       done
