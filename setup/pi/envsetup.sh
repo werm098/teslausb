@@ -109,12 +109,12 @@ then
 fi
 
 function isPi4 {
-  grep -q "Pi 4" /sys/firmware/devicetree/base/model
+  grep -q "Raspberry Pi 4" /sys/firmware/devicetree/base/model
 }
 export -f isPi4
 
 function isPi2 {
-  grep -q "Zero 2" /sys/firmware/devicetree/base/model
+  grep -q "Raspberry Pi Zero 2" /sys/firmware/devicetree/base/model
 }
 export -f isPi2
 
