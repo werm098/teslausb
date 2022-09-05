@@ -89,6 +89,11 @@ then
   apt install dos2unix
 fi
 
+if [ ! -x "$(command -v sntp)" ]
+then
+  apt install sntp
+fi
+
 # indicate we're waiting for the user to log in and finish setup
 led=/sys/class/leds/user-led2
 if [ -e "$led" ]
