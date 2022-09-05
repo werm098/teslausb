@@ -28,10 +28,10 @@ then
 
   devsectorsize=$(cat "/sys/block/${rootname}/queue/hw_sector_size")
   read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ' | (cat; echo))
-  fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize ))
+  fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize + 1))
 
-  partnumsectors=$(sfdisk -l -N 5 -o Sectors "${rootdev}" | tail -1)
-  if [ "$partnumsectors" = "$fsnumsectors" ]
+  partnumsectors=$(sfdisk -l -o Sectors "${rootdev}" | tail -1)
+  if [ "$partnumsectors" -le "$fsnumsectors" ]
   then
     echo "insufficient unpartitioned space, attempting to shrink root file system"
 
