@@ -53,7 +53,7 @@ append_cmdline_txt_param noswap
 append_cmdline_txt_param ro
 
 # set root and mutable max mount count to 1, so they're checked every boot
-tune2fs -c 1 /dev/disk/by-label/rootfs || log_progress "tune2fs failed for rootfs"
+tune2fs -c 1 "$ROOT_PARTITION_DEVICE" || log_progress "tune2fs failed for rootfs"
 tune2fs -c 1 /dev/disk/by-label/mutable || log_progress "tune2fs failed for mutable"
 
 # we're not using swap, so delete the swap file for some extra space

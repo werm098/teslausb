@@ -104,13 +104,13 @@ then
   REBOOT=true
 fi
 
-BOOT_DISK=$(lsblk -dpno pkname /dev/disk/by-label/boot)
+BOOT_DISK=$(lsblk -dpno pkname "$(findmnt -no SOURCE --target /boot)")
 declare -rx BOOT_DISK
-BOOT_PARTITION_DEVICE=$(lsblk -dpno name /dev/disk/by-label/boot)
+BOOT_PARTITION_DEVICE=$(lsblk -dpno name "$(findmnt -no SOURCE --target /boot)")
 readonly BOOT_PARTITION_DEVICE
 readonly BOOT_DEVICE_PARTITION_PREFIX=${BOOT_PARTITION_DEVICE%?}
 export BOOT_DEVICE_PARTITION_PREFIX
-ROOT_PARTITION_DEVICE=$(lsblk -dpno name /dev/disk/by-label/rootfs)
+ROOT_PARTITION_DEVICE=$(lsblk -dpno name "$(findmnt -no SOURCE --target /)")
 declare -rx ROOT_PARTITION_DEVICE
 readonly ROOT_PART_NUM=${ROOT_PARTITION_DEVICE:0-1}
 export ROOT_PART_NUM;
