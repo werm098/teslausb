@@ -38,7 +38,7 @@ then
     cat <<- EOF > /etc/rc.local
 		#!/bin/bash
 		{
-		  while ! curl -s https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/rock/install.sh"
+		  while ! curl -s https://raw.githubusercontent.com/marcone/teslausb/main-dev/setup/rock/install.sh
 		  do
 		    sleep 1
 		  done
