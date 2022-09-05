@@ -103,9 +103,9 @@ fi
 DEFUSER=$(grep ":1000:1000:" /etc/passwd | awk -F : '{print $1}')
 if [ -n "$DEFUSER" ]
 then
-  if [ ! -e "/home/$DEFUSER/.bash_aliases" ] || ! grep "SETUP_FINISHED" "/home/$DEFUSER/.bash_aliases"
+  if [ ! -e "/home/$DEFUSER/.bash_profile" ] || ! grep "SETUP_FINISHED" "/home/$DEFUSER/.bash_profile"
   then
-    cat <<- EOF >> "/home/$DEFUSER/.bash_aliases"
+    cat <<- EOF >> "/home/$DEFUSER/.bash_profile"
 	  if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
 	  then
 	    echo "+-------------------------------------------+"
@@ -113,13 +113,13 @@ then
 	    echo "+-------------------------------------------+"
 	  fi
 	EOF
-    chown "$DEFUSER.$DEFUSER" "/home/$DEFUSER/.bash_aliases"
+    chown "$DEFUSER.$DEFUSER" "/home/$DEFUSER/.bash_profile"
   fi
 fi
 
-if [ ! -e /root/.bash_aliases ] || ! grep "SETUP_FINISHED" /root/.bash_aliases
+if [ ! -e /root/.bash_profile ] || ! grep "SETUP_FINISHED" /root/.bash_profile
 then
-  cat <<- EOF >> /root/.bash_aliases
+  cat <<- EOF >> /root/.bash_profile
 	if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
 	then
 	  echo "+------------------------------------------------------------------------+"
