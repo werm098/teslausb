@@ -871,14 +871,18 @@ then
 	EOC
 fi
 
-if ! grep -q TESLAUSB_TIP1 /home/pi/.bashrc
+DEFUSER=$(grep ":1000:1000:" /etc/passwd | awk -F : '{print $1}')
+if [ -n "$DEFUSER" ]
 then
-  cat >> /home/pi/.bashrc <<- EOC
+  if ! grep -q TESLAUSB_TIP1 "/home/$DEFUSER/.bashrc"
+  then
+    cat >> "/home/$DEFUSER/.bashrc" <<- EOC
 	cat << TESLAUSB_TIP1
 	Run 'sudo -i' if you need to make changes.
 
 	TESLAUSB_TIP1
 	EOC
+  fi
 fi
 
 make_root_fs_readonly
