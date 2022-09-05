@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 #
 # Pre-install script to make things look sufficiently like what
 # the main Raspberry Pi centric install scripts expect.
@@ -111,12 +111,12 @@ then
   if [ ! -e "/home/$DEFUSER/.bash_profile" ] || ! grep "SETUP_FINISHED" "/home/$DEFUSER/.bash_profile"
   then
     cat <<- EOF >> "/home/$DEFUSER/.bash_profile"
-	  if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
-	  then
-	    echo "+-------------------------------------------+"
-	    echo "| To continue teslausb setup, run 'sudo -i' |"
-	    echo "+-------------------------------------------+"
-	  fi
+		if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
+		then
+		  echo "+-------------------------------------------+"
+		  echo "| To continue teslausb setup, run 'sudo -i' |"
+		  echo "+-------------------------------------------+"
+		fi
 	EOF
     chown "$DEFUSER.$DEFUSER" "/home/$DEFUSER/.bash_profile"
   fi
