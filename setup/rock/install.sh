@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 #
 # Pre-install script to make things look sufficiently like what
 # the main Raspberry Pi centric install scripts expect.
@@ -68,30 +68,39 @@ fi
 # Copy the sample config file from github
 if [ ! -e /boot/teslausb_setup_variables.conf ] && [ ! -e /root/teslausb_setup_variables.conf ]
 then
-  curl -o /boot/teslausb_setup_variables.conf https://raw.githubusercontent.com/marcone/teslausb/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample
+  while ! curl -o /boot/teslausb_setup_variables.conf https://raw.githubusercontent.com/marcone/teslausb/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample
+  do
+    sleep 1
+  done
 fi
 
 # and the wifi config template
 if [ ! -e /boot/wpa_supplicant.conf.sample ]
 then
-  curl -o /boot/wpa_supplicant.conf.sample https://raw.githubusercontent.com/marcone/teslausb/main-dev/pi-gen-sources/00-teslausb-tweaks/files/wpa_supplicant.conf.sample
+  while ! curl -o /boot/wpa_supplicant.conf.sample https://raw.githubusercontent.com/marcone/teslausb/main-dev/pi-gen-sources/00-teslausb-tweaks/files/wpa_supplicant.conf.sample
+  do
+    sleep 1
+  done
 fi
 
 # Copy our rc.local from github, which will allow setup to
 # continue using the regular "one step setup" process used
 # for setting up a Raspberry Pi with the prebuilt image
 rm -f /etc/rc.local
-curl -o /etc/rc.local https://raw.githubusercontent.com/marcone/teslausb/main-dev/pi-gen-sources/00-teslausb-tweaks/files/rc.local
+while ! curl -o /etc/rc.local https://raw.githubusercontent.com/marcone/teslausb/main-dev/pi-gen-sources/00-teslausb-tweaks/files/rc.local
+do
+  sleep 1
+done
 chmod a+x /etc/rc.local
 
 if [ ! -x "$(command -v dos2unix)" ]
 then
-  apt install dos2unix
+  apt install -y dos2unix
 fi
 
 if [ ! -x "$(command -v sntp)" ]
 then
-  apt install sntp
+  apt install -y sntp
 fi
 
 # indicate we're waiting for the user to log in and finish setup
