@@ -346,7 +346,7 @@ function configure_hostname () {
       setup_progress "hostnamectl failed, retrying"
       sleep 1
     done
-    systemctl restart avahi-daemon
+    systemctl restart avahi-daemon || true
     setup_progress "Configured hostname: $(hostname)"
   fi
 }
