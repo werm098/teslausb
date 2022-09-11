@@ -108,6 +108,10 @@ then
   complete -W "diagnose upgrade install" setup-teslausb
 fi
 
+function isRaspberryPi {
+  grep -q "Raspberry Pi" /sys/firmware/devicetree/base/model
+}
+
 function isPi4 {
   grep -q "Raspberry Pi 4" /sys/firmware/devicetree/base/model
 }
@@ -123,7 +127,7 @@ function isRockPi4 {
 }
 export -f isRockPi4
 
-if isPi4 || isPi2
+if isRaspberryPi
 then
   STATUSLED=/sys/class/leds/led0
 elif isRockPi4
