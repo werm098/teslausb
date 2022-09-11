@@ -1635,7 +1635,9 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       log("added event json to " + clipday);
     }
   }
-  newestsequence.select();
+  if (newestsequence != undefined) {
+    newestsequence.select();
+  }
 
   for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
     var d=document.getElementById(i);
