@@ -419,6 +419,22 @@ video {
 <p>
 <button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px;"></span>
 <p>
+<button class="group2" onclick="startspeedtest(this);" id="speedtestbutton">Run network speed test</button><span height="25px"><span style="padding-left:10px;"></span><svg id="speedspinner" width="20px" height="20px" style="vertical-align:middle;visibility:hidden;" viewBox="-12 -12 24 24">
+<g stroke-linecap="round" stroke-width="2">
+<path id="a" d="M0 5 0 10"/>
+<use transform="rotate(0)"   xlink:href="#a" stroke="#f0f0f0"/>
+<use transform="rotate(36)"  xlink:href="#a" stroke="#e0e0e0"/>
+<use transform="rotate(72)"  xlink:href="#a" stroke="#d0d0d0"/>
+<use transform="rotate(108)" xlink:href="#a" stroke="#c0c0c0"/>
+<use transform="rotate(144)" xlink:href="#a" stroke="#b0b0b0"/>
+<use transform="rotate(180)" xlink:href="#a" stroke="#a0a0a0"/>
+<use transform="rotate(216)" xlink:href="#a" stroke="#909090"/>
+<use transform="rotate(252)" xlink:href="#a" stroke="#808080"/>
+<use transform="rotate(288)" xlink:href="#a" stroke="#707070"/>
+<use transform="rotate(324)" xlink:href="#a" stroke="#000000"/>
+</g>
+</svg><span id="speedtext" style="padding-left:10px;"></span></span>
+<p>
 <button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px;"></span>
 </div>
 </div>
@@ -777,6 +793,124 @@ function syncfunc() {
   var msg=document.getElementById('synctext');
   msg.textContent="Sync triggered";
   setTimeout(function() { msg.textContent=""; }, 5000);
+}
+
+class Speedometer {
+  amount;
+  time;
+  maxlength;
+
+  constructor(maxlength) {
+    this.maxlength = maxlength;
+    this.amount = [0];
+    this.time = [Date.now()];
+  }
+
+  addValue(value) {
+    this.amount.push(value);
+    this.time.push(Date.now());
+    if (this.amount.length > this.maxlength) {
+      this.amount.shift();
+      this.time.shift();
+    }
+  }
+
+  getRecentAverage() {
+    if (this.time.length > 1) {
+      var timeDelta = this.time[this.time.length - 1] - this.time[0];
+      var amountDelta = this.amount[this.amount.length - 1] - this.amount[0];
+      return 1000 * amountDelta / timeDelta;
+    }
+    return 0;
+  }
+}
+
+var totalRandom;
+var randomReader = undefined;
+var speedometer;
+
+function byteRate(speed) {
+  if (speed > 500000) {
+    return (speed / (1024 * 1024)).toFixed(1) + " MB/s"; 
+  } else {
+    return (speed / 1024).toFixed(1) + " KB/s";
+  }
+}
+
+function bitRate(speed) {
+  // for speeds under 20 Mbit, show one decimal
+  return (speed * 8 / 1000000).toFixed(speed < 2500000 ? 1 : 0) + " Mbit/s";
+}
+
+function showspeed(button, indicator, spinner) {
+  if (randomReader != undefined) {
+    if (isElementVisible(button)) {
+      speedometer.addValue(totalRandom);
+      var speed = speedometer.getRecentAverage();
+      var speedstring = byteRate(speed) + " (" + bitRate(speed) + ")";
+      indicator.textContent = speedstring;
+      setTimeout(showspeed, 1000, button, indicator, spinner);
+    } else {
+      stopspeedtest(button, indicator, spinner);
+    }
+  }
+}
+
+var lastTotalRandom = 0;
+var spinAngle = 0;
+function updatespeedspinner(spinner) {
+  if (randomReader != undefined) {
+    if (totalRandom != lastTotalRandom) {
+      lastTotalRandom = totalRandom;
+      spinAngle += 36;
+      spinner.setAttribute('transform', 'rotate('+ spinAngle + ')');
+    }
+    setTimeout(updatespeedspinner, 80, spinner)
+  }
+}
+
+function startspeedtest(button) {
+  var indicator = document.getElementById("speedtext");
+  var spinner = document.getElementById('speedspinner');
+  if (randomReader == undefined) {
+    log("starting speed test");
+    button.textContent="Stop network speed test";
+    spinner.style.visibility = "inherit";
+    (async () => {
+      const randomStream = await fetch('cgi-bin/randomdata.sh')
+      randomReader = await randomStream.body.getReader()
+      totalRandom = 0;
+      speedometer = new Speedometer(5);
+      setTimeout(showspeed, 1000, button, indicator, spinner);
+      setTimeout(updatespeedspinner, 100, spinner);
+
+      randomReader.read().then(function receiveRandomChunk({ done, value }) {
+        if (done) {
+          log("speed test end");
+          return
+        }
+        totalRandom += value.length;
+        return randomReader.read().then(receiveRandomChunk)
+      })
+    })()
+  } else {
+    stopspeedtest(button, indicator, spinner);
+  }
+}
+
+function stopspeedtest(button, indicator, spinner) {
+  if (randomReader != undefined) {
+    log("stopping speed test");
+    try {
+      randomReader.cancel();
+    } catch (error) {
+      log(error);
+    }
+    randomReader = undefined;
+    button.textContent="Run network speed test";
+    indicator.textContent = "";
+    spinner.style.visibility = "hidden";
+  }
 }
 
 function setbuttonsdisabled(group, disabled) {

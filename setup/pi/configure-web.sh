@@ -56,4 +56,9 @@ sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 echo 'www-data ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010_www-data-nopasswd
 chmod 440 /etc/sudoers.d/010_www-data-nopasswd
 
+# allow multiple concurrent cgi calls
+cat > /etc/default/fcgiwrap << EOF
+DAEMON_OPTS="-c 4 -f"
+EOF
+
 setup_progress "done configuring nginx"
