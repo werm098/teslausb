@@ -424,7 +424,7 @@ function get_usb_state {
   last=$(dmesg | grep 'g_mass_storage\|dwc2' | tail -1)
   if [ -z "$last" ]
   then
-    echo "no UMS/dwc2 messages in dmesg"
+    echo ". No UMS/dwc2 messages in dmesg"
     return
   fi
   local usbstatetime
