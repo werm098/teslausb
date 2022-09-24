@@ -509,6 +509,10 @@ function checkfsrw() {
   fi
 }
 
+function boot_is_not_on_root {
+  [ "$(stat -c "%d" /)" -ne "$(stat -c "%d" /boot)" ]
+}
+
 function diagnose {
   local hardware
   local os
@@ -634,7 +638,10 @@ function diagnose {
       echo "CAM drive is formatted as ExFAT. Recommend using FAT32 instead."
     fi
     checkfsrw / ro
-    checkfsrw /boot ro
+    if boot_is_not_on_root
+    then
+      checkfsrw /boot ro
+    fi
     checkfsrw /backingfiles rw
     checkfsrw /mutable rw
 
