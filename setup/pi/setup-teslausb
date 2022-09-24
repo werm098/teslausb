@@ -497,7 +497,7 @@ function cmd_upgrade_finish {
     sleep 1
   done
   echo -e '\nRebooting'
-  systemctl start reboot.target
+  reboot
 }
 
 function checkfsrw() {
