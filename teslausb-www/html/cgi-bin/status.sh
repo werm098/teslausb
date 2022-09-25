@@ -18,6 +18,40 @@ then
   newestsnapshot=$(stat --format="%Y" "${snapshots[-1]}")
 fi
 
+wifidev=
+if [ -e /sys/class/net/wlan0 ]
+then
+  wifidev=wlan0
+fi
+
+if [ -n "$wifidev" ]
+then
+  wifi_ssid=$(iwgetid -r "$wifidev" || true)
+  wifi_freq=$(iwgetid -r -f "$wifidev" || true)
+  wifi_strength=$(iwconfig "$wifidev" | grep "Link Quality" | sed 's/ *Link Quality=\([0-9]*\)\/\([0-9]*\)\(.*\)/\1\/\2/')
+  read -r _ wifi_ip _ < <(ifconfig "$wifidev" | grep "inet ")
+else
+  wifi_ssid=
+  wifi_freq=
+  wifi_strength=
+  wifi_ip=
+fi
+
+ethdev=
+if [ -e /sys/class/net/eth0 ]
+then
+  ethdev=eth0
+fi
+
+if [ -n "$ethdev" ]
+then
+  read -r _ ether_ip _ < <(ifconfig "$ethdev" | grep "inet ")
+  IFS=" :" read -r _ ether_speed < <(ethtool "$ethdev" | grep Speed)
+else
+  ether_ip=
+  ether_speed=
+fi
+
 read -r -d ' ' ut < /proc/uptime
 
 cat << EOF
@@ -31,6 +65,12 @@ Content-type: application/json
    "snapshot_newest": "$newestsnapshot",
    $(eval "$(stat --file-system --format='echo -e \"total_space\": \"$((%b*%S))\",\\\n\ \ \ \"free_space\": \"$((%f*%S))\",' /backingfiles/cam_disk.bin)")
    "uptime": "$ut",
-   "drives_active": "$drives_active"
+   "drives_active": "$drives_active",
+   "wifi_ssid": "$wifi_ssid",
+   "wifi_freq": "$wifi_freq",
+   "wifi_strength": "$wifi_strength",
+   "wifi_ip": "$wifi_ip",
+   "ether_ip": "$ether_ip",
+   "ether_speed": "$ether_speed"
 }
 EOF
