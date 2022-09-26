@@ -1021,11 +1021,29 @@ function toggledrivesfunc() {
   callcgi('cgi-bin/toggledrives.sh');
 }
 
+var statusvals;
+const max_status_age = 4000;
+
+function updateuptimeonly() {
+  if (statusvals != undefined) {
+    var status_age = (Date.now() - statusvals.retrieved);
+    var uptime = Math.round(statusvals.uptime) + (status_age / 1000);
+    var uptimediv = document.querySelector(".status_uptime");
+    uptimediv.innerText = "Uptime: " + uptimeString(uptime);
+  }
+  if (statusvals != undefined && status_age >= max_status_age) {
+    setTimeout(showstatus, 10);
+  } else {
+    setTimeout(updateuptimeonly, 1000);
+  }
+}
+
 function showstatus() {
   var uptimediv = document.querySelector(".status_uptime");
   if (isElementVisible(uptimediv) || uptimediv.clientHeight == 0) {
     readfile({url:'cgi-bin/status.sh', callback:function(value) {
       statusvals=JSON.parse(value);
+      statusvals.retrieved = Date.now();
       uptimediv.innerText = "Uptime: " + uptimeString(statusvals.uptime);
 
       var tempdiv = document.querySelector(".status_temp");
@@ -1061,7 +1079,7 @@ function showstatus() {
       drivesdiv.innerText = snaps;
     }});
   }
-  setTimeout(showstatus, 1000);
+  setTimeout(updateuptimeonly, 1000);
 }
 
 function initialize() {
