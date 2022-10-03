@@ -549,7 +549,7 @@ function diagnose {
       echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
     fi
 
-    if [[ "$DATA_DRIVE" != "" ]]
+    if [[ "$DATA_DRIVE" != "" ]] && isPi4
     then
       echo "DATA_DRIVE=$DATA_DRIVE: consider booting from USB instead."
     fi

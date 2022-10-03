@@ -46,12 +46,12 @@ function check_available_space () {
       setup_progress "DATA_DRIVE is not set. SD card will be used."
       check_available_space_sd
     else
-      if grep -q 'Pi 4' /sys/firmware/devicetree/base/model
+      if [ -e "$DATA_DRIVE" ]
       then
         setup_progress "DATA_DRIVE is set to $DATA_DRIVE. This will be used for /mutable and /backingfiles."
         check_available_space_usb
       else
-        setup_progress "STOP: DATA_DRIVE is supported only on a Pi 4. Set DATA_DRIVE to blank or comment it to continue"
+        setup_progress "STOP: DATA_DRIVE is set to $DATA_DRIVE, which does not exist."
         exit 1
       fi
     fi
