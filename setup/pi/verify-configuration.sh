@@ -41,17 +41,17 @@ function check_xfs () {
 }
 
 function check_available_space () {
-    if [ -z "$USB_DRIVE" ]
+    if [ -z "$DATA_DRIVE" ]
     then
-      setup_progress "USB_DRIVE is not set. SD card will be used."
+      setup_progress "DATA_DRIVE is not set. SD card will be used."
       check_available_space_sd
     else
       if grep -q 'Pi 4' /sys/firmware/devicetree/base/model
       then
-        setup_progress "USB_DRIVE is set to $USB_DRIVE. This will be used for /mutable and backingfiles."
+        setup_progress "DATA_DRIVE is set to $DATA_DRIVE. This will be used for /mutable and /backingfiles."
         check_available_space_usb
       else
-        setup_progress "STOP: USB_DRIVE is supported only on a Pi 4. Set USB_DRIVE to blank or comment it to continue"
+        setup_progress "STOP: DATA_DRIVE is supported only on a Pi 4. Set DATA_DRIVE to blank or comment it to continue"
         exit 1
       fi
     fi
@@ -95,26 +95,26 @@ function check_available_space_usb () {
 
   # Verify that the disk has been provided and not a partition
   local drive_type
-  drive_type=$(lsblk -pno TYPE "$USB_DRIVE" | head -n 1)
+  drive_type=$(lsblk -pno TYPE "$DATA_DRIVE" | head -n 1)
 
   if [ "$drive_type" != "disk" ]
   then
-    setup_progress "STOP: The specified drive ($USB_DRIVE) is not a disk (TYPE=$drive_type). Please specify path to the disk."
+    setup_progress "STOP: The specified drive ($DATA_DRIVE) is not a disk (TYPE=$drive_type). Please specify path to the disk."
     exit 1
   fi
 
   # This verifies only the total size of the USB Drive.
   # All existing partitions on the drive will be erased if backingfiles are to be created or changed.
-  # EXISTING DATA ON THE USB_DRIVE WILL BE REMOVED.
+  # EXISTING DATA ON THE DATA_DRIVE WILL BE REMOVED.
 
   local drive_size
-  drive_size=$(blockdev --getsize64 "$USB_DRIVE")
+  drive_size=$(blockdev --getsize64 "$DATA_DRIVE")
 
   # Require at least 64GB drive size, or 59 GiB.
   if [ "$drive_size" -lt  $(( (1<<30) * 59)) ]
   then
     setup_progress "STOP: The USB drive is too small: $(( drive_size / 1024 / 1024 / 1024 ))GB available. Expected at least 64GB"
-    setup_progress "$(parted "$USB_DRIVE" print)"
+    setup_progress "$(parted "$DATA_DRIVE" print)"
     exit 1
   fi
 

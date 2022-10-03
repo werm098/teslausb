@@ -549,9 +549,9 @@ function diagnose {
       echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
     fi
 
-    if [[ "$USB_DRIVE" != "" ]]
+    if [[ "$DATA_DRIVE" != "" ]]
     then
-      echo "USB_DRIVE=$USB_DRIVE: consider booting from USB instead."
+      echo "DATA_DRIVE=$DATA_DRIVE: consider booting from USB instead."
     fi
 
     if ! blkid -L backingfiles > /dev/null
@@ -647,9 +647,9 @@ function diagnose {
 
     echo -e "====== disk / images ======"
     parted -s "${BOOT_DISK}" print || true
-    if [ -n "${USB_DRIVE:+x}" ]
+    if [ -n "${DATA_DRIVE:+x}" ]
     then
-      parted -s "$USB_DRIVE" print || true
+      parted -s "$DATA_DRIVE" print || true
     fi
     if [ -f /backingfiles/cam_disk.bin ]
     then

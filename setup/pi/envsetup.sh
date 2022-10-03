@@ -36,7 +36,8 @@ function read_setup_variables {
   newnamefor[tesla_password]=TESLA_PASSWORD
   newnamefor[tesla_vin]=TESLA_VIN
   newnamefor[timezone]=TIME_ZONE
-  newnamefor[usb_drive]=USB_DRIVE
+  newnamefor[usb_drive]=DATA_DRIVE
+  newnamefor[USB_DRIVE]=DATA_DRIVE
   newnamefor[archivedelay]=ARCHIVE_DELAY
   newnamefor[trigger_file_saved]=TRIGGER_FILE_SAVED
   newnamefor[trigger_file_sentry]=TRIGGER_FILE_SENTRY
@@ -92,7 +93,7 @@ function read_setup_variables {
   INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
   export CAM_SIZE=${CAM_SIZE:-90%}
   export MUSIC_SIZE=${MUSIC_SIZE:-0}
-  export USB_DRIVE=${USB_DRIVE:-''}
+  export DATA_DRIVE=${DATA_DRIVE:-''}
   export USE_EXFAT=${USE_EXFAT:-false}
 }
 

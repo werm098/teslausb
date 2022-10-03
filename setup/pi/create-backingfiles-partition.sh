@@ -16,18 +16,18 @@ then
 fi
 
 # Will check for USB Drive before running sd card
-if [ -n "$USB_DRIVE" ]
+if [ -n "$DATA_DRIVE" ]
 then
-  log_progress "USB_DRIVE is set to $USB_DRIVE"
+  log_progress "DATA_DRIVE is set to $DATA_DRIVE"
   # Check if backingfiles and mutable partitions exist
   if [ /dev/disk/by-label/backingfiles -ef /dev/sda2 ] && [ /dev/disk/by-label/mutable -ef /dev/sda1 ]
   then
     log_progress "Looks like backingfiles and mutable partitions already exist. Skipping partition creation."
   else
-    log_progress "WARNING !!! This will delete EVERYTHING in $USB_DRIVE."
-    wipefs -afq "$USB_DRIVE"
-    parted "$USB_DRIVE" --script mktable gpt
-    log_progress "$USB_DRIVE fully erased. Creating partitions..."
+    log_progress "WARNING !!! This will delete EVERYTHING in $DATA_DRIVE."
+    wipefs -afq "$DATA_DRIVE"
+    parted "$DATA_DRIVE" --script mktable gpt
+    log_progress "$DATA_DRIVE fully erased. Creating partitions..."
     parted -a optimal -m /dev/sda mkpart primary ext4 '0%' 2GB
     parted -a optimal -m /dev/sda mkpart primary ext4 2GB '100%'
     log_progress "Backing files and mutable partitions created."
@@ -55,7 +55,7 @@ then
   log_progress "Done."
   exit 0
 else
-  echo "USB_DRIVE not set. Proceeding to SD card setup"
+  echo "DATA_DRIVE not set. Proceeding to SD card setup"
 fi
 
 readonly BACKINGFILES_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((ROOT_PART_NUM + 1))"

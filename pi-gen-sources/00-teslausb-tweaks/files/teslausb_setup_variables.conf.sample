@@ -36,12 +36,15 @@ export SHARE_PASSWORD=password
 # The following is optional
 #export RCLONE_FLAGS=()
 
-# The following option is only for the Pi4. If you wish to boot the Pi4 from
-# sd card, but store recordings on a USB drive or SSD, uncomment the following
-# line. If you don't plan on using an sd card at all (i.e. you are both booting
-# from and storing recordings on the USB drive), or are ONLY using an sd card
-# (i.e. boot from and store recordings on sd card), do NOT uncommment this line.
-# export USB_DRIVE=/dev/sda
+# The DATA_DRIVE option (formerly USB_DRIVE) is used to specify that you want
+# to store recordings on a different drive than the boot drive. If you don't
+# plan on using an sd card at all (i.e. you are both booting from and storing
+# recordings on the USB drive), or are ONLY using an sd card (i.e. boot from
+# and store recordings on sd card), do NOT uncommment this line.
+# This should be set to the device name of the drive, e.g. /dev/sda for a drive
+# connected to a USB port, or /dev/nvme0n1 for an onboard NVME drive.
+# NOTE: the specified drive will be wiped and repartitioned.
+# export DATA_DRIVE=/dev/sda
 
 # uncomment this to archive RecentClips in addition to SavedClips and SentryClips
 #export ARCHIVE_RECENTCLIPS=true
