@@ -15,12 +15,30 @@ then
   apt-get -y --force-yes install xfsprogs
 fi
 
+function partition_prefix_for {
+  case $1 in
+    /dev/mmcblk* | /dev/nvme*)
+      echo p
+      ;;
+    /dev/sd*)
+      echo
+      ;;
+    *)
+      setup_progress "STOP: can't determine partition naming scheme for '$1'"
+      exit 1
+      ;;
+  esac
+}
+
 # Will check for USB Drive before running sd card
 if [ -n "$DATA_DRIVE" ]
 then
   log_progress "DATA_DRIVE is set to $DATA_DRIVE"
+  PARTITION_PREFIX=$(partition_prefix_for "$DATA_DRIVE")
+  P1="${DATA_DRIVE}${PARTITION_PREFIX}1"
+  P2="${DATA_DRIVE}${PARTITION_PREFIX}2"
   # Check if backingfiles and mutable partitions exist
-  if [ /dev/disk/by-label/backingfiles -ef /dev/sda2 ] && [ /dev/disk/by-label/mutable -ef /dev/sda1 ]
+  if [ /dev/disk/by-label/backingfiles -ef "$P2" ] && [ /dev/disk/by-label/mutable -ef "$P1" ]
   then
     log_progress "Looks like backingfiles and mutable partitions already exist. Skipping partition creation."
   else
@@ -28,14 +46,14 @@ then
     wipefs -afq "$DATA_DRIVE"
     parted "$DATA_DRIVE" --script mktable gpt
     log_progress "$DATA_DRIVE fully erased. Creating partitions..."
-    parted -a optimal -m /dev/sda mkpart primary ext4 '0%' 2GB
-    parted -a optimal -m /dev/sda mkpart primary ext4 2GB '100%'
+    parted -a optimal -m "$DATA_DRIVE" mkpart primary ext4 '0%' 2GB
+    parted -a optimal -m "$DATA_DRIVE" mkpart primary ext4 2GB '100%'
     log_progress "Backing files and mutable partitions created."
 
     log_progress "Formatting new partitions..."
     # Force creation of filesystems even if previous filesystem appears to exist
-    mkfs.ext4 -F -L mutable /dev/sda1
-    mkfs.xfs -f -m reflink=1 -L backingfiles /dev/sda2
+    mkfs.ext4 -F -L mutable "$P1"
+    mkfs.xfs -f -m reflink=1 -L backingfiles "$P2"
   fi
 
   BACKINGFILES_MOUNTPOINT="$1"
