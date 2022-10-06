@@ -13,6 +13,7 @@ This video (not mine) has a nice overview of teslausb and how to install it:
 
 [![teslausb intro and installation](http://img.youtube.com/vi/ETs6r1vKTO8/0.jpg)](http://www.youtube.com/watch?v=ETs6r1vKTO8 "teslausb intro and installation")
 
+If you are interested in having more detailed information about how TeslaUsb works, have a look into the [wiki](https://github.com/marcone/teslausb/wiki).
 
 ## Prerequisites
 
@@ -43,7 +44,6 @@ Optional:
 ## Installing
 
 To install teslausb, please use the [prebuilt image](https://github.com/marcone/teslausb/releases) and [one step setup instructions](doc/OneStepSetup.md).
-
 
 ## Contributing
 
