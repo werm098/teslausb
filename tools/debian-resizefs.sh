@@ -70,10 +70,15 @@ if [ -x /sbin/vgchange ]; then
     /sbin/vgchange -a y || echo "vgchange: $?  "
 fi
 # Check root filesystem
-/sbin/e2fsck -y -v -f "$ROOT_DEVICE" || echo "e2fsck: $?  "
-# Resize
-# debug-flag 8 means debug moving the inode table
-/sbin/resize2fs -d 8 "$ROOT_DEVICE" "$ROOT_SIZE" || echo "resize2fs: $?  "
+if /sbin/e2fsck -y -v -f "$ROOT_DEVICE"; then
+  # Resize
+  # debug-flag 8 means debug moving the inode table
+  # -f means ignore various checks, which is needed for devices with a bad clock.
+  # This should be safe, because e2fsck just completed successfully.
+  /sbin/resize2fs -f -d 8 "$ROOT_DEVICE" "$ROOT_SIZE" || echo "resize2fs: $?  "
+else
+  echo "e2fsck $ROOT_DEVICE failed"
+fi
 EOF
 
 chmod +x /etc/initramfs-tools/scripts/init-premount/resize
