@@ -225,7 +225,7 @@ function fix_cmdline_txt_modules_load () {
   # Extract the modules-load portion of the command line.
   # Note that this not handle spaces in the argument.
   local curparam
-  curparam=$(grep -P -o " modules.load=[^\s\$]*" /boot/cmdline.txt)
+  curparam=$(grep -P -o " modules.load=[^\s\$]*" /boot/cmdline.txt || true)
   if [[ "$curparam" == "" ]]
   then
     curparam="\$"
