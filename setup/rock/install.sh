@@ -61,6 +61,9 @@ then
   partnum=${rootpart:0-1}
 
   echo "${rootpartstartsector},${fsnumsectors}" | sfdisk --force "${rootdev}" -N "${partnum}"
+
+  # restore initramfs without the resize code that debian-resizefs.sh added
+  update-initramfs -u
   reboot
   exit 0
 fi
