@@ -726,7 +726,7 @@ function set_time () {
 function snapshotloop {
   while true
   do
-    sleep 3480
+    sleep "${SNAPSHOT_INTERVAL:-3480}"
     /root/bin/waitforidle || true
     /root/bin/make_snapshot.sh
   done

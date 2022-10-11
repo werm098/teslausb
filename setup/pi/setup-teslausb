@@ -598,6 +598,11 @@ function diagnose {
       echo "ERROR: mutable not in fstab"
     fi
 
+    if [ -n "${SNAPSHOT_INTERVAL:+x}" ]
+    then
+      echo "Snapshot interval: $SNAPSHOT_INTERVAL"
+    fi
+
     numsnapshots=$( mount | grep -c snapshot )
     echo "$numsnapshots snapshots mounted"
 

@@ -46,6 +46,15 @@ export SHARE_PASSWORD=password
 # NOTE: the specified drive will be wiped and repartitioned.
 # export DATA_DRIVE=/dev/sda
 
+# The car normally keeps an hour worth of RecentClips, however there have been
+# reports of that amount varying by country.
+# In order to keep a continuous record of RecentClips the snapshot interval
+# should be set about 2 minutes shorter than the amount of RecentClips history
+# the car keeps. The following adjusts the capture interval for cases where the
+# car only keeps 10 minutes of history. Please follow your local regulations
+# when uncommenting and/or adjusting this setting.
+# export SNAPSHOT_INTERVAL=480 # this number is in seconds
+
 # uncomment this to archive RecentClips in addition to SavedClips and SentryClips
 #export ARCHIVE_RECENTCLIPS=true
 
