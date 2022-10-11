@@ -764,9 +764,15 @@ then
 fi
 
 # Update /boot/config.txt if needed
-if ! grep -q 'dtoverlay=dwc2' /boot/config.txt
+if [ -e /boot/config.txt ]
 then
-  echo -e "dtoverlay=dwc2\n" >> /boot/config.txt
+  if ! grep -q 'dtoverlay=dwc2' /boot/config.txt
+  then
+    echo -e "dtoverlay=dwc2\n" >> /boot/config.txt
+    setup_progress "rebooting to apply dwc2 overlay change"
+    reboot
+    exit 0
+  fi
 fi
 
 configure_hostname
