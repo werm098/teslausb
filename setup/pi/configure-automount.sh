@@ -37,7 +37,7 @@ if [ ! -d /etc/auto.master.d ]
 then
   mkdir /etc/auto.master.d
 fi
-get_script /root/bin auto.teslausb run
+copy_script run/auto.teslausb /root/bin
 echo "/tmp/snapshots  /root/bin/auto.teslausb" > /etc/auto.master.d/teslausb.autofs
 rm -f /root/bin/mount_image.sh
 log_progress "converting snapshot mountpoints to links"

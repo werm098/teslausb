@@ -159,7 +159,7 @@ function install_and_configure_tesla_api () {
   then
     # if tesla_api.py already exists, update it
     log_progress "Updating tesla_api.py"
-    get_script /root/bin tesla_api.py run
+    copy_script run/tesla_api.py /root/bin
     install_python3_pip
     pip3 install teslapy
     # check if the json file needs to be updated
@@ -178,7 +178,7 @@ function install_and_configure_tesla_api () {
   elif [[ ( -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
   then
     log_progress "Installing tesla_api.py"
-    get_script /root/bin tesla_api.py run
+    copy_script run/tesla_api.py /root/bin
     install_python3_pip
     pip3 install teslapy
     # Perform the initial authentication
@@ -197,21 +197,21 @@ function install_archive_scripts () {
   local archive_module="$2"
 
   log_progress "Installing base archive scripts into $install_path"
-  get_script "$install_path" archiveloop run
-  get_script "$install_path" waitforidle run
-  get_script "$install_path" remountfs_rw run
-  get_script "$install_path" awake_start run
-  get_script "$install_path" awake_stop run
+  copy_script run/archiveloop "$install_path"
+  copy_script run/waitforidle "$install_path"
+  copy_script run/remountfs_rw "$install_path"
+  copy_script run/awake_start "$install_path"
+  copy_script run/awake_stop "$install_path"
   install_and_configure_tesla_api
   log_progress "Installing archive module scripts"
-  get_script /tmp verify-and-configure-archive.sh "$archive_module"
-  get_script "$install_path" archive-clips.sh "$archive_module"
-  get_script "$install_path" connect-archive.sh "$archive_module"
-  get_script "$install_path" disconnect-archive.sh "$archive_module"
-  get_script "$install_path" archive-is-reachable.sh "$archive_module"
+  copy_script "$archive_module"/verify-and-configure-archive.sh /tmp
+  copy_script "$archive_module"/archive-clips.sh "$install_path"
+  copy_script "$archive_module"/connect-archive.sh "$install_path"
+  copy_script "$archive_module"/disconnect-archive.sh "$install_path"
+  copy_script "$archive_module"/archive-is-reachable.sh "$install_path"
   if [ -n "${MUSIC_SHARE_NAME:+x}" ] && grep cifs <<< "$archive_module"
   then
-    get_script "$install_path" copy-music.sh "$archive_module"
+    copy_script "$archive_module"/copy-music.sh "$install_path"
   fi
 }
 
@@ -559,9 +559,9 @@ function check_and_configure_sns () {
 
 function install_push_message_scripts() {
   local install_path="$1"
-  get_script "$install_path" send-push-message run
-  get_script "$install_path" send_sns.py run
-  get_script "$install_path" send_matrix.py run
+  copy_script run/send-push-message "$install_path"
+  copy_script run/send_sns.py "$install_path"
+  copy_script run/send_matrix.py "$install_path"
 }
 
 if [[ $EUID -ne 0 ]]

@@ -45,10 +45,10 @@ function curlwrapper () {
   done
 }
 
-function get_script () {
-  local local_path="$1"
-  local name="$2"
-  local remote_path="${3:-}"
+function copy_script () {
+  local remote_path="$1"
+  local name="${1/*\/}"
+  local local_path="$2"
 
   if [ -z ${SOURCE_DIR:+x} ]
   then
@@ -69,7 +69,7 @@ function get_script () {
   fi
 
   # shellcheck disable=SC2086
-  cp "${SOURCE_DIR}/$remote_path/$name" "$local_path/$name"
+  cp "${SOURCE_DIR}/$remote_path" "$local_path/$name"
   chmod +x "$local_path/$name"
   setup_progress "Downloaded $local_path/$name ..."
 }
@@ -82,7 +82,7 @@ then
   source /root/teslausb_setup_variables.conf
   REPO=${REPO:-marcone}
   BRANCH=${BRANCH:-main-dev}
-  get_script "$THISDIR" envsetup.sh setup/pi
+  copy_script setup/pi/envsetup.sh "$THISDIR"
 fi
 # SC can't follow non-constant source
 # shellcheck disable=SC1090
@@ -180,21 +180,21 @@ function headless_setup_progress_flash () {
 }
 
 function verify_configuration () {
-  get_script /tmp verify-configuration.sh setup/pi
+  copy_script setup/pi/verify-configuration.sh /tmp
 
   /tmp/verify-configuration.sh
 }
 
 function get_common_scripts () {
   setup_progress "Downloading common runtime scripts."
-  get_script /root/bin remountfs_rw run
-  get_script /root/bin make_snapshot.sh run
-  get_script /root/bin release_snapshot.sh run
-  get_script /root/bin force_sync.sh run
-  get_script /root/bin mountoptsforimage run
-  get_script /root/bin mountimage run
-  get_script /root/bin enable_gadget.sh run
-  get_script /root/bin disable_gadget.sh run
+  copy_script run/remountfs_rw /root/bin
+  copy_script run/make_snapshot.sh /root/bin
+  copy_script run/release_snapshot.sh /root/bin
+  copy_script run/force_sync.sh /root/bin
+  copy_script run/mountoptsforimage /root/bin
+  copy_script run/mountimage /root/bin
+  copy_script run/enable_gadget.sh /root/bin
+  copy_script run/disable_gadget.sh /root/bin
   ln -sf /root/bin/mountimage /sbin/mount.teslausb
 }
 
@@ -262,7 +262,7 @@ function create_usb_drive_backing_files () {
     mkdir "$MUTABLE_MOUNTPOINT"
   fi
 
-  get_script /tmp create-backingfiles-partition.sh setup/pi
+  copy_script setup/pi/create-backingfiles-partition.sh /tmp
   /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
 
   if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT > /dev/null
@@ -282,7 +282,7 @@ function create_usb_drive_backing_files () {
   if [ ! -e $BACKINGFILES_MOUNTPOINT/cam_disk.bin ]
   then
     setup_progress "Creating backing disk files."
-    get_script /tmp create-backingfiles.sh setup/pi
+    copy_script setup/pi/create-backingfiles.sh /tmp
     /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BACKINGFILES_MOUNTPOINT" "$USE_EXFAT"
   fi
 
@@ -348,7 +348,7 @@ function configure_hostname () {
 }
 
 function make_root_fs_readonly () {
-  get_script /tmp make-root-fs-readonly.sh setup/pi
+  copy_script setup/pi/make-root-fs-readonly.sh /tmp
   /tmp/make-root-fs-readonly.sh
 }
 
@@ -448,7 +448,7 @@ function get_usb_state {
 
 function cmd_install {
   /root/bin/remountfs_rw
-  get_script /root/bin "$(basename "$1")" "$(dirname "$1")"
+  copy_script "$1" /root/bin
   setup_progress "$1 installed in /root/bin/"
   exit
 }
@@ -464,8 +464,8 @@ function cmd_upgrade {
     echo "STOP: previous setup didn't finish, can't upgrade unfinished install"
     exit 1
   fi
-  get_script /tmp setup-teslausb setup/pi &> /dev/null
-  get_script /tmp envsetup.sh setup/pi &> /dev/null
+  copy_script setup/pi/setup-teslausb /tmp &> /dev/null
+  copy_script setup/pi/envsetup.sh /tmp &> /dev/null
   exec bash -c "/tmp/setup-teslausb upgrade_prepare && /tmp/setup-teslausb && /tmp/setup-teslausb upgrade_finish" < /dev/null
 }
 
@@ -781,7 +781,7 @@ configure_hostname
 
 tmpdir=/tmp/$$
 mkdir -p "$tmpdir"
-get_script "$tmpdir" setup-teslausb setup/pi &> /dev/null
+copy_script setup/pi/setup-teslausb "$tmpdir"  &> /dev/null
 if cmp -s "$tmpdir/setup-teslausb" "$0"
 then
   setup_progress "$0 is up to date"
@@ -789,7 +789,7 @@ else
   setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 upgrade' to get the latest version."
 fi
 
-get_script "$tmpdir" rc.local pi-gen-sources/00-teslausb-tweaks/files &> /dev/null
+copy_script pi-gen-sources/00-teslausb-tweaks/files/rc.local "$tmpdir" &> /dev/null
 if cmp -s "$tmpdir/rc.local" /etc/rc.local
 then
   setup_progress "rc.local is up to date"
@@ -838,8 +838,8 @@ if [ "$CONFIGURE_ARCHIVING" = true ]
 then
   setup_progress "calling configure.sh"
   export -f curlwrapper
-  export -f get_script
-  get_script /tmp configure.sh setup/pi
+  export -f copy_script
+  copy_script setup/pi/configure.sh /tmp
   /tmp/configure.sh
 else
   setup_progress "skipping configure.sh"
@@ -848,20 +848,20 @@ fi
 if [ "$SAMBA_ENABLED" = "true" ]
 then
   export SAMBA_GUEST
-  get_script /tmp configure-samba.sh setup/pi
+  copy_script setup/pi/configure-samba.sh /tmp
   /tmp/configure-samba.sh
 fi
 
 if [ -n "${AP_SSID:+x}" ]
 then
-  get_script /tmp configure-ap.sh setup/pi
+  copy_script setup/pi/configure-ap.sh /tmp
   /tmp/configure-ap.sh
 fi
 
-get_script /tmp configure-automount.sh setup/pi
+copy_script setup/pi/configure-automount.sh /tmp
 /tmp/configure-automount.sh
 
-get_script /tmp configure-web.sh setup/pi
+copy_script setup/pi/configure-web.sh /tmp
 /tmp/configure-web.sh
 
 # source setup-teslausb from .bashrc to set up completion
