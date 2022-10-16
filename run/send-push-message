@@ -2,6 +2,7 @@
 
 title="$1"
 message="$2"
+type="${3:-}"
 
 function send_pushover () {
   log "Sending Pushover message."
@@ -73,6 +74,16 @@ function send_slack () {
   curl -X POST --data-urlencode "payload=$payload" "$SLACK_WEBHOOK_URL"
 }
 
+function send_shell () {
+  log "Sending Shell command."
+  if [[ -n "$NOTIFICATION_COMMAND_START" && "$type" = "start" ]]; then
+    eval "$NOTIFICATION_COMMAND_START" &
+  fi
+  if [[ -n "$NOTIFICATION_COMMAND_FINISH" &&  "$type" = "finish" ]]; then
+    eval "$NOTIFICATION_COMMAND_FINISH" &
+  fi
+}
+
 log "$message"
 
 [ "${PUSHOVER_ENABLED:-false}" = "true" ] && send_pushover
@@ -84,5 +95,6 @@ log "$message"
 [ "${TELEGRAM_ENABLED:-false}" = "true" ] && send_telegram
 [ "${MATRIX_ENABLED:-false}" = "true" ] && send_matrix
 [ "${SLACK_ENABLED:-false}" = "true" ] && send_slack
+[ "${NOTIFICATION_COMMAND_ENABLED:-false}" = "true" ] && send_shell
 
 exit 0

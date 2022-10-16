@@ -501,7 +501,7 @@ function archive_teslacam_clips () {
       message+="$trackmode_count track mode file(s)"
     fi
     message+=" starting at $(date)"
-    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message" || log "failed to send push message"
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message" start || log "failed to send push message"
 
     # setup trigger files
     local -r triggerdir=/tmp/triggers
@@ -578,7 +578,7 @@ function archive_teslacam_clips () {
     local -r end_ts=$(date --utc --date "now" +%s)
     local -r delta=$((end_ts - start_ts))
     message+=" in $(convert_seconds_to_nice_time $delta)"
-    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "${message}"
+    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "${message}" finish
 
     if [ -e /tmp/archive-error.log ]
     then
