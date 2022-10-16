@@ -4,6 +4,11 @@
 # the main Raspberry Pi centric install scripts expect.
 #
 
+function error_exit {
+  echo "STOP: $*"
+  exit 1
+}
+
 rootpart=$(findmnt -n -o SOURCE /)
 rootname=$(lsblk -no pkname "${rootpart}")
 rootdev="/dev/${rootname}"
@@ -13,8 +18,7 @@ lastpart=$(sfdisk -l "$rootdev" | tail -1 | awk '{print $1}')
 
 if [ "$rootpart" != "$lastpart" ]
 then
-  echo "STOP: root partition is not the last partition."
-  exit 1
+  error_exit "root partition is not the last partition."
 fi
 
 # Check if there is sufficient unpartitioned space after the root
@@ -46,6 +50,21 @@ then
 		EOF
     chmod a+x /etc/rc.local
 
+    if [ ! -e "/boot/initrd.img-$(uname -r)" ]
+    then
+      # This device did not boot using an initramfs. If we're running
+      # Raspberry Pi OS, we can switch it over to using initramfs first,
+      # then revert back after..
+      if [ -e /boot/issue.txt ] && grep -q Raspberry /boot/issue.txt && [ -e /boot/config.txt ]
+      then
+        echo "Temporarily switching Rasspberry Pi OS to use initramfs"
+        update-initramfs -c -k "$(uname -r)"
+        echo "initramfs initrd.img-$(uname -r) followkernel # TESLAUSB-REMOVE" >> /boot/config.txt        
+      else
+        error_exit "can't automatically shrink root partition for this OS, please shrink it manually before proceeding"
+      fi
+    fi
+
     {
       while ! curl -s https://raw.githubusercontent.com/marcone/teslausb/main-dev/tools/debian-resizefs.sh
       do
@@ -62,8 +81,16 @@ then
 
   echo "${rootpartstartsector},${fsnumsectors}" | sfdisk --force "${rootdev}" -N "${partnum}"
 
-  # restore initramfs without the resize code that debian-resizefs.sh added
-  update-initramfs -u
+  if [ -e /boot/config.txt ] && grep -q TESLAUSB-REMOVE /boot/config.txt
+  then
+    # switch Raspberry Pi OS back to not using initramfs
+    sed -i '/TESLAUSB-REMOVE/d' /boot/config.txt
+    rm -rf "/boot/initrd.img-$(uname -r)"
+  else
+    # restore initramfs without the resize code that debian-resizefs.sh added
+    update-initramfs -u
+  fi
+
   reboot
   exit 0
 fi
