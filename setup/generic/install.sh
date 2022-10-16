@@ -9,6 +9,21 @@ function error_exit {
   exit 1
 }
 
+function flash_rapidly {
+  for led in /sys/class/leds/*
+  do 
+    if [ -e "$led/trigger" ]
+    then
+      echo timer > "$led/trigger" || true
+      if [ -e "$led/delay_off" ]
+      then
+        echo 150 > "$led/delay_off" || true
+        echo 50 > "$led/delay_on" || true
+      fi
+    fi
+  done
+}
+
 rootpart=$(findmnt -n -o SOURCE /)
 rootname=$(lsblk -no pkname "${rootpart}")
 rootdev="/dev/${rootname}"
@@ -134,13 +149,7 @@ then
 fi
 
 # indicate we're waiting for the user to log in and finish setup
-led=/sys/class/leds/user-led2
-if [ -e "$led" ]
-then
-  echo timer > ${led}/trigger
-  echo 150 > ${led}/delay_off
-  echo 50 > ${led}/delay_on
-fi
+flash_rapidly
 
 # If there is a user with id 1000, assume it is the default user
 # the user will be logging in as.
