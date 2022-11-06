@@ -102,7 +102,7 @@ function check_archive_mountable () {
 
 function install_required_packages () {
   log_progress "Installing/updating required packages if needed"
-  apt-get -y --force-yes install hping3 cifs-utils
+  apt-get -y --force-yes install hping3 cifs-utils netcat
   log_progress "Done"
 }
 
