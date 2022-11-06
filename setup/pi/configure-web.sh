@@ -13,7 +13,7 @@ mkdir -p /var/lib/nginx
 mount /var/log/nginx
 mount /var/lib/nginx
 
-apt-get -y --force-yes install nginx fcgiwrap libnginx-mod-http-fancyindex libfuse-dev
+apt-get -y --force-yes install nginx fcgiwrap libnginx-mod-http-fancyindex libfuse-dev g++
 
 # install data files and config files
 systemctl stop nginx.service &> /dev/null || true
