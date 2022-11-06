@@ -72,6 +72,15 @@ function check_default_rsync {
   return 1
 }
 
+function install_prebuilt_rsync {
+  if [ "$(uname -m)" = "aarch64" ]
+  then
+    curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-arm64/rsync
+  else
+    curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-rpi/rsync
+  fi
+}
+
 function check_rsync {
   if check_default_rsync
   then
@@ -80,7 +89,7 @@ function check_rsync {
   fi
 
   log_progress "default rsync doesn't work, installing prebuilt 3.2.3"
-  if curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-rpi/rsync
+  if install_prebuilt_rsync
   then
     chmod a+x /usr/local/bin/rsync
     apt install -y libxxhash0
