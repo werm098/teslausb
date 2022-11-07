@@ -128,20 +128,24 @@ function isRockPi4 {
 }
 export -f isRockPi4
 
-if isRaspberryPi
-then
-  STATUSLED=/sys/class/leds/led0
-elif isRockPi4
-then
-  STATUSLED=/sys/class/leds/user-led2
-else
-  STATUSLED=/tmp/fakeled
-fi
+function isRadxaZero {
+  grep -q "Radxa Zero" /sys/firmware/devicetree/base/model
+}
+export -f isRadxaZero
+
+for STATUSLED in \
+  /sys/class/leds/led0 \
+  /sys/class/leds/user-led2 \
+  /sys/class/leds/radxa-zero:green \
+  /tmp/fakeled
+do
+  if [ -d  "$STATUSLED" ]
+  then
+    break;
+  fi
+done
 
 if [ ! -d "$STATUSLED" ]
 then
-  STATUSLED=/tmp/fakeled
-  rm -rf "$STATUSLED"
   mkdir -p "$STATUSLED"
 fi
-

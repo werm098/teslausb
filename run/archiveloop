@@ -49,6 +49,17 @@ export MUSIC_ARCHIVE_MOUNT=/mnt/musicarchive
 # read the setup variables and define other environment variables and functions
 source /root/bin/envsetup.sh
 
+# led triggers may have been built as modules, so try
+# to load them
+if ! grep -q timer "$STATUSLED"
+then
+  modprobe ledtrig-timer || log "timer LED trigger unavailable"
+fi
+if ! grep -q heartbeat "$STATUSLED"
+then
+  modprobe ledtrig-heartbeat || log "heartbeat LED trigger unavailable" 
+fi
+
 if [ -z "${ARCHIVE_SERVER+x}" ]
 then
   case "${ARCHIVE_SYSTEM:-none}" in
@@ -668,7 +679,7 @@ function truncate_log () {
 }
 
 function slowblink () {
-  echo timer > "$STATUSLED/trigger"
+  echo timer > "$STATUSLED/trigger" || return 0
   local ON=on
   local OFF=off
   if isPi4 || isKernel5
@@ -681,7 +692,7 @@ function slowblink () {
 }
 
 function fastblink () {
-  echo timer > "$STATUSLED/trigger"
+  echo timer > "$STATUSLED/trigger" || return 0
   local ON=on
   local OFF=off
   if isPi4 || isKernel5
@@ -695,7 +706,7 @@ function fastblink () {
 
 
 function doubleblink () {
-  echo heartbeat > "$STATUSLED/trigger"
+  echo heartbeat > "$STATUSLED/trigger" || return 0
   if isPi4 || isKernel5
   then
     echo 0 > "$STATUSLED/invert"
