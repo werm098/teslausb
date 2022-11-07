@@ -36,6 +36,9 @@ log_progress "Disabling unnecessary service..."
 systemctl disable apt-daily.timer
 systemctl disable apt-daily-upgrade.timer
 
+# adb service exists on some distributions and interferes with mass storage emulation
+systemctl disable amlogic-adbd &> /dev/null || true
+
 log_progress "Removing unwanted packages..."
 apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile bluez alsa-utils
 apt-get -y --force-yes autoremove --purge
