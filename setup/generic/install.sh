@@ -37,7 +37,9 @@ then
 fi
 
 # Check if there is sufficient unpartitioned space after the root
-# partition to create the backingfiles and mutable partitions
+# partition to create the backingfiles and mutable partitions.
+# TODO: provide a way to skip this, to support having boot+root on
+# eMMC or sd card, and storage elsewhere
 unpart=$(sfdisk -F "$rootdev" | grep -o '[0-9]* bytes' | head -1 | awk '{print $1}')
 if [ "$unpart" -lt  $(( (1<<30) * 40)) ]
 then
@@ -65,11 +67,14 @@ then
 		EOF
     chmod a+x /etc/rc.local
 
+    # The user should have configured networking manually, so disable wifi setup
+    touch /boot/WIFI_ENABLED
+
     if [ ! -e "/boot/initrd.img-$(uname -r)" ]
     then
       # This device did not boot using an initramfs. If we're running
       # Raspberry Pi OS, we can switch it over to using initramfs first,
-      # then revert back after..
+      # then revert back after.
       if [ -e /boot/issue.txt ] && grep -q Raspberry /boot/issue.txt && [ -e /boot/config.txt ]
       then
         echo "Temporarily switching Rasspberry Pi OS to use initramfs"
