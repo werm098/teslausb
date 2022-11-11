@@ -93,6 +93,7 @@ function read_setup_variables {
   INCREASE_ROOT_SIZE=${INCREASE_ROOT_SIZE:-0}
   export CAM_SIZE=${CAM_SIZE:-90%}
   export MUSIC_SIZE=${MUSIC_SIZE:-0}
+  export BOOMBOX_SIZE=${BOOMBOX_SIZE:-0}
   export DATA_DRIVE=${DATA_DRIVE:-''}
   export USE_EXFAT=${USE_EXFAT:-false}
 }

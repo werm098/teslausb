@@ -62,12 +62,22 @@ mkdir -p "$gadget_root/functions/mass_storage.0"
 echo "/backingfiles/cam_disk.bin" > "$gadget_root/functions/mass_storage.0/lun.0/file"
 echo "TeslaUSB CAM $(du -h /backingfiles/cam_disk.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
 
+lun="lun.1"
 # one lun is created by default, so we only need to create the 2nd one
 if [ -e "/backingfiles/music_disk.bin" ]
 then
-  mkdir -p "$gadget_root/functions/mass_storage.0/lun.1"
-  echo "/backingfiles/music_disk.bin" > "$gadget_root/functions/mass_storage.0/lun.1/file"
-  echo "TeslaUSB MUSIC $(du -h /backingfiles/music_disk.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.1/inquiry_string"
+  mkdir -p "$gadget_root/functions/mass_storage.0/${lun}"
+  echo "/backingfiles/music_disk.bin" > "$gadget_root/functions/mass_storage.0/${lun}/file"
+  echo "TeslaUSB MUSIC $(du -h /backingfiles/music_disk.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/${lun}/inquiry_string"
+  lun="lun.2"
+fi
+
+# boombox drive is either lun 1 or 2, depending on whether music drive is used
+if [ -e "/backingfiles/boombox_disk.bin" ]
+then
+  mkdir -p "$gadget_root/functions/mass_storage.0/${lun}"
+  echo "/backingfiles/boombox_disk.bin" > "$gadget_root/functions/mass_storage.0/${lun}/file"
+  echo "TeslaUSB BOOMBOX $(du -h /backingfiles/boombox_disk.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/${lun}/inquiry_string"
 fi
 
 ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"
