@@ -109,11 +109,19 @@ fi
 # Change spool permissions in var.conf (rondie/Margaret fix)
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
 
-# Move dhcpd.resolv.conf to tmpfs
-if [ ! -e /tmp/dhcpcd.resolv.conf ]
+# Move resolv.conf to tmpfs or link it to systemd's resolv.conf
+if systemctl list-units | grep -q systemd-resolv
 then
-  mv /etc/resolv.conf /tmp/dhcpcd.resolv.conf
-  ln -s /tmp/dhcpcd.resolv.conf /etc/resolv.conf
+  if [ -e /run/systemd/resolve/resolv.conf ]
+  then
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+  fi
+else
+  if [ ! -e /tmp/dhcpcd.resolv.conf ]
+  then
+    mv /etc/resolv.conf /tmp/dhcpcd.resolv.conf
+    ln -s /tmp/dhcpcd.resolv.conf /etc/resolv.conf
+  fi
 fi
 
 # Update /etc/fstab
