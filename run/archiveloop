@@ -155,10 +155,10 @@ function retry () {
       false
       return
     fi
-    log "Sleeping before retry..."
+    log "Sleeping before retry ..."
     /bin/sleep 1
     attempts=$((attempts + 1))
-    log "Retrying..."
+    log "Retrying ($attempts) '$*' ..."
   done
   false
   return
