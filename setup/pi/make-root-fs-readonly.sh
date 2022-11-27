@@ -109,11 +109,12 @@ fi
 # Change spool permissions in var.conf (rondie/Margaret fix)
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
 
-# Move resolv.conf to /mutable.
+# Move resolv.conf to /mutable if it is not located on a tmpfs.
 # This used to move it to /tmp, but some resolvers apparently don't rewrite
 # /etc/resolv.conf when it's missing, so store it on /mutable to provide
 # persistence while still being mutable.
-if [ ! -e /mutable/resolv.conf ]
+read -r resolvconflocation <<< "$(df --output=fstype "$(readlink -f /etc/resolv.conf)" | tail -1)"
+if [ "$resolvconflocation" != "tmpfs" ] && [ ! -e /mutable/resolv.conf ]
 then
   mv "$(readlink -f /etc/resolv.conf)" /mutable/resolv.conf
   ln -sf /mutable/resolv.conf /etc/resolv.conf
