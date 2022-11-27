@@ -109,11 +109,14 @@ fi
 # Change spool permissions in var.conf (rondie/Margaret fix)
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
 
-# Move dhcpd.resolv.conf to tmpfs
-if [ ! -e /tmp/dhcpcd.resolv.conf ]
+# Move resolv.conf to /mutable.
+# This used to move it to /tmp, but some resolvers apparently don't rewrite
+# /etc/resolv.conf when it's missing, so store it on /mutable to provide
+# persistence while still being mutable.
+if [ ! -e /mutable/resolv.conf ]
 then
-  mv /etc/resolv.conf /tmp/dhcpcd.resolv.conf
-  ln -s /tmp/dhcpcd.resolv.conf /etc/resolv.conf
+  mv "$(readlink -f /etc/resolv.conf)" /mutable/resolv.conf
+  ln -sf /mutable/resolv.conf /etc/resolv.conf
 fi
 
 # Update /etc/fstab
