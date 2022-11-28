@@ -135,17 +135,20 @@ BOOMBOX_DISK_FILE_NAME="$BACKINGFILES_MOUNTPOINT/boombox_disk.bin"
 
 # delete existing files, because fallocate doesn't shrink files, and
 # because they interfere with the percentage-of-free-space calculation
-if [ -t 0 ]
+if [ -e "$CAM_DISK_FILE_NAME" ] || [ -e "$MUSIC_DISK_FILE_NAME" ] || [ -e "$BOOMBOX_DISK_FILE_NAME" ] || [ -e "$BACKINGFILES_MOUNTPOINT/snapshots" ]
 then
-  read -r -p 'Delete snapshots and recreate recording and music drives? (yes/cancel)' answer
-  case ${answer:0:1} in
-    y|Y )
-    ;;
-    * )
-      log_progress "aborting"
-      exit
-    ;;
-  esac
+  if [ -t 0 ]
+  then
+    read -r -p 'Delete snapshots and recreate recording and music drives? (yes/cancel)' answer
+    case ${answer:0:1} in
+      y|Y )
+      ;;
+      * )
+        log_progress "aborting"
+        exit
+      ;;
+    esac
+  fi
 fi
 killall archiveloop || true
 /root/bin/disable_gadget.sh || true
