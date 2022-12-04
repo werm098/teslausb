@@ -22,13 +22,28 @@ body:
   id: devicemodel
   attributes:
     label: Device
-    description: What model Raspbery Pi are you using?
+    description: What model device are you using?
     multiple: false
     options:
       - Raspberry Pi Zero W
       - Raspberry Pi Zero 2 W
       - Raspberry Pi 4
+      - Radxa Zero
+      - Rock Pi 4C plus
       - Other
+  validations:
+    required: true
+
+- type: dropdown
+  id: image
+  attributes:
+    label: image
+    description: what OS did you install?
+    multiple: false
+    options:
+      - Prebuilt TeslaUSB image
+      - Armbian
+      - other
   validations:
     required: true
 
