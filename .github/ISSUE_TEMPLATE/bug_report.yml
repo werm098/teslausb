@@ -37,8 +37,8 @@ body:
 - type: dropdown
   id: image
   attributes:
-    label: image
-    description: what OS did you install?
+    label: OS Image
+    description: Which OS did you install?
     multiple: false
     options:
       - Prebuilt TeslaUSB image
