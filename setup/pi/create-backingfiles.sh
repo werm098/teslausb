@@ -186,6 +186,12 @@ else
   fi
 fi
 
+# some distros don't include mkfs.vfat
+if ! hash mkfs.vfat
+then
+  apt-get -y --force-yes install dosfstools
+fi
+
 CAM_DISK_SIZE="$(calc_size "$CAM_SIZE")"
 MUSIC_DISK_SIZE="$(calc_size "$MUSIC_SIZE")"
 BOOMBOX_DISK_SIZE="$(calc_size "$BOOMBOX_SIZE")"

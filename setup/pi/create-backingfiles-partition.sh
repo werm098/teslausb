@@ -15,12 +15,6 @@ then
   apt-get -y --force-yes install xfsprogs
 fi
 
-# some distros don't include mkfs.vfat
-if ! hash mkfs.vfat
-then
-  apt-get -y --force-yes install dosfstools
-fi
-
 function partition_prefix_for {
   case $1 in
     /dev/mmcblk* | /dev/nvme*)
