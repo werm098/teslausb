@@ -124,6 +124,12 @@ export WIFIPASS='your_pass'
 # that range.
 #export AP_IP='192.168.66.1'
 
+# uncomment if you'd like to password protect the teslausb web interface
+# WARNING: Anyone on the $SSID (and $AP_SSID if configured) wifi network can
+# freely interact with the teslausb web interface if it isn't secured!
+# export WEB_USERNAME='pi'
+# export WEB_PASSWORD='raspberry'
+
 # uncomment if you want to set the time zone to something other than the default 'BST'
 # Can be an actual time zone, or "auto" to attempt automatic timezone detection
 # export TIME_ZONE="America/Los_Angeles"

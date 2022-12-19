@@ -28,6 +28,15 @@ mkdir /var/www/html/TeslaCam
 cp -rf "$SOURCE_DIR/teslausb-www/teslausb.nginx" /etc/nginx/sites-available
 ln -sf /etc/nginx/sites-available/teslausb.nginx /etc/nginx/sites-enabled/default
 
+# Setup /etc/nginx/.htpasswd if user requested web auth, otherwise disable auth_basic
+if [ -n "${WEB_USERNAME:-}" ] && [ -n "${WEB_PASSWORD:-}" ]
+then
+  apt-get -y --force-yes install apache2-utils
+  htpasswd -bc /etc/nginx/.htpasswd "$WEB_USERNAME" "$WEB_PASSWORD"
+else
+  sed -i 's/auth_basic "Restricted Content"/auth_basic off/' /etc/nginx/sites-available/teslausb.nginx
+fi
+
 # install the fuse layer needed to work around an incompatibility
 # between Chrome and Tesla's recordings
 g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/teslausb-www/cttseraser.cpp" -lstdc++ -lfuse
