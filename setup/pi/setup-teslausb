@@ -881,6 +881,9 @@ copy_script setup/pi/configure-automount.sh /tmp
 copy_script setup/pi/configure-web.sh /tmp
 /tmp/configure-web.sh
 
+copy_script setup/pi/configure-ssh.sh /tmp
+/tmp/configure-ssh.sh
+
 # source setup-teslausb from .bashrc to set up completion
 if ! grep -q envsetup.sh /root/.bashrc
 then
