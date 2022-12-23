@@ -1107,7 +1107,12 @@ function showstatus() {
       uptimediv.innerText = "Uptime: " + uptimeString(statusvals.uptime);
 
       var tempdiv = document.querySelector(".status_temp");
-      tempdiv.innerText = "Core temperature: " + (statusvals.cpu_temp / 1000).toFixed(1) + " C";
+      if (statusvals.cpu_temp != "") {
+        tempdiv.innerText = "Core temperature: " + (statusvals.cpu_temp / 1000).toFixed(1) + " C";
+        tempdiv.style.display = "inherit";
+      } else{
+        tempdiv.style.display = "none";
+      }
 
       var drivesdiv = document.querySelector(".status_drives");
       var togglebutton = document.getElementById("toggledrives");
