@@ -1133,8 +1133,9 @@ function showstatus() {
       if (statusvals.num_snapshots > 0) {
         snaps += " (" + dateFromSeconds(statusvals.snapshot_oldest);
         if (statusvals.num_snapshots > 1) {
-          snaps += " - " + dateFromSeconds(statusvals.snapshot_newest) + ")";
+          snaps += " - " + dateFromSeconds(statusvals.snapshot_newest);
         }
+        snaps += ")";
       }
       drivesdiv.innerText = snaps;
       var etherdiv = document.querySelector(".status_ether");
