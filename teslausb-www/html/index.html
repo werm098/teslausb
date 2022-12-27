@@ -278,6 +278,39 @@ video {
   opacity: 1;
 }
 
+.modaloverlay {
+  display: none;
+  position: fixed;
+  z-index: 90;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modalcontent {
+  background-color: white;
+  margin: 15% auto;
+  padding: 10px;
+  border: 2px solid #888;
+  width: 70%;
+}
+.closebutton {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.closebutton:hover,.closebutton:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .mediabutton {
   width: 100%;
   height: 100%;
@@ -405,16 +438,15 @@ video {
 
 <div style="float:right;">
 <div style="float:left;margin-top: 7px;margin-left: 0px;margin-right: 5px;">
-<a href="/new/?source=legacy" target="_self" style="margin-right: 2em;">Try new UI</a>
 <a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;">TeslaUSB on GitHub</a>
 </div>
-<!--
-<div style="padding-left:5px;font-size:200%;float:right;">
+
+<div style="padding-left:5px;font-size:200%;float:right;" title="Settings">
 <svg class="settingsbutton" width="25px" height="25px" viewBox="0 0 40 40">
   <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
 </svg>
 </div>
--->
+
 </div>
 
 <div class="tab content1">
@@ -599,8 +631,33 @@ video {
 </div>
 </div>
 </div>
+<div id="settingsoverlay" class="modaloverlay">
+  <div class="modalcontent" style="max-width:500px">
+    <div style="margin-bottom:10px">
+      <span>Settings</span>
+      <span class="closebutton">&times;</span>
+    </div>
+    <div style="width:100%;padding:10px">
+      <input type="checkbox" id="altui" name="altui" value="1">
+      <label for="altui">Use alternative web interface</label>
+    </div>
+    <div style="text-align:right;padding-top:30px;">
+      <button onclick="cancelsettings()">Cancel</button> <button onclick="confirmsettings()">OK</button>
+    </div>
+  </div
+</div>
 
 <script>
+
+if (document.referrer.includes("/new/")) {
+  /* user switched back from the Vue UI */
+  localStorage.setItem("usealtui", "false");
+} else {
+  if (localStorage.usealtui == "true") {
+    document.location.replace('/new/?source=legacy');
+    nonExistentFunction();
+  }
+}
 
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
@@ -1192,6 +1249,46 @@ function initialize() {
   readfile({pre:'setuplogpre', url:'teslausb-headless-setup.log', tail:true, button:'sudwnbtn'});
   showstatus();
   refreshdiagnostics();
+
+  var overlay = document.getElementById("settingsoverlay");
+  var settingsbtn = document.querySelector('.settingsbutton');
+  var closebutton = document.querySelector('.closebutton');
+
+  settingsbtn.onclick = showsettings;
+
+  closebutton.onclick = closesettings;
+
+  window.onclick = function(event) {
+    if (event.target == overlay) {
+      overlay.style.display = "none";
+    }
+  }
+}
+
+function showsettings() {
+  var altui = document.getElementById('altui');
+  altui.checked = (localStorage.usealtui == "true");
+  var overlay = document.getElementById("settingsoverlay");
+  overlay.style.display = "block";
+}
+
+function closesettings() {
+  var overlay = document.getElementById("settingsoverlay");
+  overlay.style.display = "none";
+}
+
+function cancelsettings() {
+  closesettings();
+}
+
+function confirmsettings() {
+  var usealtui = document.getElementById('altui').checked;
+  localStorage.setItem("usealtui", usealtui);
+  if (usealtui) {
+    document.location.replace('/new/?source=legacy');
+    nonExistentFunction();
+  }
+  closesettings();
 }
 
 function inIframe () {
