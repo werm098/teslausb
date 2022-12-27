@@ -17,6 +17,4 @@ shellcheck --exclude=SC1091 \
            ./run/mountoptsforimage \
            ./run/remountfs_rw \
            ./run/send-push-message \
-           ./run/waitforidle \
-           ./!(ui)/**/*.{sh,ksh,bash} \
-           ./ui/build.sh
+           ./run/waitforidle
