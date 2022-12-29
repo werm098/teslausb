@@ -159,7 +159,6 @@ video {
   margin: 0;
 }
 
-
 .navbar a:hover, .subnav:hover .subnavbtn {
   background-color: rgb(100,100,100);
 }
@@ -189,8 +188,8 @@ video {
 .subnav-content {
   display: none;
   position: absolute;
-  left: 0;
   background-color: rgba(100,100,100,0.7);
+  left: 2px;
   width: 70%;
   z-index: 12;
 }
@@ -198,24 +197,56 @@ video {
 .subnav-content .dropdownitem {
   float: left;
   color: white;
+  text-align: left;
   text-decoration: none;
-  padding: 14px 8px;
+  width: 140px;
+  padding: 10px 8px;
 }
 
-.subnav-content .selecteddropdownitem {
-  float: left;
-  color: white;
+.subnav-content .dropdownitem.selected .dropdownitemmain {
   text-decoration: underline 2px;
   font-weight: bold;
-  padding: 14px 8px;
+}
+
+.dropdownitemdayname {
+  color: #d0d0d0;
+  font-size: smaller;
+}
+
+.dropdownitem:hover .dropdownitemdayname {
+  color: #303030;
+  font-size: smaller;
+}
+
+.dropdownitemsub {
+  color: #d0d0d0;
+  font-size: smaller;
+  float: left;
+}
+
+.dropdownitemsub.selectable {
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.dropdownitemsub.selectable.selected {
+  text-decoration: underline 2px;
+  font-weight: bold;
+}
+
+.dropdownitem:hover .dropdownitemsub.selectable:hover {
+  color: white;
+  background-color: #303030;
+}
+
+.dropdownitem:hover .dropdownitemsub {
+  color: #303030;
+  font-size: smaller;
 }
 
 .subnav-content .dropdownitem:hover {
-  background-color: #eee;
-  color: black;
-}
-
-.subnav-content .selecteddropdownitem:hover {
   background-color: #eee;
   color: black;
 }
@@ -1125,13 +1156,22 @@ function spaceString(bytes) {
   }
 }
 
-const dtopts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-const dateTimeFormat = new Intl.DateTimeFormat(navigator.language, dtopts);
+const longDateOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const longDateFormat = new Intl.DateTimeFormat(navigator.language, longDateOpts);
+const dayNameOpts = { weekday: 'long' };
+const dayNameFormat = new Intl.DateTimeFormat(navigator.language, dayNameOpts);
 
 function dateFromSeconds(seconds) {
   var d = new Date(0);
   d.setUTCSeconds(seconds);
-  return dateTimeFormat.format(d);
+  return longDateFormat.format(d);
+}
+
+function dayNameFromDateString(datestr) {
+  /* force javascript's Date class to parse using local time
+     by using yyyy/mm/dd notation instead of yyyy-mm-dd */
+  var d = new Date(datestr.replaceAll("-", "/"));
+  return dayNameFormat.format(d);
 }
 
 function toggledrivesfunc() {
@@ -1250,15 +1290,12 @@ function initialize() {
   showstatus();
   refreshdiagnostics();
 
-  var overlay = document.getElementById("settingsoverlay");
   var settingsbtn = document.querySelector('.settingsbutton');
-  var closebutton = document.querySelector('.closebutton');
-
   settingsbtn.onclick = showsettings;
-
+  var closebutton = document.querySelector('.closebutton');
   closebutton.onclick = closesettings;
-
   window.onclick = function(event) {
+    var overlay = document.getElementById("settingsoverlay");
     if (event.target == overlay) {
       overlay.style.display = "none";
     }
@@ -1940,6 +1977,135 @@ function prettyname(name) {
   return d + " / " + t.replaceAll("-", ":");
 }
 
+function setDropdownClick(group, item) {
+  item.onclick=function(event) {
+    /* unselect all the currently selected items */
+    var previousselected = document.querySelectorAll('.selected');
+    for (i of previousselected) {
+      i.classList.remove('selected');
+    }
+    this.classList.add('selected');
+    if (this.classList.contains("dropdownitemsub")) {
+      /* also select the parent */
+      this.parentElement.classList.add('selected');
+    } else if (group != "RecentClips") {
+      /* the dropdown item itself was selected, so also
+         select the first sub item */
+      this.querySelector('.dropdownitemsub.selectable').classList.add('selected');
+    }
+    var d = document.getElementById(group);
+    d.style.display="none";
+    /* There's probably a better way, but I couldn't figure it out.
+       This hides the menu dropdown when clicked, then re-enables
+       once the mouse has moved so it doesn't stay hidden forever */
+    document.onmousemove=function(self) {
+            return function() {
+                    d.style.display="";
+                    document.onmousemove=undefined;};
+            }(this);
+    this.sequence.select();
+    event.stopPropagation();
+  };
+
+}
+
+function makeRecentsDropdownItem(group, sequence, selected) {
+  var newitem = document.createElement("div");
+
+  var itemmain = document.createElement("div");
+  itemmain.className = "dropdownitemmain";
+  var itemsub = document.createElement("div");
+  itemsub.className = "dropdownitemsub";
+  newitem.appendChild(itemmain);
+  newitem.appendChild(itemsub);
+  itemmain.innerHTML = prettyname(sequence.toString());
+
+  var html = '(' + dayNameFromDateString(sequence.toString());
+  var numevents = videos[group][sequence].jsonfile.length;
+  if (numevents != 0) {
+    html += ", " + numevents + " events";
+  }
+  html += ")";
+  itemsub.innerHTML = html;
+
+  newitem.group=group;
+  newitem.sequence=videos[group][sequence];
+  setDropdownClick(group, newitem);
+
+  newitem.className='dropdownitem';
+  if (selected) {
+    newitem.classList.add('selected');
+  }
+
+  return newitem;
+}
+
+function newSentryDropdownItem(group, sequence, selected) {
+  var newitem = document.createElement("div");
+
+  var itemmain = document.createElement("div");
+  itemmain.className = "dropdownitemmain";
+  newitem.appendChild(itemmain);
+
+  var date = sequence.substring(0,10);
+  var itemsub = document.createElement("div");
+  itemsub.className = "dropdownitemdayname";
+  itemsub.innerHTML = "(" + dayNameFromDateString(date) + ")";
+  newitem.appendChild(itemsub);
+
+  itemsub = document.createElement("div");
+  itemsub.className = "dropdownitemsub selectable";
+  newitem.appendChild(itemsub);
+
+  var time = sequence.substring(11);
+
+  itemmain.innerHTML = date;
+  itemsub.innerHTML = time.substring(0,5).replaceAll("-", ":");;
+
+  newitem.group=group;
+  newitem.sequence=videos[group][sequence];
+  itemsub.sequence=videos[group][sequence];
+
+  setDropdownClick(group, newitem);
+  setDropdownClick(group, itemsub);
+  newitem.className='dropdownitem';
+  if (selected) {
+    newitem.classList.add('selected');
+  }
+
+  return newitem;
+}
+
+function addToSentryDropdownItem(parent, group, sequence, selected) {
+  var itemsub = document.createElement("div");
+  itemsub.className = "dropdownitemsub selectable";
+  parent.appendChild(itemsub);
+  var time = sequence.substring(11);
+  itemsub.innerHTML = time.substring(0,5).replaceAll("-", ":");
+  itemsub.sequence=videos[group][sequence];
+  setDropdownClick(group, itemsub);
+}
+
+function makeSentryDropdownItem(group, sequence, selected) {
+  var d = document.getElementById(group);
+  var lastdropdownitem = d.lastChild;
+  var date = sequence.substring(0,10);
+  if (lastdropdownitem != null && lastdropdownitem.date == date) {
+    addToSentryDropdownItem(lastdropdownitem, group, sequence, selected);
+    return undefined;
+  }
+  var newitem = newSentryDropdownItem(group, sequence, selected);
+  newitem.date = date;
+  return newitem;
+}
+
+function makeDropdownItem(group, sequence, selected) {
+  if (group == "RecentClips") {
+    return makeRecentsDropdownItem(group, sequence, selected);
+  }
+  return makeSentryDropdownItem(group, sequence, selected);
+}
+
 readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   var newest="0-";
   var newestsequence;
@@ -1998,40 +2164,26 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
         log("skipping empty " + i + "/" + c);
         continue;
       }
-      var newelem = document.createElement("a");
-      newelem.innerHTML = prettyname(c.toString());
-      newelem.group=i;
-      newelem.sequence=videos[i][c];
-      if (newelem.sequence == newestsequence) {
-        newelem.className='selecteddropdownitem';
-      } else {
-        newelem.className='dropdownitem';
+
+      var newelem = makeDropdownItem(i, c, videos[i][c] == newestsequence);
+      if (newelem != undefined) {
+        d.appendChild(newelem);
       }
-      newelem.onclick=function() {
-        log(this.sequence);
-        var previousselected = document.getElementsByClassName('selecteddropdownitem');
-        for (item of previousselected) {
-          item.className='dropdownitem';
-        }
-        this.className='selecteddropdownitem'
-        this.parentElement.style.display="none";
-        /* There's probably a better way, but I couldn't figure it out.
-           This hides the menu dropdown when clicked, then re-enables
-           once the mouse has moved so it doesn't stay hidden forever */
-        document.onmousemove=function(self) {
-                return function() {
-                        self.parentElement.style.display="";
-                        document.onmousemove=undefined;};
-                }(this);
-        this.sequence.select();
-      };
-      d.appendChild(newelem);
     }
+
+    /* set an appropriate size and position for the dropdown */
+    var cols = Math.trunc((document.body.clientWidth * 0.7 + 155) / 156);
+    if ((d.childElementCount / cols) < 3) {
+      cols = Math.ceil(d.childElementCount / 3);
+    }
+    if (cols < 2) {
+      d.style.left = d.parentElement.getBoundingClientRect().left - 8 + "px";
+    }
+    d.style.width = (cols * 156) + "px";
   }
+  initialize();
 }
 });
-
-initialize();
 
 </script>
 </body>
