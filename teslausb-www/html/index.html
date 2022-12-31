@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
 <title>TeslaUSB</title>
 
 <style>
@@ -12,9 +14,12 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
+html,body {
   font-family: Arial, sans-serif;
-  height: calc(100% - 16px);
+  height: 100vh;
+  width: 100vw;
+  margin: 0 0 0 0;
+  overflow-x: hidden;
 }
 
 .recordings {
@@ -29,35 +34,97 @@ body {
   border: 0;
 }
 
+.scrollshadows {
+  background:
+    /* left cover, scrolls with view */
+    linear-gradient(
+      0.25turn,
+      white 30%,
+      rgba(255, 255, 255, 0)
+    ) center left,
+
+    /* right cover, scrolls with view */
+    linear-gradient(
+      0.25turn,
+      rgba(255, 255, 255, 0),
+      white 70%
+    ) center right,
+
+    /* left shadow, revealed when left cover scrolls away*/
+    linear-gradient(
+      0.25turn,
+      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0)
+    ) center left,
+
+    /* right shadow, revealed when right cover scrolls away */
+    linear-gradient(
+      0.75turn,
+      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0)
+    ) center right;
+
+  background-repeat: no-repeat;
+  background-size: 60px 100%, 60px 100%, 20px 100%, 20px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+
 .tabholder {
   position: relative;
+  width:100%;
+  height:calc(100% - 60px);
+}
+
+.tabheaderholder {
+  padding-top: 3px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow-x: scroll;
+}
+
+.stretchable {
+  display: inline-block;
+  padding: 4px 12px;
+  position: relative;
+  top: 2px;
+  width: calc(100% - 765px);
+  min-width: 2px;
 }
 
 .tab {
   position: absolute;
-  top: 30px;
+  top: 33px;
   left: 0;
   visibility: hidden;
+  width: 100%;
+  height: 100%;
 }
 
-.tabheader { display: none; }
-.tabheader + label { display: inline-block }
-
-.tabheader ~ .tab { visibility: hidden; }
-#tab1:checked ~ .tab.content1,
-#tab2:checked ~ .tab.content2,
-#tab3:checked ~ .tab.content3,
-#tab4:checked ~ .tab.content4,
-#tab5:checked ~ .tab.content5,
-#tab6:checked ~ .tab.content6 { visibility: visible;
+.tabheader {
+  display: none;
 }
 
 .tabheader + label {
-  padding: 4px 12px;
+  display: inline-block;
+  padding: 3px 12px;
   position: relative;
-  top: 2px;
+  top: -3px;
   color: #444;
 }
+
+.tabheader ~ .tab {
+  visibility: hidden;
+}
+
+.tabheaderholder:has( #tab1:checked) ~ .tab.content1,
+.tabheaderholder:has( #tab2:checked) ~ .tab.content2,
+.tabheaderholder:has( #tab3:checked) ~ .tab.content3,
+.tabheaderholder:has( #tab4:checked) ~ .tab.content4,
+.tabheaderholder:has( #tab5:checked) ~ .tab.content5,
+.tabheaderholder:has( #tab6:checked) ~ .tab.content6 {
+  visibility: visible;
+}
+
 .tabheader:hover + label {
   border-bottom: 3px solid #AAA;
   color: #000;
@@ -85,16 +152,13 @@ button {
   width: 200px;
 }
 
-.tabholder {
-  width:100%;
-  height:calc(100% - 60px);
-}
-
 .mypre {
   width:100%;
   height:calc(100% - 60px);
-  padding-top:4px;
-  padding-bottom:4px;
+  padding-top: 0px;
+  padding-bottom: 4px;
+  padding-left: 4px;
+  margin-top: 2px;
   overflow:auto;
   border-top:1px solid black;
   border-bottom:1px solid black;
@@ -142,7 +206,7 @@ video {
   border: none;
   outline: none;
   color: white;
-  padding: 14px 16px;
+  padding: 14px 13px;
   background-color: inherit;
   font-family: inherit;
   margin: 0;
@@ -265,10 +329,10 @@ video {
 #videocontrols {
   opacity: 0.0;
   z-index: 2;
-  margin: auto;
-  position: fixed;
-  bottom: 0;
-  width: calc(100% - 200px);
+  margin: 0;
+  position: absolute;
+  top: calc(100vh - 133px);
+  width: 100%;
   height: 100px;
   background-color: #555;
   transition: opacity 0.5s;
@@ -276,9 +340,6 @@ video {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding-bottom: 8px;
-  margin-left: 100px;
-  margin-right: 100px;
 }
 
 #videocontrols:hover {
@@ -449,6 +510,7 @@ video {
 
 <div class="tabholder">
 
+<div class="tabheaderholder scrollshadows">
 <input class="tabheader" type="radio" name="tabs" id="tab1" />
 <label for="tab1">Diagnostics</label>
 
@@ -467,18 +529,18 @@ video {
 <input class="tabheader" type="radio" name="tabs" id="tab6" checked />
 <label for="tab6">Viewer</label>
 
-<div style="float:right;">
-<div style="float:left;margin-top: 7px;margin-left: 0px;margin-right: 5px;">
-<a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;">TeslaUSB on GitHub</a>
-</div>
+<div class="stretchable"></div>
 
-<div style="padding-left:5px;font-size:200%;float:right;" title="Settings">
-<svg class="settingsbutton" width="25px" height="25px" viewBox="0 0 40 40">
-  <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
-</svg>
-</div>
+    <a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;position:relative;">TeslaUSB on GitHub</a>
 
-</div>
+  <div style="padding-left:5px;bottom:-4px;width:22px;height:22px;position:relative;display:inline-block;" title="Settings">
+    <svg class="settingsbutton" viewBox="0 0 38 38">
+      <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
+    </svg>
+  </div>
+
+
+</div> <!-- tabheaderholder -->
 
 <div class="tab content1">
 <div style="width:100%;height:100%">
@@ -505,9 +567,8 @@ video {
 </div>
 </div>
 
-<div class="tab content4">
+<div class="tab content4" style="width:calc(100% - 4px);margin: 2px;">
 <div style="width:100%;height:100%;">
-<p>
 <div class="pistatus">
 <div class="status_uptime"></div>
 <div class="status_temp"></div>
@@ -569,7 +630,7 @@ video {
 </div>
 
 <div class="tab content6">
-<div style="width:100%;height:100%;">
+<div style="width:100%;height:100%;" onmousemove="showcontrols()">
 <div class="navbar">
   <div class="subnav">
     <button class="subnavbtn">RecentClips</button>
@@ -596,7 +657,7 @@ video {
   </div>
 </div>
 <div>
-<table id="videoholder" style="width:100%;height:100%;" cellspacing="0" onmousemove="showcontrols()">
+<table id="videoholder" style="width:100%;height:100%;" cellspacing="0">
 <tr>
   <td id="topleft" width="33%">
   <div id="leftviewholder" style="display:grid;">
@@ -979,7 +1040,7 @@ var speedometer;
 
 function byteRate(speed) {
   if (speed > 500000) {
-    return (speed / (1024 * 1024)).toFixed(1) + " MB/s"; 
+    return (speed / (1024 * 1024)).toFixed(1) + " MB/s";
   } else {
     return (speed / 1024).toFixed(1) + " KB/s";
   }
