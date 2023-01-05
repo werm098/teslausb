@@ -379,7 +379,7 @@ function clean_cam_mount {
 
   # delete directories that are now empty
   find "$CAM_MOUNT/TeslaCam/RecentClips" "$CAM_MOUNT/TeslaCam/SavedClips" \
-    "$CAM_MOUNT/TeslaCam/SentryClips" "$CAM_MOUNT/TeslaTrackMode" -depth -type d -empty -delete || true
+    "$CAM_MOUNT/TeslaCam/SentryClips" "$CAM_MOUNT/TeslaTrackMode" -mindepth 1 -type d -empty -delete || true
 
   log "done cleaning cam mount"
 }
