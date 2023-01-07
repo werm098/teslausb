@@ -205,12 +205,12 @@ video {
   text-decoration: none;
 }
 
-.subnav {
+.subnav,.noclips {
   float: left;
   overflow: hidden;
 }
 
-.subnav .subnavbtn {
+:is(.subnav,.noclips) .subnavbtn {
   font-size: 16px;
   border: none;
   outline: none;
@@ -219,6 +219,20 @@ video {
   background-color: inherit;
   font-family: inherit;
   margin: 0;
+}
+
+.noclips .subnavbtn {
+  color: grey;
+}
+
+/* only show "No recordings" item when all categories are empty */
+.navbar:has( .subnav-content:not(:empty):not(#layouts)) .noclips .subnavbtn {
+  display: none;
+}
+
+/* hide clips categories that are empty */
+.subnav .subnavbtn:has(+ .subnav-content:empty) {
+  display: none;
 }
 
 .subnav .layoutbtn {
@@ -516,7 +530,6 @@ video {
 </style>
 </head>
 <body>
-
 <div class="tabholder">
 
 <div class="tabheaderholder scrollshadows">
@@ -641,6 +654,10 @@ video {
 <div class="tab content6">
 <div style="width:100%;height:100%;" onmousemove="showcontrols()">
 <div class="navbar">
+  <div class="noclips">
+    <button class="subnavbtn">Loading...</button>
+    <div id="NoClips" class="subnav-content"></div>
+  </div>
   <div class="subnav">
     <button class="subnavbtn">RecentClips</button>
     <div id="RecentClips" class="subnav-content"></div>
@@ -653,6 +670,7 @@ video {
     <button class="subnavbtn">SentryClips</button>
     <div id="SentryClips" class="subnav-content"></div>
   </div>
+
   <div class="subnav" style="float:right;">
     <button class="layoutbtn">
     <svg class="layoutsvg" width="52px" height="26px" viewBox="0 0 26 13">
@@ -2251,6 +2269,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     }
     d.style.width = (cols * 156) + "px";
   }
+  document.querySelector(".noclips .subnavbtn").innerHTML = "No recordings";
   initialize();
 }
 });
