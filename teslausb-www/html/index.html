@@ -2241,6 +2241,10 @@ function addToSentryDropdownItem(parent, group, sequence, selected) {
   itemsub.innerHTML = time.substring(0,5).replaceAll("-", ":");
   itemsub.sequence=videos[group][sequence];
   setDropdownClick(group, itemsub);
+  if (selected) {
+    parent.classList.add('selected');
+    itemsub.classList.add('selected');
+  }
 }
 
 function makeSentryDropdownItem(group, sequence, selected) {
