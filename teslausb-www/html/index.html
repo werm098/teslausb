@@ -281,9 +281,6 @@ video {
 .subnav,.noclips {
   float: left;
   overflow: hidden;
-}
-
-:is(.subnav,.noclips) .subnavbtn {
   font-size: 16px;
   border: none;
   outline: none;
@@ -294,29 +291,28 @@ video {
   margin: 0;
 }
 
-.noclips .subnavbtn {
+.noclips {
   color: grey;
 }
 
+/* highlight category that holds the currently selected clip */
+.subnav:has( .selected) {
+  text-decoration: underline 2px;
+}
+
 /* only show "No recordings" item when all categories are empty */
-.navbar:has( .subnav-content:not(:empty):not(#layouts)) .noclips .subnavbtn {
+.navbar:has( .subnav-content:not(:empty):not(#layouts)) .noclips {
   display: none;
 }
 
 /* hide clips categories that are empty */
-.subnav .subnavbtn:has(+ .subnav-content:empty) {
+.subnav:has( .subnav-content:empty) {
   display: none;
 }
 
-.subnav .layoutbtn {
-  font-size: 16px;
-  border: none;
-  outline: none;
-  color: white;
+.subnav.layoutbtn {
+  float: right;
   padding: 6px;
-  background-color: inherit;
-  font-family: inherit;
-  margin: 0;
 }
 
 #layouts.subnav-content {
@@ -335,15 +331,11 @@ video {
   font-weight: bold;
 }
 
-.navbar a:hover, .subnav:hover .subnavbtn {
+.navbar a:hover, .subnav:hover {
   background-color: rgb(100,100,100);
 }
 
-.navbar a:hover, .subnav:hover .layoutbtn {
-  background-color: rgb(100,100,100);
-}
-
-.navbar a:hover, .subnav:hover .layoutbtn .layoutsvg {
+.navbar a:hover, .subnav:hover .layoutsvg {
   background-color: rgb(100,100,100);
   fill: white;
   stroke: white;
@@ -368,6 +360,11 @@ video {
   left: 2px;
   width: 70%;
   z-index: 12;
+  margin-top: 13px;
+}
+
+#layouts.subnav-content {
+  margin-top: 6px;
 }
 
 .dropdownitem {
@@ -748,25 +745,19 @@ video {
 <div class="tab content6">
 <div style="width:100%;height:100%;" onmousemove="showcontrols()">
 <div class="navbar">
-  <div class="noclips">
-    <button class="subnavbtn">Loading...</button>
-    <div id="NoClips" class="subnav-content"></div>
+  <div class="noclips">Loading...
   </div>
-  <div class="subnav">
-    <button class="subnavbtn">RecentClips</button>
+  <div class="subnav">RecentClips
     <div id="RecentClips" class="subnav-content"></div>
   </div>
-  <div class="subnav">
-    <button class="subnavbtn">SavedClips</button>
+  <div class="subnav">SavedClips
     <div id="SavedClips" class="subnav-content"></div>
   </div>
-  <div class="subnav">
-    <button class="subnavbtn">SentryClips</button>
+  <div class="subnav">SentryClips
     <div id="SentryClips" class="subnav-content"></div>
   </div>
 
-  <div class="subnav" style="float:right;">
-    <button class="layoutbtn">
+  <div class="subnav layoutbtn" style="float:right;">
     <svg class="layoutsvg" width="52px" height="26px" viewBox="0 0 26 13">
       <path d="M 2 6 L 8 6 L 8 2 L 2 2 z M 10 6 L 16 6 L 16 2 L 10 2 z M 18 6 L 24 6 L 24 2 L 18 2 z M 2 12 L 8 12 L 8 8 L 2 8 z M 10 12 L 16 12 L 16 8 L 10 8 z M 18 12 L 24 12 L 24 8 L 18 8 z"/>
     </svg></button>
@@ -798,11 +789,10 @@ video {
       <canvas id="backviewfreeze" class="videogriditem backview" style="z-index:0;"></canvas>
 
       <div id="infoholder" class="videogriditem infoview" style="margin-left:12px;color:white;">
-        <div id="sequencename" style="margin-top:8px;margin-bottom:2px;"></div>
-        <div id="sequencelocation" style="margin-top:7px;margin-bottom:7px;"></div>
-        <div id="segmentname" style="margin-top:7px;margin-bottom:12px;"></div>
-        <span id="currenttime" style="margin-top:24px;"></span><span id="totaltime"></span>
-        <div id="debuginfo"></div>
+        <div id="sequencelocation" style="margin-top:8px;margin-bottom:8px;"></div>
+        <div id="segmentname" style="margin-top:8px;margin-bottom:8px;"></div>
+        <div style="margin-top:8px;"><span id="currenttime"></span><span id="totaltime"></span>
+        <div id="debuginfo" style="margin-top:20px;"></div>
       </div>
 </div>
 
@@ -1836,8 +1826,6 @@ class VideoSequence {
   select() {
     this.reset();
     currentsequence=this;
-    var name = document.getElementById('sequencename');
-    name.innerText = this.sequencegroup + " / " + prettyname(this.sequencename);
     var slider = document.getElementById('position');
     slider.max = (this.length() * 60000) - 1;
     slider.oninput = this.onSeek.bind(this);
@@ -2343,7 +2331,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     }
     d.style.width = (cols * 156) + "px";
   }
-  document.querySelector(".noclips .subnavbtn").innerHTML = "No recordings";
+  document.querySelector(".noclips").innerHTML = "No recordings";
   initialize();
 }
 });
