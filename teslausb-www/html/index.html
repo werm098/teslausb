@@ -766,11 +766,11 @@ video {
       <path d="M 2 6 L 8 6 L 8 2 L 2 2 z M 10 6 L 16 6 L 16 2 L 10 2 z M 18 6 L 24 6 L 24 2 L 18 2 z M 2 12 L 8 12 L 8 8 L 2 8 z M 10 12 L 16 12 L 16 8 L 10 8 z M 18 12 L 24 12 L 24 8 L 18 8 z"/>
     </svg></button>
     <div id="layouts" class="subnav-content">
-    <div class="dropdownitem" onclick="setLayout(1)">Sides on top, rear on bottom, mirrored</div>
-    <div class="dropdownitem" onclick="setLayout(2)">Side and rear on bottom, mirrored</div>
-    <div class="dropdownitem" onclick="setLayout(3)">Side and rear on bottom, looking back</div>
-    <div class="dropdownitem" onclick="setLayout(4)">Mobile layout,<br>mirrored</div>
-    <div class="dropdownitem" onclick="setLayout(5)">Mobile layout,<br>looking back</div>
+    <div class="dropdownitem layoutitem" onclick="setLayout(1)">Sides on top, rear on bottom, mirrored</div>
+    <div class="dropdownitem layoutitem" onclick="setLayout(2)">Side and rear on bottom, mirrored</div>
+    <div class="dropdownitem layoutitem" onclick="setLayout(3)">Side and rear on bottom, looking back</div>
+    <div class="dropdownitem layoutitem" onclick="setLayout(4)">Mobile layout,<br>mirrored</div>
+    <div class="dropdownitem layoutitem" onclick="setLayout(5)">Mobile layout,<br>looking back</div>
     </div>
   </div>
 </div>
@@ -2137,7 +2137,7 @@ function prettyname(name) {
 function setDropdownClick(group, item) {
   item.onclick=function(event) {
     /* unselect all the currently selected items */
-    var previousselected = document.querySelectorAll('.selected');
+    var previousselected = document.querySelectorAll('.selected:not(.layoutitem)');
     for (i of previousselected) {
       i.classList.remove('selected');
     }
