@@ -370,7 +370,7 @@ video {
   z-index: 12;
 }
 
-.subnav-content .dropdownitem {
+.dropdownitem {
   float: left;
   color: white;
   text-align: left;
@@ -379,7 +379,12 @@ video {
   padding: 10px 8px;
 }
 
-.subnav-content .dropdownitem.selected .dropdownitemmain {
+.dropdownitem.selected .dropdownitemmain {
+  text-decoration: underline 2px;
+  font-weight: bold;
+}
+
+.dropdownitemmain:has(~ .dropdownitemsub.selected) {
   text-decoration: underline 2px;
   font-weight: bold;
 }
@@ -2142,10 +2147,7 @@ function setDropdownClick(group, item) {
       i.classList.remove('selected');
     }
     this.classList.add('selected');
-    if (this.classList.contains("dropdownitemsub")) {
-      /* also select the parent */
-      this.parentElement.classList.add('selected');
-    } else if (group != "RecentClips") {
+    if (!this.classList.contains("dropdownitemsub") && group != "RecentClips") {
       /* the dropdown item itself was selected, so also
          select the first sub item */
       this.querySelector('.dropdownitemsub.selectable').classList.add('selected');
@@ -2242,7 +2244,6 @@ function addToSentryDropdownItem(parent, group, sequence, selected) {
   itemsub.sequence=videos[group][sequence];
   setDropdownClick(group, itemsub);
   if (selected) {
-    parent.classList.add('selected');
     itemsub.classList.add('selected');
   }
 }
