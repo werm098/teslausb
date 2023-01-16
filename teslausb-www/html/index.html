@@ -798,8 +798,8 @@ video {
 
 <div id="videocontrols" >
   <input type="range" class="slider" id="position" name="position"
-         min="0" max="60" style="width:90%;max-width:600px;height:10%;">
-  <div id="tickmarks" style="width:90%;max-width:600px;height:10px;">
+         min="0" max="60" style="width:90%;max-width:600px;height:10%;z-index:2;">
+  <div style="width:90%;max-width:600px;height:26px;margin-top:-14px;">
     <canvas id="tickmarkscanvas" style="width:100%;height:100%;">
   </div>
   <div class="buttoncontainer">
@@ -1534,6 +1534,7 @@ class VideoSegment {
   readytoplay;
   autoplay;
   autoseek;
+  timestampMs;
 
   constructor(group, sequence) {
     this.group = group; // RecentClips, SavedClips or SentryClips
@@ -1565,6 +1566,15 @@ class VideoSegment {
       this.right=path;
     } else if (path.includes('back')) {
       this.back=path;
+    } else {
+      log("unknown video path");
+      return;
+    }
+    if (this.timestampMs == undefined) {
+      var dateStr = path.substring(0, 10);
+      var timeStr = path.substring(11, 19).replaceAll("-", ":");
+      var d = Date.parse(dateStr + " " + timeStr);
+      this.timestampMs = d;
     }
   }
 
@@ -1766,7 +1776,7 @@ t.resizeHandler = function () {
 }
 ro.observe(t);
 
-/* a sequence of segments, e.g. a single sentry event, or a day's worth of RecentClips */
+/* a sequence of VideoSegments, e.g. a single sentry event, or a day's worth of RecentClips */
 class VideoSequence {
   segments;
   segmentsbytime;
@@ -1777,6 +1787,7 @@ class VideoSequence {
   jsonfile;
   jsonparsed;
   sentryeventrel;
+  subsequencestart;
 
   constructor(group, name) {
     this.segments = [];
@@ -1787,6 +1798,20 @@ class VideoSequence {
     this.jsonfile = [];
     this.jsonparsed = [];
     this.sentryeventrel = [];
+    this.subsequencestart = [];
+  }
+
+  initialize() {
+    /* find any gaps in the sequence so those can be indicated on the timeline */
+    var subseqstart = 0;
+    for (var i = 0; i < this.length(); i++) {
+      var segment = this.getSegmentByIndex(i);
+      var ts = segment.timestampMs;
+      if ((ts - subseqstart) > 90000) {
+        this.subsequencestart.push(i);
+      }
+      subseqstart = ts;
+    }
   }
 
   reset() {
@@ -1923,12 +1948,12 @@ class VideoSequence {
     var c = document.getElementById('tickmarkscanvas');
     var t = c.getContext("2d");
     var w = c.width - 15;
-    var h = c.height;
+    var h = c.height - 16;
     t.fillStyle = "#ffffff"
     t.beginPath();
-    t.moveTo(7.5 + w * percent, 0);
-    t.lineTo(7.5 + w * percent + h / 2, h);
-    t.lineTo(7.5 + w * percent - h / 2, h);
+    t.moveTo(7.5 + w * percent, 16);
+    t.lineTo(7.5 + w * percent + h / 2, h + 16);
+    t.lineTo(7.5 + w * percent - h / 2, h + 16);
     t.fill();
   }
 
@@ -1960,11 +1985,28 @@ class VideoSequence {
     this.readJsonIfNeeded(idx);
   }
 
+  drawSubsequenceMarker(idx) {
+    var percent = this.subsequencestart[idx] / this.length();
+    var c = document.getElementById('tickmarkscanvas');
+    var t = c.getContext("2d");
+    var w = c.width - 15;
+    var h = c.height - 2;
+    t.strokeStyle = "#ffffff"
+    t.beginPath();
+    t.moveTo(7.5 + w * percent, 0);
+    t.lineTo(7.5 + w * percent, 19);
+    t.stroke();
+
+  }
+
   onTickResize() {
     var c = document.getElementById('tickmarkscanvas');
     log("tickmarks resized to " + c.clientWidth + "x" + c.clientHeight);
     c.width = c.clientWidth;
     c.height = c.clientHeight;
+    for (var i = 1; i < this.subsequencestart.length; i++) {
+      this.drawSubsequenceMarker(i);
+    }
     for (var i = 0; i < this.jsonfile.length; i++) {
       this.drawTickForIndex(i);
     }
@@ -2304,9 +2346,6 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       log("added event json to " + clipday);
     }
   }
-  if (newestsequence != undefined) {
-    newestsequence.select();
-  }
 
   for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
     var d=document.getElementById(i);
@@ -2315,6 +2354,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
         log("skipping empty " + i + "/" + c);
         continue;
       }
+      videos[i][c].initialize();
 
       var newelem = makeDropdownItem(i, c, videos[i][c] == newestsequence);
       if (newelem != undefined) {
@@ -2331,6 +2371,9 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       d.style.left = d.parentElement.getBoundingClientRect().left - 8 + "px";
     }
     d.style.width = (cols * 156) + "px";
+  }
+  if (newestsequence != undefined) {
+    newestsequence.select();
   }
   document.querySelector(".noclips").innerHTML = "No recordings";
   initialize();
