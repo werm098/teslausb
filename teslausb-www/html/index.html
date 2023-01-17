@@ -622,216 +622,220 @@ video {
 </head>
 <body>
 <div class="tabholder">
+  <div class="tabheaderholder scrollshadows">
+    <input class="tabheader" type="radio" name="tabs" id="tab1" />
+    <label for="tab1">Diagnostics</label>
 
-<div class="tabheaderholder scrollshadows">
-<input class="tabheader" type="radio" name="tabs" id="tab1" />
-<label for="tab1">Diagnostics</label>
+    <input class="tabheader" type="radio" name="tabs" id="tab2" />
+    <label for="tab2">Archiveloop log</label>
 
-<input class="tabheader" type="radio" name="tabs" id="tab2" />
-<label for="tab2">Archiveloop log</label>
+    <input class="tabheader" type="radio" name="tabs" id="tab3" />
+    <label for="tab3">Setup log</label>
 
-<input class="tabheader" type="radio" name="tabs" id="tab3" />
-<label for="tab3">Setup log</label>
+    <input class="tabheader" type="radio" name="tabs" id="tab4" />
+    <label for="tab4">Tools</label>
 
-<input class="tabheader" type="radio" name="tabs" id="tab4" />
-<label for="tab4">Tools</label>
+    <input class="tabheader" type="radio" name="tabs" id="tab5" />
+    <label for="tab5">Recordings</label>
 
-<input class="tabheader" type="radio" name="tabs" id="tab5" />
-<label for="tab5">Recordings</label>
+    <input class="tabheader" type="radio" name="tabs" id="tab6" checked />
+    <label for="tab6">Viewer</label>
 
-<input class="tabheader" type="radio" name="tabs" id="tab6" checked />
-<label for="tab6">Viewer</label>
-
-<div class="stretchable"></div>
+    <div class="stretchable"></div>
 
     <a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;position:relative;">TeslaUSB on GitHub</a>
 
-  <div style="padding-left:5px;bottom:-4px;width:22px;height:22px;position:relative;display:inline-block;" title="Settings">
-    <svg class="settingsbutton" viewBox="0 0 38 38">
-      <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
-    </svg>
-  </div>
-
-
-</div> <!-- tabheaderholder -->
-
-<div class="tab content1">
-<div style="width:100%;height:100%">
-<pre class="mypre" id="diagnosticspre">...</pre>
-<p>
-<button class="group1" id="diagrefreshbtn" onclick="refreshdiagnostics();">Refresh diagnostics</button>
-<button class="group1" id="diagdwnbtn" onclick="download('diagnostics.txt', document.getElementById('diagnosticspre').textContent);">Download diagnostics</button>
-</div>
-</div>
-
-<div class="tab content2">
-<div style="width:100%;height:100%">
-<pre class="mypre" id="archivelooppre">Loading...</pre>
-<p>
-<button class="group1" id="aldwnbtn" onclick="download('archiveloop.log', document.getElementById('archivelooppre').textContent);">Download archiveloop log</button>
-</div>
-</div>
-
-<div class="tab content3">
-<div style="width:100%;height:100%">
-<pre class="mypre" id="setuplogpre">Loading...</pre>
-<p>
-<button class="group1" id="sudwnbtn" onclick="download('teslausb-headless-setup.log', document.getElementById('setuplogpre').textContent);">Download setup log</button>
-</div>
-</div>
-
-<div class="tab content4" style="width:calc(100% - 4px);margin: 2px;">
-<div style="width:100%;height:100%;">
-<div class="pistatus">
-<div class="status_uptime"></div>
-<div class="status_temp"></div>
-<div class="status_drives"></div>
-<div class="status_space"></div>
-<div class="status_snapshots"></div>
-<div class="status_ether">
-  <span>Ethernet:
-    <span class="status_ether_info"></span>
-  </span>
-</div>
-<div class="status_wifi">
-  <span>Wifi:
-    <span class="status_wifi_info"> </span>
-  </span>
-  <span class="wifi-icon-span" title="">
-    <svg width="20px" height="18px" viewBox="0 5 110 95">
-      <g class="wifi-icon" strength="a">
-        <circle class="wifi-none" cx="56" cy="77" r="5" stroke="blue" stroke-width="1" fill="black" />
-        <path class="wifi-low" fill="none" stroke-width="10" stroke="lightgrey"
-              stroke-linecap="round" d="m 76 63 c -11 -11 -29 -11 -40 0"/>
-        <path class="wifi-medium" fill="none" stroke-width="10" stroke="lightgrey"
-              stroke-linecap="round" d="m 93 48 c -20 -20 -53 -20 -73 0"/>
-        <path class="wifi-high" fill="none" stroke-width="10" stroke="lightgrey"
-              stroke-linecap="round" d="m 109 32 c -29 -29 -76 -29 -105 0"/>
-      </g>
-    </svg>
-  </span>
-</div>
-</div>
-<button class="group2" id="toggledrives" onclick="toggledrivesfunc();"></button>
-<p>
-<button class="group2" onclick="syncfunc();">Trigger archive/sync</button><span id="synctext" style="padding-left:20px;"></span>
-<p>
-<button class="group2" onclick="startspeedtest(this);" id="speedtestbutton">Run network speed test</button><span height="25px"><span style="padding-left:10px;"></span><svg id="speedspinner" width="20px" height="20px" style="vertical-align:middle;visibility:hidden;" viewBox="-12 -12 24 24">
-<g stroke-linecap="round" stroke-width="2">
-<path id="a" d="M0 5 0 10"/>
-<use transform="rotate(0)"   xlink:href="#a" stroke="#f0f0f0"/>
-<use transform="rotate(36)"  xlink:href="#a" stroke="#e0e0e0"/>
-<use transform="rotate(72)"  xlink:href="#a" stroke="#d0d0d0"/>
-<use transform="rotate(108)" xlink:href="#a" stroke="#c0c0c0"/>
-<use transform="rotate(144)" xlink:href="#a" stroke="#b0b0b0"/>
-<use transform="rotate(180)" xlink:href="#a" stroke="#a0a0a0"/>
-<use transform="rotate(216)" xlink:href="#a" stroke="#909090"/>
-<use transform="rotate(252)" xlink:href="#a" stroke="#808080"/>
-<use transform="rotate(288)" xlink:href="#a" stroke="#707070"/>
-<use transform="rotate(324)" xlink:href="#a" stroke="#000000"/>
-</g>
-</svg><span id="speedtext" style="padding-left:10px;"></span></span>
-<p>
-<button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px;"></span>
-</div>
-</div>
-
-<div class="tab content5">
-<div style="width:100%;height:100%;">
-<iframe class="recordings" src="TeslaCam/" onload="hideRecordingParent();"></iframe>
-</div>
-</div>
-
-<div class="tab content6">
-<div style="width:100%;height:100%;" onmousemove="showcontrols()">
-<div class="navbar">
-  <div class="noclips">Loading...
-  </div>
-  <div class="subnav">RecentClips
-    <div id="RecentClips" class="subnav-content"></div>
-  </div>
-  <div class="subnav">SavedClips
-    <div id="SavedClips" class="subnav-content"></div>
-  </div>
-  <div class="subnav">SentryClips
-    <div id="SentryClips" class="subnav-content"></div>
-  </div>
-
-  <div class="subnav layoutbtn" style="float:right;">
-    <svg class="layoutsvg" width="52px" height="26px" viewBox="0 0 26 13">
-      <path d="M 2 6 L 8 6 L 8 2 L 2 2 z M 10 6 L 16 6 L 16 2 L 10 2 z M 18 6 L 24 6 L 24 2 L 18 2 z M 2 12 L 8 12 L 8 8 L 2 8 z M 10 12 L 16 12 L 16 8 L 10 8 z M 18 12 L 24 12 L 24 8 L 18 8 z"/>
-    </svg></button>
-    <div id="layouts" class="subnav-content">
-    <div class="dropdownitem layoutitem" onclick="setLayout(1)">Sides on top, rear on bottom, mirrored</div>
-    <div class="dropdownitem layoutitem" onclick="setLayout(2)">Side and rear on bottom, mirrored</div>
-    <div class="dropdownitem layoutitem" onclick="setLayout(3)">Side and rear on bottom, looking back</div>
-    <div class="dropdownitem layoutitem" onclick="setLayout(4)">Mobile layout,<br>mirrored</div>
-    <div class="dropdownitem layoutitem" onclick="setLayout(5)">Mobile layout,<br>looking back</div>
+    <div style="padding-left:5px;bottom:-4px;width:22px;height:22px;position:relative;display:inline-block;" title="Settings">
+      <svg class="settingsbutton" viewBox="0 0 38 38">
+        <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
+      </svg>
     </div>
   </div>
-</div>
-<div>
-<div class="videoholder layout3">
-      <video id="leftview" class="videogriditem leftview" style="z-index:1;"></video>
-      <canvas id="leftviewfreeze" class="videogriditem leftview"  style="z-index:0;"></canvas>
 
-      <video id="frontview" class="videogriditem frontview" style="z-index:1;"></video>
-      <canvas id="frontviewfreeze" class="videogriditem frontview" style="z-index:0;"></canvas>
+  <div class="tab content1">
+    <div style="width:100%;height:100%">
+      <pre class="mypre" id="diagnosticspre">...</pre>
+      <p>
+      <button class="group1" id="diagrefreshbtn" onclick="refreshdiagnostics();">Refresh diagnostics</button>
+      <button class="group1" id="diagdwnbtn" onclick="download('diagnostics.txt', document.getElementById('diagnosticspre').textContent);">Download diagnostics</button>
+    </div>
+  </div>
 
-      <video id="rightview" class="videogriditem rightview" style="z-index:1;"></video>
-      <canvas id="rightviewfreeze" class="videogriditem rightview" style="z-index:0;"></canvas>
+  <div class="tab content2">
+    <div style="width:100%;height:100%">
+      <pre class="mypre" id="archivelooppre">Loading...</pre>
+      <p>
+      <button class="group1" id="aldwnbtn" onclick="download('archiveloop.log', document.getElementById('archivelooppre').textContent);">Download archiveloop log</button>
+    </div>
+  </div>
 
-      <div class="videogriditem mapview" style="margin:0px;z-index:0;">
-        <iframe id="sentrymap"></iframe>
+  <div class="tab content3">
+    <div style="width:100%;height:100%">
+      <pre class="mypre" id="setuplogpre">Loading...</pre>
+      <p>
+      <button class="group1" id="sudwnbtn" onclick="download('teslausb-headless-setup.log', document.getElementById('setuplogpre').textContent);">Download setup log</button>
+    </div>
+  </div>
+
+  <div class="tab content4" style="width:calc(100% - 4px);margin: 2px;">
+    <div style="width:100%;height:100%;">
+      <div class="pistatus">
+        <div class="status_uptime"></div>
+        <div class="status_temp"></div>
+        <div class="status_drives"></div>
+        <div class="status_space"></div>
+        <div class="status_snapshots"></div>
+        <div class="status_ether">
+          <span>Ethernet:
+            <span class="status_ether_info"></span>
+          </span>
+        </div>
+        <div class="status_wifi">
+          <span>Wifi:
+            <span class="status_wifi_info"> </span>
+          </span>
+          <span class="wifi-icon-span" title="">
+            <svg width="20px" height="18px" viewBox="0 5 110 95">
+              <g class="wifi-icon" strength="a">
+                <circle class="wifi-none" cx="56" cy="77" r="5" stroke="blue" stroke-width="1" fill="black" />
+                <path class="wifi-low" fill="none" stroke-width="10" stroke="lightgrey"
+                      stroke-linecap="round" d="m 76 63 c -11 -11 -29 -11 -40 0"/>
+                <path class="wifi-medium" fill="none" stroke-width="10" stroke="lightgrey"
+                      stroke-linecap="round" d="m 93 48 c -20 -20 -53 -20 -73 0"/>
+                <path class="wifi-high" fill="none" stroke-width="10" stroke="lightgrey"
+                      stroke-linecap="round" d="m 109 32 c -29 -29 -76 -29 -105 0"/>
+              </g>
+            </svg>
+          </span>
+        </div>
       </div>
+      <button class="group2" id="toggledrives" onclick="toggledrivesfunc();"></button>
+      <p>
+      <button class="group2" onclick="syncfunc();">Trigger archive/sync</button>
+      <span id="synctext" style="padding-left:20px;"></span>
+      <p>
+      <button class="group2" onclick="startspeedtest(this);" id="speedtestbutton">Run network speed test</button>
+      <span height="25px">
+        <span style="padding-left:10px;"></span>
+        <svg id="speedspinner" width="20px" height="20px" style="vertical-align:middle;visibility:hidden;" viewBox="-12 -12 24 24">
+          <g stroke-linecap="round" stroke-width="2">
+            <path id="a" d="M0 5 0 10"/>
+            <use transform="rotate(0)"   xlink:href="#a" stroke="#f0f0f0"/>
+            <use transform="rotate(36)"  xlink:href="#a" stroke="#e0e0e0"/>
+            <use transform="rotate(72)"  xlink:href="#a" stroke="#d0d0d0"/>
+            <use transform="rotate(108)" xlink:href="#a" stroke="#c0c0c0"/>
+            <use transform="rotate(144)" xlink:href="#a" stroke="#b0b0b0"/>
+            <use transform="rotate(180)" xlink:href="#a" stroke="#a0a0a0"/>
+            <use transform="rotate(216)" xlink:href="#a" stroke="#909090"/>
+            <use transform="rotate(252)" xlink:href="#a" stroke="#808080"/>
+            <use transform="rotate(288)" xlink:href="#a" stroke="#707070"/>
+            <use transform="rotate(324)" xlink:href="#a" stroke="#000000"/>
+          </g>
+        </svg>
+        <span id="speedtext" style="padding-left:10px;"></span>
+      </span>
+      <p>
+      <button class="group2" id="rebootbutton" onclick="rebootfunc(this);">Restart Raspberry Pi</button><span id="reboottext" style="padding-left:20px;"></span>
+    </div>
+  </div>
 
-      <video id="backview" class="videogriditem backview" style="z-index:1;"></video>
-      <canvas id="backviewfreeze" class="videogriditem backview" style="z-index:0;"></canvas>
+  <div class="tab content5">
+    <div style="width:100%;height:100%;">
+      <iframe class="recordings" src="TeslaCam/" onload="hideRecordingParent();"></iframe>
+    </div>
+  </div>
 
-      <div id="infoholder" class="videogriditem infoview" style="margin-left:12px;color:white;">
-        <div id="sequencelocation" style="margin-top:8px;margin-bottom:8px;"></div>
-        <div id="segmentname" style="margin-top:8px;margin-bottom:8px;"></div>
-        <div style="margin-top:8px;"><span id="currenttime"></span><span id="totaltime"></span>
-        <div id="debuginfo" style="margin-top:20px;"></div>
+  <div class="tab content6">
+    <div style="width:100%;height:100%;" onmousemove="showcontrols()">
+      <div class="navbar">
+        <div class="noclips">Loading...</div>
+        <div class="subnav">RecentClips
+          <div id="RecentClips" class="subnav-content"></div>
+        </div>
+        <div class="subnav">SavedClips
+          <div id="SavedClips" class="subnav-content"></div>
+        </div>
+        <div class="subnav">SentryClips
+          <div id="SentryClips" class="subnav-content"></div>
+        </div>
+
+        <div class="subnav layoutbtn" style="float:right;">
+          <svg class="layoutsvg" width="52px" height="26px" viewBox="0 0 26 13">
+            <path d="M 2 6 L 8 6 L 8 2 L 2 2 z M 10 6 L 16 6 L 16 2 L 10 2 z M 18 6 L 24 6 L 24 2 L 18 2 z M 2 12 L 8 12 L 8 8 L 2 8 z M 10 12 L 16 12 L 16 8 L 10 8 z M 18 12 L 24 12 L 24 8 L 18 8 z"/>
+          </svg>
+          <div id="layouts" class="subnav-content">
+            <div class="dropdownitem layoutitem" onclick="setLayout(1)">Sides on top, rear on bottom, mirrored</div>
+            <div class="dropdownitem layoutitem" onclick="setLayout(2)">Side and rear on bottom, mirrored</div>
+            <div class="dropdownitem layoutitem" onclick="setLayout(3)">Side and rear on bottom, looking back</div>
+            <div class="dropdownitem layoutitem" onclick="setLayout(4)">Mobile layout,<br>mirrored</div>
+            <div class="dropdownitem layoutitem" onclick="setLayout(5)">Mobile layout,<br>looking back</div>
+          </div>
+        </div>
       </div>
-</div>
+      <div>
+        <div class="videoholder layout3">
+          <video id="leftview" class="videogriditem leftview" style="z-index:1;"></video>
+          <canvas id="leftviewfreeze" class="videogriditem leftview"  style="z-index:0;"></canvas>
+ 
+          <video id="frontview" class="videogriditem frontview" style="z-index:1;"></video>
+          <canvas id="frontviewfreeze" class="videogriditem frontview" style="z-index:0;"></canvas>
+ 
+          <video id="rightview" class="videogriditem rightview" style="z-index:1;"></video>
+          <canvas id="rightviewfreeze" class="videogriditem rightview" style="z-index:0;"></canvas>
+ 
+          <div class="videogriditem mapview" style="margin:0px;z-index:0;">
+            <iframe id="sentrymap"></iframe>
+          </div>
+ 
+          <video id="backview" class="videogriditem backview" style="z-index:1;"></video>
+          <canvas id="backviewfreeze" class="videogriditem backview" style="z-index:0;"></canvas>
+ 
+          <div id="infoholder" class="videogriditem infoview" style="margin-left:12px;color:white;">
+            <div id="sequencelocation" style="margin-top:8px;margin-bottom:8px;"></div>
+            <div id="segmentname" style="margin-top:8px;margin-bottom:8px;"></div>
+            <div style="margin-top:8px;">
+              <span id="currenttime"></span><span id="totaltime"></span>
+              <div id="debuginfo" style="margin-top:20px;"></div>
+            </div>
+          </div>
 
-<div id="videocontrols" >
-  <input type="range" class="slider" id="position" name="position"
-         min="0" max="60" style="width:90%;max-width:600px;height:10%;z-index:2;">
-  <div style="width:90%;max-width:600px;height:26px;margin-top:-14px;">
-    <canvas id="tickmarkscanvas" style="width:100%;height:100%;">
+          <div id="videocontrols" >
+            <input type="range" class="slider" id="position" name="position"
+                   min="0" max="60" style="width:90%;max-width:600px;height:10%;z-index:2;">
+            <div style="width:90%;max-width:600px;height:26px;margin-top:-14px;">
+              <canvas id="tickmarkscanvas" style="width:100%;height:100%;">
+            </div>
+            <div class="buttoncontainer">
+              <button id="skipback" class="flatbutton skipback" onclick="skipBack()">
+                <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
+              </button>
+              <button id="playpause" class="flatbutton play" onclick="startPlaying()">
+                <svg class="mediabutton"><path></path></svg>
+              </button>
+              <button id="skipforward" class="flatbutton skipforward" onclick="skipForward()">
+                <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="buttoncontainer">
-    <button id="skipback" class="flatbutton skipback" onclick="skipBack()">
-      <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 0 9,18 M 8,18 10,18 9,20 z"></path></svg>
-    </button>
-    <button id="playpause" class="flatbutton play" onclick="startPlaying()">
-      <svg class="mediabutton"><path></path></svg>
-    </button>
-    <button id="skipforward" class="flatbutton skipforward" onclick="skipForward()">
-      <svg class="mediabutton"><path d="M 19,28 A 10,10 0 1 1 29,18 M 28,18 30,18 29,20 z"></path></svg>
-    </button>
+  <div id="settingsoverlay" class="modaloverlay">
+    <div class="modalcontent" style="max-width:500px">
+      <div style="margin-bottom:10px">
+        <span>Settings</span>
+        <span class="closebutton">&times;</span>
+      </div>
+      <div style="width:100%;padding:10px">
+        <input type="checkbox" id="altui" name="altui" value="1">
+        <label for="altui">Use alternative web interface</label>
+      </div>
+      <div style="text-align:right;padding-top:30px;">
+        <button onclick="cancelsettings()">Cancel</button> <button onclick="confirmsettings()">OK</button>
+      </div>
+    </div
   </div>
-</div>
-
-</div>
-</div>
-</div>
-<div id="settingsoverlay" class="modaloverlay">
-  <div class="modalcontent" style="max-width:500px">
-    <div style="margin-bottom:10px">
-      <span>Settings</span>
-      <span class="closebutton">&times;</span>
-    </div>
-    <div style="width:100%;padding:10px">
-      <input type="checkbox" id="altui" name="altui" value="1">
-      <label for="altui">Use alternative web interface</label>
-    </div>
-    <div style="text-align:right;padding-top:30px;">
-      <button onclick="cancelsettings()">Cancel</button> <button onclick="confirmsettings()">OK</button>
-    </div>
-  </div
 </div>
 
 <script>
