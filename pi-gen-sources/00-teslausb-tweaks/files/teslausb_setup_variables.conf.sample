@@ -5,12 +5,13 @@
 # Remove the "#" before "export" to activate a line. Be sure to rename this file
 # to "teslausb_setup_variables.conf" and place it in the "boot" folder of your
 # SD card.
-# Please check the latest version of this file at:
-# https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample
+# The latest version of this file is at: https://bit.ly/teslausbconfig
 #
 ######################################################################
 
-# Variables for CIFS (Windows/Mac file sharing) archiving
+# Variables for CIFS (Windows/Mac file sharing) archiving.
+# If you want to use rsync or rclone, delete or comment out this section
+# and uncomment the rsync or rclone section below.
 export ARCHIVE_SYSTEM=cifs
 export ARCHIVE_SERVER=your_archive_name_or_ip
 export SHARE_NAME=your_archive_share_name
@@ -55,7 +56,8 @@ export SHARE_PASSWORD=password
 # when uncommenting and/or adjusting this setting.
 # export SNAPSHOT_INTERVAL=480 # this number is in seconds
 
-# uncomment this to archive RecentClips in addition to SavedClips and SentryClips
+# Uncomment this to archive RecentClips in addition to SavedClips, SentryClips
+# and track mode clips.
 #export ARCHIVE_RECENTCLIPS=true
 
 # SavedClips, SentryClips and track mode clips are archived by default, but
@@ -65,34 +67,29 @@ export SHARE_PASSWORD=password
 #export ARCHIVE_TRACKMODECLIPS=false
 
 # Notes on sd card and image sizes:
-#   * A 128 GB or larger sd card (or USB drive, when using Pi4) is recommended. The
-#     minimum supported size is 64 GB.
-#   * When specifying sizes for the recordings and music drives, you can use specific
-#     sizes (e.g. 24G) or use sizes relative to the available space (e.g. 10%)
-#   * The setup script will reserve a fixed 6 GB of space regardless of sd card size.
-#   * CAM_SIZE should generally be somewhat small, around 16G to 32G, unless you plan
-#     on accumulating a lot of footage between archive operations, in which case you
-#     should increase the value (an hour of recordings, or 6 Sentry events, is about
-#     7-9 GB of data).
-#   * As of Tesla software version 2020.48.10, the car will warn when the recording drive
-#     is smaller than 32 GB, but smaller values will still work. Tesla appears to use
-#     power-of-ten based sizes, presumably because most storage manufacturers do too.
-#     Because teslausb uses power-of-two sizes, you can specify "30G" for the size and
-#     not get the warning.
+#   * A 128 GB or larger sd card (or USB drive, when using Pi4) is recommended.
+#     The minimum supported size is 64 GB.
+#   * When specifying sizes for the recordings and music drives, you can use
+#     specific sizes (e.g. 24G) or use sizes relative to the available space
+#     (e.g. 10%). It is recommended to use specific sizes.
+#   * The setup script will reserve a fixed 6 GB of space regardless of sd card
+#     size.
+#   * CAM_SIZE should generally be somewhat small, around 16G to 32G, unless you
+#     plan on accumulating a lot of footage between archive operations, in which
+#     case you should increase the value (an hour of recordings, or 6 Sentry
+#     events, is about 7-9 GB of data).
+#   * As of Tesla software version 2020.48.10, the car will warn when the
+#     recording drive is smaller than 32 GB, but smaller values will still work.
+#     Tesla appears to use power-of-ten based sizes, presumably because most
+#     storage manufacturers do too.
+#     Because teslausb uses power-of-two sizes, you can specify "30G" for the
+#     size and not get the warning.
 #   * MUSIC_SIZE should be large enough to hold your music library, obviously.
 #   * If no music size is specified, no music drive will be created.
 #   * If no boombox size is specified, no boombox drive will be created.
 export CAM_SIZE=30G
 #export MUSIC_SIZE=4G
 #export BOOMBOX_SIZE=100M
-
-# Use ExFAT filesystem instead of FAT32.
-#
-# ExFAT is the filesystem used by Tesla when the drive is formatted
-# in the car. While TeslaUSB supports ExFAT, it is recommended to
-# use the FAT32 format because the Linux ExFAT implementation
-# does not support TRIM.
-# export USE_EXFAT=true
 
 # If you want to automatically copy music from a CIFS share every time
 # the Pi connects to wifi, set the following variable. The share is
@@ -101,20 +98,32 @@ export CAM_SIZE=30G
 # the folder needs to be different.
 # export MUSIC_SHARE_NAME=your_music_share/music_folder
 
-# Wifi setup information. Note that Raspberry Pi Zero W only supports 2.4 GHz wifi.
+# Wifi setup information. Note that Raspberry Pi Zero W only supports 2.4 GHz
+# wifi.
 # If you are you are trying to connect to a network with a _hidden_ SSID,
-#   edit /boot/wpa_supplicant.conf.sample and un-comment the indicated line.
+# edit /boot/wpa_supplicant.conf.sample and un-comment the indicated line.
+# You do not need to set these variables if networking is already configured
+# and you ran the "install.sh" script
 export SSID='your_ssid'
 export WIFIPASS='your_pass'
 
-# uncomment to enable a Samba/CIFS server that makes the recordings
-# available as a network share
+# Uncomment to use ExFAT filesystem instead of FAT32.
+# ExFAT is the filesystem used by Tesla when the drive is formatted in the car.
+# Using ExFAT is not recommended for the TeslaUSB prebuilt image, as it is
+# based on an older kernel that has no TRIM support for ExFAT.
+# export USE_EXFAT=true
+
+# Uncomment to enable a Samba/CIFS server that makes the recordings available
+# as a network share.
+# This is obsolete/deprecated, as you can now access recordings via TeslaUSB's
+# web interface.
 #export SAMBA_ENABLED=true
 # uncomment to enable guest access to the Samba server
 #export SAMBA_GUEST=true
 
-# uncomment to enable teslausb to act as a wifi access point with the given
-# SSID, so you can access it while on the road.
+# Uncomment to enable teslausb to act as a wifi access point with the given
+# SSID, so you can access it while on the road. This should work on Raspberry Pi
+# but may not work on other devices.
 #export AP_SSID='TESLAUSB WIFI'
 # Change this! The setup script will not accept the default 'password'
 # Also note that the wifi password must be at least 8 characters.
@@ -124,13 +133,14 @@ export WIFIPASS='your_pass'
 # that range.
 #export AP_IP='192.168.66.1'
 
-# uncomment if you'd like to password protect the teslausb web interface
+# Uncomment if you'd like to password protect the teslausb web interface
 # WARNING: Anyone on the $SSID (and $AP_SSID if configured) wifi network can
 # freely interact with the teslausb web interface if it isn't secured!
 # export WEB_USERNAME='pi'
 # export WEB_PASSWORD='raspberry'
 
-# uncomment if you want to set the time zone to something other than the default 'BST'
+# Uncomment if you want to set the time zone to something other than the default
+# 'BST' timezone.
 # Can be an actual time zone, or "auto" to attempt automatic timezone detection
 # export TIME_ZONE="America/Los_Angeles"
 
@@ -142,8 +152,9 @@ export WIFIPASS='your_pass'
 # Uncomment if you want to override the default hostname of "teslausb"
 # export TESLAUSB_HOSTNAME=teslausb-Model3
 
-# uncomment to define an SSH public key that can be utilized to SSH into teslausb as root
-# export SSH_ROOT_PUBLIC_KEY='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABA... user@host.domain'
+# uncomment to define an SSH public key that can be utilized to SSH into
+# teslausb as root
+# export SSH_ROOT_PUBLIC_KEY='ssh-rsa AAAAB3NzaC1yc2EAAAADA... user@host.domain'
 
 # uncoment to disable password SSH authentication for all users
 # export SSH_DISABLE_PASSWORD_AUTHENTICATION=true
@@ -198,10 +209,10 @@ export WIFIPASS='your_pass'
 
 # Uncomment if setting up shell notifications.
 # export NOTIFICATION_COMMAND_ENABLED=true
-# export NOTIFICATION_COMMAND_START="ssh root@remote-server 'expect videos command'"
-# export NOTIFICATION_COMMAND_FINISH="ssh root@remote-server 'process videos command'"
+# export NOTIFICATION_COMMAND_START="ssh root@remote-server 'command args'"
+# export NOTIFICATION_COMMAND_FINISH="ssh root@remote-server 'command args'"
 
-# tesla_dashcam / Trigger file support.
+# Tesla_dashcam / Trigger file support.
 # Uncomment any TRIGGER_FILE_xxxxx below to create trigger file(s) in the
 # archive directory for the listed clip type after all clips have been
 # transferred for that type.
@@ -213,7 +224,8 @@ export WIFIPASS='your_pass'
 # process clips.
 # e.g: tesla_dashcom --monitor --monitor_trigger $ARCHIVE_BASE/SavedClips/ARCHIVE_UPLOADED $ARCHIVE_BASE/SavedClips
 #
-# You may modify the value to your desired trigger filename. Remember to alter your tesla_dashcam trigger filename to match.
+# You may modify the value to your desired trigger filename. Remember to alter
+# your tesla_dashcam trigger filename to match.
 #.
 # export TRIGGER_FILE_SAVED=ARCHIVE_UPLOADED
 # export TRIGGER_FILE_SENTRY=ARCHIVE_UPLOADED
@@ -226,22 +238,22 @@ export WIFIPASS='your_pass'
 # TeslaUSB will only send your credentials to the Tesla API itself.
 #
 # NOTE:  if you do this, it's highly recommended that you set up 'PIN to Drive'
-#   as if the Pi or the car is stolen, the thief has access to your Tesla account
-#   through that token, add their own devices as a key, steal the car,
-#   etc.  If either is stolen, CHANGE YOUR TESLA PASSWORD IMMEDIATELY.
+#   as if the Pi or the car is stolen, the thief has access to your Tesla
+#   account through that token, add their own devices as a key, steal the car,
+#   etc.
+#   If either is stolen, CHANGE YOUR TESLA PASSWORD IMMEDIATELY.
 #
 # ALSO NOTE: having sentry mode enabled in your Tesla will keep your car awake.
 #   But, make sure you have not excluded your home in the sentry mode settings.
 #
-# GENERATE THE TOKEN: To generate the token use one of the apps below,
-#   you will need to login with your tesla account, and then copy the refresh_token
+# GENERATE THE TOKEN: To generate the token use one of the apps below, you will
+#   need to login with your tesla account, and then copy the refresh_token
 #
 # Android: https://play.google.com/store/apps/details?id=net.leveugle.teslatokens
 # iOS: https://apps.apple.com/us/app/auth-app-for-tesla/id1552058613#?platform=iphone
 #
 # export TESLA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN_GOES_HERE
 
-#
 # If you have more than one Tesla vehicle on the account, you must also provide
 # the name or VIN for the vehicle for which this TeslaUSB install will be used,
 # so that TeslaUSB can keep the correct vehicle awake.
