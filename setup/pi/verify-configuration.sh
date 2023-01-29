@@ -9,6 +9,28 @@ function check_variable () {
   fi
 }
 
+function check_supported_hardware () {
+  if ! grep -q  'Raspberry Pi' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
+  if grep -q 'Raspberry Pi Zero W' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
+  if grep -q 'Raspberry Pi Zero 2' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
+  if grep -q 'Raspberry Pi 4' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
+  setup_progress "STOP: unsupported hardware: '$(cat /sys/firmware/devicetree/base/model)'"
+  setup_progress "(only Pi Zero W and Pi 4 have the necessary hardware to run teslausb)"
+  exit 1
+}
+
 function check_udc () {
   local udc
   udc=$(find /sys/class/udc -type l -prune | wc -l)
@@ -136,6 +158,8 @@ function check_setup_teslausb () {
     exit 1
   fi
 }
+
+check_supported_hardware
 
 check_udc
 
