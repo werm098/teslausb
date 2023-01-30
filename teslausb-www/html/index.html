@@ -115,11 +115,11 @@ iframe {
   background: #fff;
 }
 
-.tabheader {
+.tabradiobtn {
   display: none;
 }
 
-.tabheader + label {
+.tablabel {
   display: inline-block;
   padding: 3px 12px;
   position: relative;
@@ -127,22 +127,27 @@ iframe {
   color: #444;
 }
 
-.tabheaderholder:has( #tab1:checked) ~ .tab.content1,
-.tabheaderholder:has( #tab2:checked) ~ .tab.content2,
-.tabheaderholder:has( #tab3:checked) ~ .tab.content3,
-.tabheaderholder:has( #tab4:checked) ~ .tab.content4,
-.tabheaderholder:has( #tab5:checked) ~ .tab.content5,
-.tabheaderholder:has( #tab6:checked) ~ .tab.content6 {
+#tab1:checked ~ .tab.content1,
+#tab2:checked ~ .tab.content2,
+#tab3:checked ~ .tab.content3,
+#tab4:checked ~ .tab.content4,
+#tab5:checked ~ .tab.content5,
+#tab6:checked ~ .tab.content6 {
   visibility: visible;
 }
 
-.tabheader:hover + label {
+.tablabel:hover {
   border-bottom: 3px solid #AAA;
   color: #000;
   z-index:10;
 }
 
-.tabheader:checked + label {
+#tab1:checked ~ .tabheaderholder .tablabel1,
+#tab2:checked ~ .tabheaderholder .tablabel2,
+#tab3:checked ~ .tabheaderholder .tablabel3,
+#tab4:checked ~ .tabheaderholder .tablabel4,
+#tab5:checked ~ .tabheaderholder .tablabel5,
+#tab6:checked ~ .tabheaderholder .tablabel6 {
   border-bottom: 3px solid red;
   color: #000;
   z-index:11;
@@ -620,24 +625,19 @@ video {
 </head>
 <body>
 <div class="tabholder">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab1" />
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab2" />
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab3" />
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab4" />
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab5" />
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab6" checked />
   <div class="tabheaderholder scrollshadows">
-    <input class="tabheader" type="radio" name="tabs" id="tab1" />
-    <label for="tab1">Diagnostics</label>
-
-    <input class="tabheader" type="radio" name="tabs" id="tab2" />
-    <label for="tab2">Archiveloop log</label>
-
-    <input class="tabheader" type="radio" name="tabs" id="tab3" />
-    <label for="tab3">Setup log</label>
-
-    <input class="tabheader" type="radio" name="tabs" id="tab4" />
-    <label for="tab4">Tools</label>
-
-    <input class="tabheader" type="radio" name="tabs" id="tab5" />
-    <label for="tab5">Recordings</label>
-
-    <input class="tabheader" type="radio" name="tabs" id="tab6" checked />
-    <label for="tab6">Viewer</label>
+    <label for="tab1" class="tablabel tablabel1">Diagnostics</label>
+    <label for="tab2" class="tablabel tablabel2">Archiveloop log</label>
+    <label for="tab3" class="tablabel tablabel3">Setup log</label>
+    <label for="tab4" class="tablabel tablabel4">Tools</label>
+    <label for="tab5" class="tablabel tablabel5">Recordings</label>
+    <label for="tab6" class="tablabel tablabel6">Viewer</label>
 
     <div class="stretchable"></div>
 
