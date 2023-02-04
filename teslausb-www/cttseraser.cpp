@@ -26,6 +26,14 @@
   Read-only fuse filesystem that erases the 'ctts' tag in mp4
   files to work around Chromium-based browsers not playing
   Tesla recordings.
+
+  Build:
+  g++ -o cttseraser -D_FILE_OFFSET_BITS=64 cttseraser.cpp -lstdc++ -lfuse
+
+  To run manually:
+  cttseraser <sourcedir> -f <mountpoint>
+  e.g.
+  cttseraser /mutable/TeslaCam -f /var/www/html/TeslaCam
 */
 
 #define FUSE_USE_VERSION 30
@@ -237,6 +245,7 @@ static int do_read( const char *path, char *buffer, size_t size, off_t offset, s
     if (e > s) {
       /* buffer includes (part of) ctts fourcc */
       memset(buffer + (s - offset), '@', e - s);
+      printf("clearing ctts at offset %d, len %d\n", int(s - offset), int(e-s));
     }
   }
 
