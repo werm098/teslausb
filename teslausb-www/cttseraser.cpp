@@ -214,11 +214,7 @@ static int do_read( const char *path, char *buffer, size_t size, off_t offset, s
   filehandle *fh = (filehandle*) fi->fh;
   int fd = fh->fd;
 
-  if (lseek(fd, offset, SEEK_SET) < 0) {
-    printf("couldn't seek\n");
-    return -1;
-  }
-  int numread = read(fd, buffer, size);
+  int numread = pread(fd, buffer, size, offset);
   if (numread < 0) {
     printf("couldn't read\n");
     return -1;
