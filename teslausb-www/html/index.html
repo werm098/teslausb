@@ -1625,6 +1625,10 @@ class VideoSegment {
     elem.onerror = undefined;
     elem.ondurationchange = undefined;
     elem.removeAttribute('src');
+    if (this.numangles == 0) {
+      log("all videos failed to scan, moving to next");
+      currentsequence.next();
+    }
   }
 
   onTimeUpdate(event) {
