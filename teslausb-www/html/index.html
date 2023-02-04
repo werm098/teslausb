@@ -1532,7 +1532,7 @@ class VideoSegment {
   left;
   right;
   back;
-  unknown;
+  datetime;
   numangles;
   activevideoelems = [];
   longestvideoelem;
@@ -1580,6 +1580,9 @@ class VideoSegment {
       var timeStr = path.substring(11, 19).replaceAll("-", ":");
       var d = Date.parse(dateStr + " " + timeStr);
       this.timestampMs = d;
+    }
+    if (this.datetime == undefined) {
+      this.datetime = path.substring(0,19);
     }
   }
 
@@ -1975,7 +1978,7 @@ class VideoSequence {
       var segmentIdx;
       for (segmentIdx = this.length() - 1; segmentIdx >= 0; segmentIdx--) {
         var segment = this.getSegmentByIndex(segmentIdx);
-        var s = segment.front;
+        var s = segment.datetime;
         eventSegmentStartMs = Date.parse(
                 s.substring(0,10) + "T" + s.substring(11,13) + ":" + s.substring(14,16) + ":" + s.substring(17, 19));
         if (eventSegmentStartMs <= eventTimeMs) {
