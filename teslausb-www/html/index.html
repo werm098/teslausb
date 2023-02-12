@@ -450,8 +450,34 @@ video {
 .slider {
     margin-left: .4rem;
     margin-right: .4rem;
-    margin-top: .4rem;
+    margin-top: 0;
     margin-bottom: 0;
+}
+
+.sliderpositionbubble {
+  --position: 100px;
+  position: absolute;
+  left: var(--position);
+  top: -20px;
+  width: 60px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  border-radius: 6px;
+  color: white;
+  background: white;
+  color: black;
+  opacity: 0;
+  transition: opacity 1s;
+  transition-delay: 0.5s;
+}
+
+@media(hover: hover) {
+  .slider:hover ~ .sliderpositionbubble {
+    opacity: 1;
+    transition: opacity 0.5s;
+    transition-delay: 0s;
+  }
 }
 
 #videocontrols {
@@ -813,8 +839,10 @@ video {
 
           <div id="videocontrols" >
             <input type="range" class="slider" id="position" name="position"
-                   min="0" max="60" style="width:90%;max-width:600px;height:10%;z-index:2;">
-            <div style="width:90%;max-width:600px;height:26px;margin-top:-14px;">
+                   min="0" max="60" style="width:90%;max-width:600px;height:30px;z-index:2;"
+                   onmousemove="slidermousemove(event)">
+            <div class="sliderpositionbubble">00:00</div>
+            <div style="width:90%;max-width:600px;height:26px;margin-top:-24px;">
               <canvas id="tickmarkscanvas" style="width:100%;height:100%;">
             </div>
             <div class="buttoncontainer">
@@ -2008,18 +2036,19 @@ class VideoSequence {
     this.readJsonIfNeeded(idx);
   }
 
-  drawSubsequenceMarker(idx) {
-    var percent = this.subsequencestart[idx] / this.length();
+  drawSubsequenceMarker(percent) {
     var c = document.getElementById('tickmarkscanvas');
     var t = c.getContext("2d");
     var w = c.width - 15;
-    var h = c.height - 2;
     t.strokeStyle = "#ffffff"
     t.beginPath();
-    t.moveTo(7.5 + w * percent, 0);
-    t.lineTo(7.5 + w * percent, 19);
+    t.moveTo(Math.round(7.5 + w * percent) + 0.5, 0);
+    t.lineTo(Math.round(7.5 + w * percent) + 0.5, 18);
     t.stroke();
-
+  }
+  drawSubsequenceMarkerForIndex(idx) {
+    var percent = this.subsequencestart[idx] / this.length();
+    this.drawSubsequenceMarker(percent);
   }
 
   onTickResize() {
@@ -2028,7 +2057,7 @@ class VideoSequence {
     c.width = c.clientWidth;
     c.height = c.clientHeight;
     for (var i = 1; i < this.subsequencestart.length; i++) {
-      this.drawSubsequenceMarker(i);
+      this.drawSubsequenceMarkerForIndex(i);
     }
     for (var i = 0; i < this.jsonfile.length; i++) {
       this.drawTickForIndex(i);
@@ -2427,6 +2456,54 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   initialize();
 }
 });
+
+function stringtoseconds(s) {
+  var secs = (3600 * s.substring(0, 2)) +
+             (60 * s.substring(3, 5)) +
+             (1 * s.substring(6, 8));
+  return secs;
+}
+
+function secondstostring(t) {
+  var hours = Math.trunc(t / 3600);
+  var minutes = Math.trunc((t % 3600) / 60);
+  var seconds = t % 60;
+  return hours.toString().padStart(2, '0')
+         + ":" + minutes.toString().padStart(2, '0')
+  //     + ":" + seconds.toString().padStart(2, '0')
+}
+
+function slidermousemove(e) {
+  var seq = currentsequence;
+  if (seq == undefined) {
+    return;
+  }
+  var off = e.offsetX;
+  var width = e.target.clientWidth;
+  /* account for inset of track/button */
+  width -= 15;
+  /* scale within range */
+  off -= 10;
+  /* offset can be outside the slider when dragging it */
+  if (off >= width) {
+    off = width - 1;
+  }
+  if (off < 0) {
+    off = 0;
+  }
+  var len = seq.length();
+  var idx = Math.trunc(len * off / width);
+  var bub = document.querySelector('.sliderpositionbubble');
+  bub.style.setProperty('--position', "" + (e.target.getBoundingClientRect().x + off - 25) + 'px');
+  var segment = seq.getSegmentByIndex(idx);
+  if (segment == undefined) {
+    log("no segment for index " + idx);
+    return;
+  }
+  var secondsinday = stringtoseconds(segment.datetime.substring(11, 19))
+  // TODO maybe: interpolate to show the exact time of the cursor
+  bub.innerText = secondstostring(secondsinday);
+}
 
 </script>
 </body>
