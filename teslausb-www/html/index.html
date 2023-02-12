@@ -296,6 +296,16 @@ video {
   color: grey;
 }
 
+/*
+ disable the loading/norecordings indicator on browsers that
+ don't support the :has selector (firefox and older chrome)
+*/
+@supports not selector(:has(+ *)) {
+  .noclips {
+    display: none;
+  }
+}
+
 /* highlight category that holds the currently selected clip */
 .subnav:has( .selected) {
   text-decoration: underline 2px;
