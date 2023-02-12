@@ -2321,6 +2321,21 @@ function makeDropdownItem(group, sequence, selected) {
   return makeSentryDropdownItem(group, sequence, selected);
 }
 
+function flipdropdowns() {
+    for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
+      var d=document.getElementById(i);
+      d.append(...Array.from(d.childNodes).reverse())
+    }
+}
+function flipdropdownsfromclick() {
+  if (localStorage.eventorder == "newest") {
+    localStorage.setItem("eventorder", "oldest");
+  } else {
+    localStorage.setItem("eventorder", "newest");
+  }
+  flipdropdowns();
+}
+
 readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   var newest="0-";
   var newestsequence;
@@ -2383,6 +2398,9 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
         d.appendChild(newelem);
       }
     }
+    if (localStorage.eventorder == "newest") {
+      d.append(...Array.from(d.childNodes).reverse())
+    }
 
     /* set an appropriate size and position for the dropdown */
     var cols = Math.trunc((document.body.clientWidth * 0.7 + 155) / 156);
@@ -2393,6 +2411,13 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       d.style.left = d.parentElement.getBoundingClientRect().left - 8 + "px";
     }
     d.style.width = (cols * 156) + "px";
+    d.parentElement.onmouseenter = function(ev) {
+      setTimeout(function() {
+        ev.target.onclick = flipdropdownsfromclick;}, 10);
+    }
+    d.parentElement.onmouseleave = function(ev) {
+      ev.target.onclick = null;
+    }
   }
   if (newestsequence != undefined) {
     newestsequence.select();
