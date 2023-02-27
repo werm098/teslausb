@@ -1563,6 +1563,14 @@ function showCurrentSegment(segmentname) {
   elem.innerText = prettyname(segmentname);
 }
 
+function videoError(elem) {
+  if (elem == null || elem == undefined || elem.nodeName != 'VIDEO' ||
+      elem.error == null || elem.error == undefined) {
+     return "unknown";
+  }
+  return elem.error.message;
+}
+
 /* a collection of videos that share the same timestamp */
 class VideoSegment {
   group;
@@ -1662,7 +1670,7 @@ class VideoSegment {
 
   onScanError(event) {
     var elem = event.target;
-    log("error on " + elem.src);
+    log("scan error on '" + elem.src + "': " + videoError(elem));
     this.numangles--;
     elem.onerror = undefined;
     elem.ondurationchange = undefined;
@@ -1698,7 +1706,7 @@ class VideoSegment {
 
   onVideoError(event) {
     var elem = event.target;
-    log("error on '" + elem.id +"' at position " + elem.currentTime);
+    log("video error on '" + elem.id +"' at position " + elem.currentTime + ": " + videoError(elem));
     elem.errored = true;
     this.onVideoEnded();
   }
@@ -1721,22 +1729,22 @@ class VideoSegment {
     log("===== segment =====");
     freezeVideoElems();
     if (this.left != undefined) {
-      videoelems[0].src = prefix + this.left;
+      videoelems[0].src = cachebustingurl(prefix + this.left);
     } else {
       videoelems[0].removeAttribute('src');
     }
     if (this.front != undefined) {
-      videoelems[1].src = prefix + this.front;
+      videoelems[1].src = cachebustingurl(prefix + this.front);
     } else {
       videoelems[1].removeAttribute('src');
     }
     if (this.right != undefined) {
-      videoelems[2].src = prefix + this.right;
+      videoelems[2].src = cachebustingurl(prefix + this.right);
     } else {
       videoelems[2].removeAttribute('src');
     }
     if (this.back != undefined) {
-      videoelems[3].src = prefix + this.back;
+      videoelems[3].src = cachebustingurl(prefix + this.back);
     } else {
       videoelems[3].removeAttribute('src');
     }
