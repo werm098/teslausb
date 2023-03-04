@@ -83,7 +83,7 @@ function do_music_sync {
 
   if [ $NUM_FILES_COPIED -ne 0 ] || [ $NUM_FILES_DELETED -ne 0 ] || [ $NUM_FILES_ERROR -ne 0 ]
   then
-    /root/bin/send-push-message "$TESLAUSB_HOSTNAME:" "$message"
+    /root/bin/send-push-message "$NOTIFICATION_TITLE:" "$message"
   else
     log "$message"
   fi

@@ -159,6 +159,11 @@ export WIFIPASS='your_pass'
 # uncoment to disable password SSH authentication for all users
 # export SSH_DISABLE_PASSWORD_AUTHENTICATION=true
 
+# Push notifications consist of a title and a message.
+# By default TESLAUSB_HOSTNAME is used as the title, but you can
+# set a custom title by setting the following variable.
+# export NOTIFICATION_TITLE="TeslaUSB Notification"
+
 # Uncomment if setting up Pushover push notifications
 # export PUSHOVER_ENABLED=true
 # export PUSHOVER_USER_KEY=user_key
