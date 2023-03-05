@@ -73,11 +73,16 @@ function check_default_rsync {
 }
 
 function install_prebuilt_rsync {
-  if [ "$(uname -m)" = "aarch64" ]
+  local arch="$(uname -m)"
+  if [ "$arch" = "aarch64" ]
   then
     curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-arm64/rsync
-  else
+  elif [[ $arch =~ arm* ]]
+  then
     curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-rpi/rsync
+  else
+    log_progress "No prebuilt rsync for '$arch'"
+    return 1
   fi
 }
 
@@ -101,6 +106,7 @@ function check_rsync {
   fi
 
   log_progress "STOP: rsync doesn't work correctly"
+  log_progress "(using '$(which rsync)')"
   exit 1
 }
 
