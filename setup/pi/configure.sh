@@ -212,6 +212,7 @@ function install_archive_scripts () {
   local archive_module="$2"
 
   log_progress "Installing base archive scripts into $install_path"
+  copy_script setup/pi/envsetup.sh "$install_path"
   copy_script run/archiveloop "$install_path"
   copy_script run/waitforidle "$install_path"
   copy_script run/remountfs_rw "$install_path"
