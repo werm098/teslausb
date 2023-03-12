@@ -602,6 +602,7 @@ install_push_message_scripts /root/bin
 check_archive_configs
 
 rm -f /root/teslausb.conf
+rm -rf /mutable/TeslaCam/RecentClips/event.json
 
 archive_module="$( get_archive_module )"
 log_progress "Using archive module: $archive_module"
