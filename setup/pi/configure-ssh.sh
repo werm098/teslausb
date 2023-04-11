@@ -5,7 +5,9 @@ setup_progress "configuring ssh"
 # If requested, add the desired SSH public key into /root/.ssh/authorized_keys
 if [ -n "${SSH_ROOT_PUBLIC_KEY:-}" ]
 then
-  echo "${SSH_ROOT_PUBLIC_KEY}" > '/root/.ssh/authorized_keys'
+  ssh_dir='/root/.ssh'
+  mkdir -p $ssh_dir
+  echo "${SSH_ROOT_PUBLIC_KEY}" > "${ssh_dir}/authorized_keys"
 fi
 
 # If requested, disable SSH Password Authentication
