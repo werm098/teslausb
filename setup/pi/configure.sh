@@ -225,7 +225,7 @@ function install_archive_scripts () {
   copy_script "$archive_module"/connect-archive.sh "$install_path"
   copy_script "$archive_module"/disconnect-archive.sh "$install_path"
   copy_script "$archive_module"/archive-is-reachable.sh "$install_path"
-  if [ -n "${MUSIC_SHARE_NAME:+x}" ] && grep cifs <<< "$archive_module"
+  if [ -n "${MUSIC_SHARE_NAME:+x}" ] && [ -e "$archive_module"/copy-music.sh ]
   then
     copy_script "$archive_module"/copy-music.sh "$install_path"
   fi
