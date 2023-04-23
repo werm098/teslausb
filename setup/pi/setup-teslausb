@@ -919,6 +919,13 @@ make_root_fs_readonly
 
 upgrade_packages
 
+if [ -n "${INSTALL_USER_REQUESTED_PACKAGES:-}" ]
+then
+  setup_progress "Installing user requested packages: ${INSTALL_USER_REQUESTED_PACKAGES}"
+  read -r -a EXTRA_PACKAGES <<< "${INSTALL_USER_REQUESTED_PACKAGES[@]}"
+  DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install "${EXTRA_PACKAGES[@]}"
+fi
+
 headless_setup_mark_setup_success
 
 # Flash for stage 5 headless (Mark success, FS readonly)
