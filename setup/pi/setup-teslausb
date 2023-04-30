@@ -399,7 +399,7 @@ function set_timezone () {
     then
       if curlwrapper -o /root/bin/tzupdate.py https://raw.githubusercontent.com/marcone/tzupdate/develop/tzupdate.py
       then
-        apt-get -y --force-yes install python-requests
+        apt-get -y --force-yes install python-is-python3
         chmod +x /root/bin/tzupdate.py
         if ! tzout=$(/root/bin/tzupdate.py 2>&1)
         then
