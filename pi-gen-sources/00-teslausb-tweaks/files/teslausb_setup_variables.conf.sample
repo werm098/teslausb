@@ -139,8 +139,10 @@ export WIFIPASS='your_pass'
 # export WEB_USERNAME='pi'
 # export WEB_PASSWORD='raspberry'
 
-# Uncomment if you want to set the time zone to something other than the default
-# 'BST' timezone.
+# Uncomment this if you are using Raspberry Pi OS and want to set the time
+# zone to something other than the default 'BST' timezone.
+# If you are using Armbian then Armbian likely already set the correct time
+# zone when you first set up Armbian, and uncommenting this isn't necessary.
 # Can be an actual time zone, or "auto" to attempt automatic timezone detection
 # export TIME_ZONE="America/Los_Angeles"
 
