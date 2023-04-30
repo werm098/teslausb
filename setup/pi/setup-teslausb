@@ -68,7 +68,6 @@ function copy_script () {
     fi
   fi
 
-  # shellcheck disable=SC2086
   cp "${SOURCE_DIR}/$remote_path" "$local_path/$name"
   chmod +x "$local_path/$name"
   setup_progress "Downloaded $local_path/$name ..."
