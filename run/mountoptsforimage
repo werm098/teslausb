@@ -9,17 +9,18 @@ read -r offset <<<"$(sfdisk -l -q -o START "$source" | tail -1)"
 fstype=$(blkid --probe -o value -s TYPE --offset $((offset*512)) "$source")
 
 offsetopt="offset=$((offset*512))"
+timeopt="time_offset=-420"
 
 case $fstype in
   vfat)
-    echo vfat "utf8,umask=000,$offsetopt"
+    echo vfat "utf8,umask=000,$offsetopt,$timeopt"
     ;;
 
   exfat)
-    echo exfat "umask=000,$offsetopt"
+    echo exfat "umask=000,$offsetopt,$timeopt"
     ;;
 
   default)
-    echo "$fstype" "$offsetopt"
+    echo "$fstype" "$offsetopt,$timeopt"
     ;;
 esac
