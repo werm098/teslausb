@@ -2,7 +2,7 @@
 
 # g_mass_storage module may be loaded on a system that
 # is being transitioned from module to configfs
-modprobe -r g_mass_storage
+modprobe -q -r g_mass_storage || true
 
 if ! configfs_root=$(findmnt -o TARGET -n configfs)
 then
