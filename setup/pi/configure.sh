@@ -97,7 +97,7 @@ function check_rsync {
   if install_prebuilt_rsync
   then
     chmod a+x /usr/local/bin/rsync
-    apt install -y libxxhash0
+    apt install -y libxxhash0 libssl-dev
     if check_default_rsync
     then
       log_progress "rsync works OK now"
