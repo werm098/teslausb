@@ -18,11 +18,7 @@ then
   newestsnapshot=$(stat --format="%Y" "${snapshots[-1]}")
 fi
 
-wifidev=
-if [ -e /sys/class/net/wlan0 ]
-then
-  wifidev=wlan0
-fi
+wifidev=$(find /sys/class/net/ -type l -name 'wl*' -printf '%P' -quit)
 
 if [ -n "$wifidev" ]
 then
@@ -37,11 +33,7 @@ else
   wifi_ip=
 fi
 
-ethdev=
-if [ -e /sys/class/net/eth0 ]
-then
-  ethdev=eth0
-fi
+ethdev=$(find /sys/class/net/ -type l \( -name 'eth*' -o -name 'en*' \) -printf '%P' -quit)
 
 if [ -n "$ethdev" ]
 then
