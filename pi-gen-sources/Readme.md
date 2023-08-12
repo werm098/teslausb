@@ -19,4 +19,4 @@ To build a ready to flash one-step setup image for CIFS, do the following:
 1. Adjust `DATA_SIZE` in scripts/qcow2_handling to have more free space on the root partition. For the prebuilt image, it was hardcoded to 2 GB by inserting `let DATA_SIZE=2*1024*1024*1024/$BLOCK_SIZE` before the call to `resize2fs -p`.
 1. Run `build.sh` or `build-docker.sh`, depending on how you configured pi-gen to build the image
 1. Sit back and relax, this could take a while (for reference, on a dual-core 2.6 Ghz Intel Core i3 and 50 Mbps internet connection, it took under an hour)
-If all went well, the image will be in the `deploy` folder. Use Etcher or similar tool to flash it.
+If all went well, the image will be in the `deploy` folder. Use Raspberry Pi Imager or a similar tool to flash it.
