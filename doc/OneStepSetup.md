@@ -12,6 +12,8 @@ This is a streamlined process for setting up the Pi. You'll flash a preconfigure
 
 1. Flash the [latest image release](https://github.com/marcone/teslausb/releases) using [Raspberry Pi Imager](https://www.raspberrypi.com/software/) or a similar flashing tool.
 
+    In Raspberry Pi Imager, you need to click 'Operating System' and then scroll _all the way down_ and select the 'Use custom' option.
+
 1. Mount the card again, and in the `boot` directory create a `teslausb_setup_variables.conf` file to export the same environment variables normally needed for manual setup (including archive info, Wifi, and push notifications (if desired).
 A sample conf file is located in the `boot` folder on the SD card. The latest sample is also available [from GitHub](https://github.com/marcone/teslausb/blob/main-dev/pi-gen-sources/00-teslausb-tweaks/files/teslausb_setup_variables.conf.sample).
 The sample file contains documentation and suggestions for values.
