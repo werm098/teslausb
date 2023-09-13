@@ -880,11 +880,27 @@ video {
 
 <script>
 
+function localStorageGet(name) {
+  try {
+    return localStorage.getItem(name);
+  } catch (error) {
+    log(error);
+  }
+}
+
+function localStorageSet(name, value) {
+  try {
+    localStorage.setItem(name, value);
+  } catch (error) {
+    log(error);
+  }
+}
+
 if (document.referrer.includes("/new/")) {
   /* user switched back from the Vue UI */
-  localStorage.setItem("usealtui", "false");
+  localStorageSet("usealtui", "false");
 } else {
-  if (localStorage.usealtui == "true") {
+  if (localStorageGet("usealtui") == "true") {
     document.location.replace('/new/?source=legacy');
     nonExistentFunction();
   }
@@ -975,7 +991,7 @@ function setLayout(layout) {
     videogrid.classList="videoholder layout3";
   }
   currentLayout = layout;
-  localStorage.setItem("layout", layout);
+  localStorageSet("layout", layout);
 
   var l = document.querySelector("#layouts.subnav-content");
   for (var i = 0; i < l.childElementCount; i++) {
@@ -992,7 +1008,7 @@ function cycleLayout() {
   setLayout(currentLayout + 1);
 }
 
-setLayout(localStorage.layout);
+setLayout(localStorageGet("layout"));
 
 function skipBack() {
   var slider=document.getElementById('position');
@@ -1501,7 +1517,7 @@ function initialize() {
 
 function showsettings() {
   var altui = document.getElementById('altui');
-  altui.checked = (localStorage.usealtui == "true");
+  altui.checked = (localStorageGet("usealtui") == "true");
   var overlay = document.getElementById("settingsoverlay");
   overlay.style.display = "block";
 }
@@ -1517,7 +1533,7 @@ function cancelsettings() {
 
 function confirmsettings() {
   var usealtui = document.getElementById('altui').checked;
-  localStorage.setItem("usealtui", usealtui);
+  localStorageSet("usealtui", usealtui);
   if (usealtui) {
     document.location.replace('/new/?source=legacy');
     nonExistentFunction();
@@ -2366,10 +2382,10 @@ function flipdropdowns() {
     }
 }
 function flipdropdownsfromclick() {
-  if (localStorage.eventorder == "newest") {
-    localStorage.setItem("eventorder", "oldest");
+  if (localStorageGet("eventorder") == "newest") {
+    localStorageSet("eventorder", "oldest");
   } else {
-    localStorage.setItem("eventorder", "newest");
+    localStorageSet("eventorder", "newest");
   }
   flipdropdowns();
 }
@@ -2436,7 +2452,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
         d.appendChild(newelem);
       }
     }
-    if (localStorage.eventorder == "newest") {
+    if (localStorageGet("eventorder") == "newest") {
       d.append(...Array.from(d.childNodes).reverse())
     }
 
