@@ -2433,8 +2433,13 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       sequence.jsonfile[0] = jsonpath;
       // add the json to the RecentClips that includes this SentryClip
       var clipday = sequencename.substr(0,10);
-      videos["RecentClips"][clipday].jsonfile.push(jsonpath);
-      log("added event json to " + clipday);
+      if (videos.hasOwnProperty("RecentClips") &&
+        videos["RecentClips"].hasOwnProperty(clipday)) {
+        videos["RecentClips"][clipday].jsonfile.push(jsonpath);
+        log("added event json to " + clipday);
+      } else {
+        log("no video sequence for " + filename);
+      }
     }
   }
 
