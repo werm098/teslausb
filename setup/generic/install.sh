@@ -14,6 +14,10 @@ function flash_rapidly {
   do 
     if [ -e "$led/trigger" ]
     then
+      if ! grep -q timer "$led/trigger"
+      then
+        modprobe ledtrig-timer || echo "timer LED trigger unavailable"
+      fi
       echo timer > "$led/trigger" || true
       if [ -e "$led/delay_off" ]
       then
