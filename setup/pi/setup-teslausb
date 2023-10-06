@@ -2,7 +2,7 @@
 
 if [[ $EUID -ne 0 ]]
 then
-  setup_progress "STOP: Run sudo -i."
+  echo "STOP: Run sudo -i."
   exit 1
 fi
 
