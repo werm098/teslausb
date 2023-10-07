@@ -73,12 +73,28 @@ function copy_script () {
   setup_progress "Downloaded $local_path/$name ..."
 }
 
+function safesource {
+  cat <<EOF > /tmp/checksetupconf
+#!/bin/bash -eu
+source '$1' &> /tmp/checksetupconf.out
+EOF
+  chmod +x /tmp/checksetupconf
+  if ! /tmp/checksetupconf
+  then
+    setup_progress "Error in $1:"
+    setup_progress "$(cat /tmp/checksetupconf.out)"
+    exit 1
+  fi
+  # shellcheck disable=SC1090
+  source "$1"
+}
+
 THISDIR=$(dirname "$(readlink -f "$0")")
 if [ ! -e "$THISDIR/envsetup.sh" ]
 then
   # source the conf file directly to get REPO, BRANCH or download_sources
   # in case they're set
-  source /root/teslausb_setup_variables.conf
+  safesource /boot/teslausb_setup_variables.conf
   REPO=${REPO:-marcone}
   BRANCH=${BRANCH:-main-dev}
   copy_script setup/pi/envsetup.sh "$THISDIR"

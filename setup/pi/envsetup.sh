@@ -6,6 +6,28 @@ then
   exit 1
 fi
 
+function safesource {
+  cat <<EOF > /tmp/checksetupconf
+#!/bin/bash -eu
+source '$1' &> /tmp/checksetupconf.out
+EOF
+  chmod +x /tmp/checksetupconf
+  if ! /tmp/checksetupconf
+  then
+    if declare -F setup_progress > /dev/null
+    then
+      setup_progress "Error in $1:"
+      setup_progress "$(cat /tmp/checksetupconf.out)"
+    else
+      echo "Error in $1:"
+      cat /tmp/checksetupconf.out
+    fi
+    exit 1
+  fi
+  # shellcheck disable=SC1090
+  source "$1"
+}
+
 function read_setup_variables {
   if [ -z "${setup_file+x}" ]
   then
@@ -15,7 +37,7 @@ function read_setup_variables {
   then
     # "shellcheck" doesn't realize setup_file is effectively a constant
     # shellcheck disable=SC1090
-    source $setup_file
+    safesource $setup_file
   else
     echo "couldn't find $setup_file"
     return 1

@@ -75,6 +75,21 @@ function enable_wifi () {
   fi
 }
 
+function safesource {
+  cat <<EOF > /tmp/checksetupconf
+#!/bin/bash -eu
+source '$1' &> /tmp/checksetupconf.out
+EOF
+  chmod +x /tmp/checksetupconf
+  if ! /tmp/checksetupconf
+  then
+    setup_progress "Error in $1:"
+    setup_progress "$(cat /tmp/checksetupconf.out)"
+    exit 1
+  fi
+  # shellcheck disable=SC1090
+  source "$1"
+}
 
 if [ -e "/boot/teslausb_setup_variables.conf" ]
 then
@@ -87,7 +102,7 @@ then
 fi
 if [ -e "/root/teslausb_setup_variables.conf" ]
 then
-  source "/root/teslausb_setup_variables.conf"
+  safesource /root/teslausb_setup_variables.conf
 elif [ -e "/boot/teslausb_setup_variables.conf.sample" ]
 then
   setup_progress "no config file found, but sample file is present."
