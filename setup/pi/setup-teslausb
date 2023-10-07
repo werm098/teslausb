@@ -94,7 +94,7 @@ if [ ! -e "$THISDIR/envsetup.sh" ]
 then
   # source the conf file directly to get REPO, BRANCH or download_sources
   # in case they're set
-  safesource /boot/teslausb_setup_variables.conf
+  safesource /root/teslausb_setup_variables.conf
   REPO=${REPO:-marcone}
   BRANCH=${BRANCH:-main-dev}
   copy_script setup/pi/envsetup.sh "$THISDIR"
