@@ -159,6 +159,7 @@ export -f isRadxaZero
 
 for STATUSLED in \
   /sys/class/leds/led0 \
+  /sys/class/leds/ACT \
   /sys/class/leds/user-led2 \
   /sys/class/leds/radxa-zero:green \
   /tmp/fakeled
