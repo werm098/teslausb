@@ -94,6 +94,13 @@ then
 	iface AP1 inet dhcp
 	EOF
 
+  # For bullseye it is apparently necessary to explicitly disable wpa_supplicant for the ap0 interface
+  cat <<- EOF >> /etc/dhcpcd.conf
+	# disable wpa_supplicant for the ap0 interface
+	interface ap0
+	nohook wpa_supplicant
+	EOF
+
   if [ ! -L /var/lib/misc ]
   then
     if ! findmnt --mountpoint /mutable
