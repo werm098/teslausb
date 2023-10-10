@@ -18,6 +18,13 @@ then
   printf "My IP address is %s\n" "$_IP"
 fi
 
+if [ -f /boot/run_once ]
+then
+  cp /boot/run_once /tmp/
+  chmod +x /tmp/run_once
+  /tmp/run_once || echo "run_once failed"
+  mv /boot/run_once /boot/ran_once || true
+fi
 
 SETUP_LOGFILE=/boot/teslausb-headless-setup.log
 
@@ -93,6 +100,12 @@ function enable_wifi () {
         sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hosts
         sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hostname
       fi
+
+      dpkg-reconfigure openssh-server
+      rfkill unblock wifi
+      for i in /var/lib/systemd/rfkill/*:wlan ; do
+        echo 0 > "$i"
+      done
 
       touch /boot/WIFI_ENABLED
       setup_progress "Rebooting..."
