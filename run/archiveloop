@@ -79,10 +79,6 @@ then
   esac
 fi
 
-function isKernel5 {
-  grep -q '^5\.' <<< "$(uname -r)"
-}
-
 function timestamp () {
   local prefix=${1:-}
   while IFS= read -r line
@@ -680,39 +676,20 @@ function truncate_log () {
 
 function slowblink () {
   echo timer > "$STATUSLED/trigger" || return 0
-  local ON=on
-  local OFF=off
-  if isPi4 || isKernel5
-  then
-    ON=off
-    OFF=on
-  fi
-  echo 900 > "$STATUSLED/delay_$ON"
-  echo 100 > "$STATUSLED/delay_$OFF"
+  echo 900 > "$STATUSLED/delay_off"
+  echo 100 > "$STATUSLED/delay_on"
 }
 
 function fastblink () {
   echo timer > "$STATUSLED/trigger" || return 0
-  local ON=on
-  local OFF=off
-  if isPi4 || isKernel5
-  then
-    ON=off
-    OFF=on
-  fi
-  echo 150 > "$STATUSLED/delay_$ON"
-  echo 50 > "$STATUSLED/delay_$OFF"
+  echo 150 > "$STATUSLED/delay_off"
+  echo 50 > "$STATUSLED/delay_on"
 }
 
 
 function doubleblink () {
   echo heartbeat > "$STATUSLED/trigger" || return 0
-  if isPi4 || isKernel5
-  then
-    echo 0 > "$STATUSLED/invert"
-  else
-    echo 1 > "$STATUSLED/invert"
-  fi
+  echo 0 > "$STATUSLED/invert"
 }
 
 function set_time () {
