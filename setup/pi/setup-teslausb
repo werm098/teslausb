@@ -41,6 +41,7 @@ function curlwrapper () {
   while ! curl -s --fail "$@"
   do
     setup_progress "'curl $*' failed, retrying" > /dev/null
+    sntp -S time.google.com || true
     sleep 3
   done
 }
