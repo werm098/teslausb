@@ -51,11 +51,11 @@ source /root/bin/envsetup.sh
 
 # led triggers may have been built as modules, so try
 # to load them
-if ! grep -q timer "$STATUSLED"
+if ! grep -q timer "$STATUSLED/trigger"
 then
   modprobe ledtrig-timer || log "timer LED trigger unavailable"
 fi
-if ! grep -q heartbeat "$STATUSLED"
+if ! grep -q heartbeat "$STATUSLED/trigger"
 then
   modprobe ledtrig-heartbeat || log "heartbeat LED trigger unavailable" 
 fi
