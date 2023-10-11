@@ -14,9 +14,9 @@
 # and uncomment the rsync or rclone section below.
 export ARCHIVE_SYSTEM=cifs
 export ARCHIVE_SERVER=your_archive_name_or_ip
-export SHARE_NAME=your_archive_share_name
+export SHARE_NAME='your_archive_share/optional_path_on_share'
 export SHARE_USER=username
-export SHARE_PASSWORD=password
+export SHARE_PASSWORD='password'
 # the cifs options below usually don't need to be specified
 # export SHARE_DOMAIN=domain
 # export CIFS_VERSION="3.0"
@@ -259,7 +259,7 @@ export WIFIPASS='your_pass'
 # Android: https://play.google.com/store/apps/details?id=net.leveugle.teslatokens
 # iOS: https://apps.apple.com/us/app/auth-app-for-tesla/id1552058613#?platform=iphone
 #
-# export TESLA_REFRESH_TOKEN=YOUR_REFRESH_TOKEN_GOES_HERE
+# export TESLA_REFRESH_TOKEN='YOUR_REFRESH_TOKEN_GOES_HERE'
 
 # If you have more than one Tesla vehicle on the account, you must also provide
 # the name or VIN for the vehicle for which this TeslaUSB install will be used,
