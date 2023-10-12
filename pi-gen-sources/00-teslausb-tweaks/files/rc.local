@@ -106,6 +106,7 @@ function enable_wifi () {
       for i in /var/lib/systemd/rfkill/*:wlan ; do
         echo 0 > "$i"
       done
+      systemctl enable ssh
 
       touch /boot/WIFI_ENABLED
       setup_progress "Rebooting..."
