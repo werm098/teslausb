@@ -175,11 +175,11 @@ fi
 
 NEW_DISK_IDENTIFIER=$( fdisk -l "${BOOT_DISK}" | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
-log_progress "Writing updated partitions to fstab and /boot/cmdline.txt"
+log_progress "Writing updated partitions to fstab and cmdline.txt"
 sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/g" /etc/fstab
-if [ -e /boot/cmdline.txt ]
+if [ -f "$CMDLINE_PATH" ]
 then
-  sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" /boot/cmdline.txt
+  sed -i "s/${ORIGINAL_DISK_IDENTIFIER}/${NEW_DISK_IDENTIFIER}/" "$CMDLINE_PATH"
 fi
 
 log_progress "Formatting new partitions..."

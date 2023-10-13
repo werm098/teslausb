@@ -226,30 +226,30 @@ function get_common_scripts () {
 # module (the attached host will see no device at all at this point)
 # before creating the mass storage gadget.
 function fix_cmdline_txt_modules_load () {
-  if [ ! -e /boot/cmdline.txt ]
+  if [ ! -f "$CMDLINE_PATH" ]
   then
-    setup_progress "/boot/cmdline.txt does not exist, skipping"
+    setup_progress "cmdline.txt does not exist, skipping"
     return
   fi
   # Extract the modules-load portion of the command line.
   # Note that this not handle spaces in the argument.
   local curparam
-  curparam=$(grep -P -o " modules.load=[^\s\$]*" /boot/cmdline.txt || true)
+  curparam=$(grep -P -o " modules.load=[^\s\$]*" "$CMDLINE_PATH" || true)
   if [[ "$curparam" == "" ]]
   then
     curparam="\$"
   elif [[ "$curparam" == *"dwc2"* ]] && [[ "$curparam" == *"g_ether"* ]]
   then
-    setup_progress "/boot/cmdline.txt is up to date"
+    setup_progress "cmdline.txt is up to date"
     return
   fi
 
   # replace the current parameter
-  setup_progress "Updated /boot/cmdline.txt from:"
-  setup_progress "$(cat /boot/cmdline.txt)"
-  sed -i "s/${curparam}/ modules-load=dwc2,g_ether/" /boot/cmdline.txt
+  setup_progress "Updated cmdline.txt from:"
+  setup_progress "$(cat $"CMDLINE_PATH")"
+  sed -i "s/${curparam}/ modules-load=dwc2,g_ether/" "$CMDLINE_PATH"
   setup_progress "to:"
-  setup_progress "$(cat /boot/cmdline.txt)"
+  setup_progress "$(cat "$CMDLINE_PATH")"
 }
 
 BACKINGFILES_MOUNTPOINT=/backingfiles

@@ -174,3 +174,13 @@ if [ ! -d "$STATUSLED" ]
 then
   mkdir -p "$STATUSLED"
 fi
+
+if [ -f /boot/firmware/cmdline.txt ]
+then
+  export CMDLINE_PATH=/boot/firmware/cmdline.txt
+elif [ -f /boot/cmdline.txt ]
+then
+  export CMDLINE_PATH=/boot/cmdline.txt
+else
+  export CMDLINE_PATH=/dev/null
+fi

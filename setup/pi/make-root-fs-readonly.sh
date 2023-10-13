@@ -19,16 +19,16 @@ function append_cmdline_txt_param() {
   # If the command line gets too long the pi won't boot.
   # Look for the option at the end ($) or in the middle
   # of the command line and surrounded by space (\s).
-  if [ -e /boot/cmdline.txt ] && ! grep -P -q "\s${toAppend}(\$|\s)" /boot/cmdline.txt
+  if [ -f "$CMDLINE_PATH" ] && ! grep -P -q "\s${toAppend}(\$|\s)" "$CMDLINE_PATH"
   then
-    sed -i "s/\'/ ${toAppend}/g" /boot/cmdline.txt >/dev/null
+    sed -i "s/\'/ ${toAppend}/g" "$CMDLINE_PATH" >/dev/null
   fi
 }
 
 function remove_cmdline_txt_param() {
-  if [ -e /boot/cmdline.txt ]
+  if [ -f "$CMDLINE_PATH" ]
   then
-    sed -i "s/\(\s\)${1}\(\s\|$\)//" /boot/cmdline.txt > /dev/null
+    sed -i "s/\(\s\)${1}\(\s\|$\)//" "$CMDLINE_PATH" > /dev/null
   fi
 }
 
@@ -52,7 +52,7 @@ apt-get -y --force-yes install ntp busybox-syslogd; dpkg --purge rsyslog
 log_progress "Configuring system..."
 
 # Add fsck.mode=auto, noswap and/or ro to end of /boot/cmdline.txt
-# Remove the fastboot paramater because it makes fsck not run
+# Remove the fastboot parameter because it makes fsck not run
 remove_cmdline_txt_param fastboot
 append_cmdline_txt_param fsck.mode=auto
 append_cmdline_txt_param noswap
