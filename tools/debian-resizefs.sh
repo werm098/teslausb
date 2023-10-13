@@ -32,7 +32,7 @@ case "$1" in
 esac
 
 . /usr/share/initramfs-tools/hook-functions
-copy_exec /sbin/findfs /sbin
+copy_exec /sbin/findfs /sbin/findfs-full
 copy_exec /sbin/e2fsck /sbin
 copy_exec /sbin/resize2fs /sbin
 EOF
@@ -63,7 +63,7 @@ esac
 
 # Convert root from possible UUID to device name
 echo "root=${ROOT}  "
-ROOT_DEVICE="$(/sbin/findfs "$ROOT")"
+ROOT_DEVICE="$(/sbin/findfs-full "$ROOT")"
 echo "root device name is ${ROOT_DEVICE}  "
 # Make sure LVM volumes are activated
 if [ -x /sbin/vgchange ]; then
