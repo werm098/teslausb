@@ -246,7 +246,7 @@ function fix_cmdline_txt_modules_load () {
 
   # replace the current parameter
   setup_progress "Updated cmdline.txt from:"
-  setup_progress "$(cat $"CMDLINE_PATH")"
+  setup_progress "$(cat "$CMDLINE_PATH")"
   sed -i "s/${curparam}/ modules-load=dwc2,g_ether/" "$CMDLINE_PATH"
   setup_progress "to:"
   setup_progress "$(cat "$CMDLINE_PATH")"
