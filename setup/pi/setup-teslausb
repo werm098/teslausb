@@ -796,12 +796,12 @@ then
   fi
 fi
 
-# Update /boot/config.txt if needed
-if [ -e /boot/config.txt ]
+# Update config.txt if needed
+if [ -f "$PICONFIG_PATH" ]
 then
-  if ! grep -q 'dtoverlay=dwc2' /boot/config.txt
+  if ! grep -q 'dtoverlay=dwc2' "$PICONFIG_PATH"
   then
-    echo -e "dtoverlay=dwc2\n" >> /boot/config.txt
+    echo -e "dtoverlay=dwc2\n" >> "$PICONFIG_PATH"
     setup_progress "rebooting to apply dwc2 overlay change"
     reboot
     exit 0

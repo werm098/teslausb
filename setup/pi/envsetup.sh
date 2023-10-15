@@ -184,3 +184,14 @@ then
 else
   export CMDLINE_PATH=/dev/null
 fi
+
+if [ -f /boot/firmware/config.txt ]
+then
+  export PICONFIG_PATH=/boot/firmware/config.txt
+elif [ -f /boot/config.txt ]
+then
+  export PICONFIG_PATH=/boot/config.txt
+else
+  export PICONFIG_PATH=/dev/null
+fi
+
