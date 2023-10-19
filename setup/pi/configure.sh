@@ -203,7 +203,26 @@ function install_and_configure_tesla_api () {
       log_progress "tesla_api.py setup failed"
     fi
   else
-    log_progress "Skipping tesla_api.py install because no credentials were provided"
+    log_progress "Skipping tesla_api.py install because no Tesla credentials were provided."
+  fi
+}
+
+function check_teslafi_api () {
+  if [[ ( -n "${TESLAFI_API_TOKEN:+x}" ) ]]
+  then
+    if [[ ( -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
+    then
+      log_progress "STOP: You're trying to setup Tesla and TeslaFi APIs at the same time."
+      log_progress "Only 1 can be enabled at a time."
+    elif [[ ( -n "${TESLA_WAKE_MODE:+x}" ) ]]    
+    then
+      log_progress "STOP: You've setup for TeslaFi API, yet you've specified a parameter for Tesla API."
+      log_progress "Please comment out TESLA_WAKE_MODE."   
+    else
+      log_progress "TeslaFi API enabled." 
+    fi
+  else
+    log_progress "TeslaFi API not enabled because no TeslaFi credential was provided."
   fi
 }
 
@@ -588,6 +607,7 @@ fi
 
 mkdir -p /root/bin
 
+check_teslafi_api
 check_and_configure_pushover
 check_and_configure_gotify
 check_and_configure_ifttt

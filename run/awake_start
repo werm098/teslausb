@@ -1,21 +1,38 @@
 #!/bin/bash -eu
 
-if [ ! -x /root/bin/tesla_api.py ] || [ ! -s /mutable/cache.json ]
+if [[ ( ( ! -x /root/bin/tesla_api.py) || ( ! -s /mutable/cache.json ) ) && ( -z "${TESLAFI_API_TOKEN:+x}" ) ]]
 then
-  log "not keeping car awake."
+  log "Not keeping car awake."
   exit
 fi
 
 function ping {
   while true
   do
-    if /root/bin/tesla_api.py streaming_ping
+    if [[ ( -n "${TESLA_REFRESH_TOKEN:+x}" ) ]]
+    # Use Tesla API to keep car awake
     then
-      sleep 90
-    else
-      log "failed to contact car, retrying"
-      sleep 5
+      if /root/bin/tesla_api.py streaming_ping
+      then
+        sleep 90
+      else
+        log "Failed to contact car using Tesla API, retrying in 5s..."
+        sleep 5
+      fi
     fi
+
+    if [[ ( -n "${TESLAFI_API_TOKEN:+x}" ) ]]
+    # Use TeslaFi API to keep car awake
+    then
+      if [[ $(curl -s -H "Authorization: Bearer $TESLAFI_API_TOKEN" "https://www.teslafi.com/feed.php?command=wake") = "Wake command received" ]]
+      then
+        # TeslaFi's default sleep timer is 15min (900s). No need to contact too often to prevent API lockout (max 3 calls/min).
+        sleep 600
+      else
+        log "Failed to contact car using TeslaFi API, retrying in 90s..."
+        sleep 90
+      fi
+    fi    
   done
 }
 
@@ -38,4 +55,3 @@ case "${TESLA_WAKE_MODE:-stream}" in
     log "Unknown TESLA_WAKE_MODE: ${TESLA_WAKE_MODE}."
     ;;
 esac
-
