@@ -180,7 +180,7 @@ then
 		  echo "+-------------------------------------------+"
 		fi
 	EOF
-    chown "$DEFUSER.$DEFUSER" "/home/$DEFUSER/.bashrc"
+    chown "$DEFUSER:$DEFUSER" "/home/$DEFUSER/.bashrc"
   fi
 fi
 
