@@ -101,8 +101,8 @@ function enable_wifi () {
         sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hostname
       fi
 
-      dpkg-reconfigure openssh-server
-      rfkill unblock wifi
+      dpkg-reconfigure -f noninteractive openssh-server
+      rfkill unblock wifi &> /dev/null || true
       for i in /var/lib/systemd/rfkill/*:wlan ; do
         echo 0 > "$i"
       done
