@@ -38,7 +38,7 @@ function setup_progress () {
 
 function curlwrapper () {
   setup_progress "curl $*" > /dev/null
-  while ! curl -s --fail "$@"
+  while ! curl -s -S --stderr /tmp/curl.err --fail "$@"
   do
     setup_progress "'curl $*' failed, retrying" > /dev/null
     sntp -S time.google.com || true
