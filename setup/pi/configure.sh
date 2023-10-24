@@ -167,6 +167,11 @@ function get_archive_module () {
     esac
 }
 
+function pip3_install () {
+  rm -f /usr/lib/$(py3versions -d)/EXTERNALLY-MANAGED
+  pip3 install "$@"
+}
+
 function install_and_configure_tesla_api () {
   # Install the tesla_api.py script only if the user provided credentials for its use.
 
@@ -176,7 +181,7 @@ function install_and_configure_tesla_api () {
     log_progress "Updating tesla_api.py"
     copy_script run/tesla_api.py /root/bin
     install_python3_pip
-    pip3 install teslapy
+    pip3_install teslapy
     # check if the json file needs to be updated
     readonly json=/mutable/tesla_api.json
     if [ -e $json ] && ! grep -q '"id"' $json
@@ -195,7 +200,7 @@ function install_and_configure_tesla_api () {
     log_progress "Installing tesla_api.py"
     copy_script run/tesla_api.py /root/bin
     install_python3_pip
-    pip3 install teslapy
+    pip3_install teslapy
     # Perform the initial authentication
     mount /mutable || log_progress "Failed to mount /mutable"
     if ! /root/bin/tesla_api.py list_vehicles
@@ -261,13 +266,13 @@ function install_python3_pip () {
 function install_sns_packages () {
   install_python3_pip
   setup_progress "Installing sns python packages..."
-  pip3 install boto3
+  pip3_install boto3
 }
 
 function install_matrix_packages () {
   install_python3_pip
   setup_progress "Installing matrix python packages..."
-  pip3 install matrix-nio
+  pip3_install matrix-nio
 }
 
 function check_pushover_configuration () {
