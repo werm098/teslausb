@@ -159,7 +159,7 @@ fi
 
 if [ "$REBOOT" = "true" ]
 then
-  if [ -t 0 ]
+  if [ -t 0 ] && [ "${NO_REBOOT_PROMPT:-}" != "1" ]
   then
     setup_progress "please reboot for changes to take effect"
     exit
@@ -498,7 +498,7 @@ function cmd_upgrade {
   fi
   copy_script setup/pi/setup-teslausb /tmp &> /dev/null
   copy_script setup/pi/envsetup.sh /tmp &> /dev/null
-  exec bash -c "/tmp/setup-teslausb upgrade_prepare && /tmp/setup-teslausb && /tmp/setup-teslausb upgrade_finish" < /dev/null
+  exec bash -c "/tmp/setup-teslausb upgrade_prepare && NO_REBOOT_PROMPT=1 /tmp/setup-teslausb && /tmp/setup-teslausb upgrade_finish"
 }
 
 function cmd_upgrade_prepare {
@@ -958,7 +958,7 @@ headless_setup_progress_flash 5
 
 setup_progress "All done."
 
-if [ -t 0 ]
+if [ -t 0 ] && [ "${NO_REBOOT_PROMPT:-}" != "1" ]
 then
   setup_progress '(reboot now for changes to take effect)'
 fi
