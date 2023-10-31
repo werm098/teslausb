@@ -22,16 +22,11 @@ function ping {
     fi
 
     if [[ ( -n "${TESLAFI_API_TOKEN:+x}" ) ]]
-    # Use TeslaFi API to keep car awake
+    # Use TeslaFi API to keep car awake.
     then
-      if [[ $(curl -s -H "Authorization: Bearer $TESLAFI_API_TOKEN" "https://www.teslafi.com/feed.php?command=wake") = "Wake command received" ]]
-      then
-        # TeslaFi's default sleep timer is 15min (900s). No need to contact too often to prevent API lockout (max 3 calls/min).
-        sleep 600
-      else
-        log "Failed to contact car using TeslaFi API, retrying in 90s..."
-        sleep 90
-      fi
+      curl -s -H "Authorization: Bearer $TESLAFI_API_TOKEN" "https://www.teslafi.com/feed.php?command=wake_up"
+      # No need to contact TeslaFi too often to prevent API lockout (max 3 calls/min).
+      sleep 600
     fi    
   done
 }
