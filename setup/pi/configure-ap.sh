@@ -22,6 +22,12 @@ then
   exit 1
 fi
 
+if [ ! -e /etc/wpa_supplicant/wpa_supplicant.conf ]
+then
+  log_progress "No wpa_supplicant, skipping AP setup."
+  exit 0
+fi
+
 if ! grep -q id_str /etc/wpa_supplicant/wpa_supplicant.conf
 then
   IP=${AP_IP:-"192.168.66.1"}
