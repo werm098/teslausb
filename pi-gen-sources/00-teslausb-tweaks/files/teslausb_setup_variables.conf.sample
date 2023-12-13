@@ -31,8 +31,11 @@ export SHARE_PASSWORD='password'
 #export RSYNC_PATH=path_on_server
 
 # Variables for rclone archiving
+# If you are using rclone to archive to a local (non-cloud) server,
+# you may want to set the ARCHIVE_SERVER variable to the name or
+# ip of you local server instead.
 #export ARCHIVE_SYSTEM=rclone
-#export ARCHIVE_SERVER=rclone_server_name_or_ip
+#export ARCHIVE_SERVER=8.8.8.8
 #export RCLONE_DRIVE="remotename"
 #export RCLONE_PATH="remotepathname"
 # The following is optional
