@@ -662,12 +662,12 @@ video {
 </head>
 <body>
 <div class="tabholder">
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab1" />
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab2" />
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab3" />
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab4" />
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab5" />
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab6" checked />
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab1">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab2">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab3">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab4">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab5">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab6" checked>
   <div class="tabheaderholder scrollshadows">
     <label for="tab1" class="tablabel tablabel1">Diagnostics</label>
     <label for="tab2" class="tablabel tablabel2">Archiveloop log</label>
@@ -843,7 +843,7 @@ video {
                    onmousemove="slidermousemove(event)">
             <div class="sliderpositionbubble">00:00</div>
             <div style="width:90%;max-width:600px;height:26px;margin-top:-24px;">
-              <canvas id="tickmarkscanvas" style="width:100%;height:100%;">
+              <canvas id="tickmarkscanvas" style="width:100%;height:100%;"></canvas>
             </div>
             <div class="buttoncontainer">
               <button id="skipback" class="flatbutton skipback" onclick="skipBack()">
@@ -874,7 +874,7 @@ video {
       <div style="text-align:right;padding-top:30px;">
         <button onclick="cancelsettings()">Cancel</button> <button onclick="confirmsettings()">OK</button>
       </div>
-    </div
+    </div>
   </div>
 </div>
 
