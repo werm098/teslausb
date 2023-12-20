@@ -83,4 +83,4 @@ fi
 ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"
 
 # activate
-ls /sys/class/udc > "$gadget_root/UDC"
+find /sys/class/udc -type l -printf '%P\n' | head -1 > "$gadget_root/UDC"
