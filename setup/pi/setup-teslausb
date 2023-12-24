@@ -918,11 +918,13 @@ sed -i '/source \/root\/bin\/setup-teslausb/d' /root/.bashrc
 if ! grep -q TESLAUSB_TIP1 /root/.bashrc
 then
   cat >> /root/.bashrc <<- EOC
-	cat << TESLAUSB_TIP1
-	Run 'bin/setup-teslausb upgrade' to update to the latest version of teslausb,
-	or run 'bin/remountfs_rw' to allow writing to the root partition.
+	if [ -n "\$PS1" ]; then
+		cat << TESLAUSB_TIP1
+		Run 'bin/setup-teslausb upgrade' to update to the latest version of teslausb,
+		or run 'bin/remountfs_rw' to allow writing to the root partition.
 
-	TESLAUSB_TIP1
+		TESLAUSB_TIP1
+	fi
 	EOC
 fi
 
@@ -932,10 +934,12 @@ then
   if ! grep -q TESLAUSB_TIP1 "/home/$DEFUSER/.bashrc"
   then
     cat >> "/home/$DEFUSER/.bashrc" <<- EOC
-	cat << TESLAUSB_TIP1
-	Run 'sudo -i' if you need to make changes.
+	if [ -n "\$PS1" ]; then
+		cat << TESLAUSB_TIP1
+		Run 'sudo -i' if you need to make changes.
 
-	TESLAUSB_TIP1
+		TESLAUSB_TIP1
+	fi
 	EOC
   fi
 fi
