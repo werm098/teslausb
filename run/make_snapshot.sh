@@ -228,16 +228,26 @@ function snapshot {
 
   # check whether this snapshot is actually different from the previous one
   find "$newsnapmnt" -type f -printf '%s %P\n' > "${newsnapname}.toc_"
+  find_result=$?
+  log "find result: $find_result"
   log "comparing new snapshot with $oldname"
+  diff_toc=$(diff "${oldname}.toc" "${newsnapname}.toc_")
+  log "diff: $diff_toc"
+  diff_toc_grep=$(echo "$diff_toc" | grep -e '^>')
+  log "diff grep: $diff_toc_grep"
   if [[ ! -e "${oldname}.toc" ]] || diff "${oldname}.toc" "${newsnapname}.toc_" | grep -qe '^>'
   then
+    log "snapshot changes detected"
     ln -s "$newsnapmnt" "$newsnapdir/mnt"
     make_links_for_snapshot "$newsnapmnt" "$newsnapdir/mnt"
     mv "${newsnapname}.toc_" "${newsnapname}.toc"
   else
-    log "new snapshot is identical to previous one, discarding"
-    /root/bin/release_snapshot.sh "$newsnapdir"
-    rm -rf "$newsnapdir"
+    log "new snapshot is identical to previous one, would be discarding"
+    ln -s "$newsnapmnt" "$newsnapdir/mnt"
+    make_links_for_snapshot "$newsnapmnt" "$newsnapdir/mnt"
+    mv "${newsnapname}.toc_" "${newsnapname}.toc"
+    #/root/bin/release_snapshot.sh "$newsnapdir"
+    #rm -rf "$newsnapdir"
   fi
 }
 
