@@ -8,6 +8,8 @@ server {
 
     server_name _;
 
+    client_max_body_size 2M;
+
     location / {
         try_files $uri $uri/ =404;
         auth_basic "Restricted Content";
