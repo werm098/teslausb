@@ -216,7 +216,7 @@ function snapshot {
     fsck "$PARTLOOP" -- -p || true
   fi
 
-  # don't need to mount, because autofs will
+  # don't need to mount, because autofs  will
   losetup -d "$LOOP"
 
   while ! systemctl --quiet is-active autofs
