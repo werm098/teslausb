@@ -71,4 +71,12 @@ cat > /etc/default/fcgiwrap << EOF
 DAEMON_OPTS="-c 4 -f"
 EOF
 
+if [ -e /backingfiles/music_disk.bin ]
+then
+  mkdir -p /var/www/html/fs
+  copy_script run/auto.www /root/bin
+  echo "/var/www/html/fs  /root/bin/auto.www" > /etc/auto.master.d/www.autofs
+  apt-get -y --force-yes install zip
+fi
+
 setup_progress "done configuring nginx"

@@ -9,6 +9,10 @@
 <link rel="manifest" href="/icons/site.webmanifest">
 <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5">
 <link rel="shortcut icon" href="/icons/favicon.ico">
+<link rel="stylesheet" href="filebrowser.css">
+<link rel="stylesheet" href="contextmenu.css">
+<script src="contextmenu.js"></script>
+<script src="filebrowser.js"></script>
 <meta name="msapplication-TileColor" content="#00aba9">
 <meta name="msapplication-config" content="/icons/browserconfig.xml">
 <meta name="theme-color" content="#ffffff">
@@ -39,6 +43,12 @@ iframe {
   width:100%;
   height:100%;
 }
+
+.music {
+  width:100%;
+  height:100%;
+}
+
 
 /* The map doesn't resize properly in Firefox sometimes, ending up with scrollbars. Use Chrome instead. */
 #sentrymap {
@@ -90,6 +100,8 @@ iframe {
 }
 
 .tabheaderholder {
+  display: flex;
+  align-items: baseline;
   height: 32px;
   padding-top: 3px;
   white-space: nowrap;
@@ -101,8 +113,12 @@ iframe {
   padding: 4px 12px;
   position: relative;
   top: 2px;
-  width: calc(100% - 765px);
+  flex-grow: 1;
   min-width: 2px;
+}
+
+.githublink {
+  font-size: 70%;
 }
 
 .tab {
@@ -121,6 +137,7 @@ iframe {
 
 .tablabel {
   display: inline-block;
+  margin: 0 2px 0 2px;
   padding: 3px 12px;
   position: relative;
   top: -3px;
@@ -132,7 +149,8 @@ iframe {
 #tab3:checked ~ .tab.content3,
 #tab4:checked ~ .tab.content4,
 #tab5:checked ~ .tab.content5,
-#tab6:checked ~ .tab.content6 {
+#tab6:checked ~ .tab.content6,
+#tab7:checked ~ .tab.content7 {
   visibility: visible;
 }
 
@@ -142,12 +160,18 @@ iframe {
   z-index:10;
 }
 
+/*hide music tab by default */
+.tablabel6 {
+  display: none;
+}
+
 #tab1:checked ~ .tabheaderholder .tablabel1,
 #tab2:checked ~ .tabheaderholder .tablabel2,
 #tab3:checked ~ .tabheaderholder .tablabel3,
 #tab4:checked ~ .tabheaderholder .tablabel4,
 #tab5:checked ~ .tabheaderholder .tablabel5,
-#tab6:checked ~ .tabheaderholder .tablabel6 {
+#tab6:checked ~ .tabheaderholder .tablabel6,
+#tab7:checked ~ .tabheaderholder .tablabel7 {
   border-bottom: 3px solid red;
   color: #000;
   z-index:11;
@@ -506,6 +530,15 @@ video {
   transition: opacity 0.5s;
 }
 
+.settingsbuttondiv {
+  padding-left: 8px;
+  flex: 0 0 22px;
+  height: 22px;
+  top: 6px;
+  right: 2px;
+  position: relative;
+}
+
 .settingsbutton {
   width: 100%;
   height: 100%;
@@ -667,20 +700,22 @@ video {
   <input class="tabradiobtn" type="radio" name="tabs" id="tab3">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab4">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab5">
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab6" checked>
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab6">
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab7" checked>
   <div class="tabheaderholder scrollshadows">
     <label for="tab1" class="tablabel tablabel1">Diagnostics</label>
     <label for="tab2" class="tablabel tablabel2">Archiveloop log</label>
     <label for="tab3" class="tablabel tablabel3">Setup log</label>
     <label for="tab4" class="tablabel tablabel4">Tools</label>
     <label for="tab5" class="tablabel tablabel5">Recordings</label>
-    <label for="tab6" class="tablabel tablabel6">Viewer</label>
+    <label for="tab6" class="tablabel tablabel6">Music</label>
+    <label for="tab7" class="tablabel tablabel7">Viewer</label>
 
     <div class="stretchable"></div>
 
-    <a href="https://www.github.com/marcone/teslausb" target="_blank" style="font-size:70%;position:relative;">TeslaUSB on GitHub</a>
+    <a href="https://www.github.com/marcone/teslausb" target="_blank" class="githublink">TeslaUSB on GitHub</a>
 
-    <div style="padding-left:5px;bottom:-4px;width:22px;height:22px;position:relative;display:inline-block;" title="Settings">
+    <div class="settingsbuttondiv" title="Settings">
       <svg class="settingsbutton" viewBox="0 0 38 38">
         <path d="M12 6l1-5c1-1 7-1 8 0l1 5a10 10 0 015 4l-16 6zM24.892 7.67l4.83-1.634c1.366.366 4.366 5.562 4 6.928l-3.83 3.366a10 10 0 01-.964 6.33L15.732 11.804zM29.892 19.67l3.83 3.366c.366 1.366-2.634 6.562-4 6.928l-4.83-1.634a10 10 0 01-5.964 2.33l2.804-16.856zM22 30l-1 5c-1 1-7 1-8 0l-1-5a10 10 0 01-5-4l16-6zM9.108 28.33l-4.83 1.634c-1.366-.366-4.366-5.562-4-6.928l3.83-3.366a10 10 0 01.964-6.33l13.196 10.856zM4.108 16.33l-3.83-3.366c-.366-1.366 2.634-6.562 4-6.928l4.83 1.634a10 10 0 015.964-2.33l-2.804 16.856z"/>
       </svg>
@@ -725,15 +760,15 @@ video {
         <div class="status_snapshots"></div>
         <div class="status_ether">
           <span>Ethernet:
-            <span class="status_ether_info"></span>
+            <span class="status_ether_info">&ZeroWidthSpace;</span>
           </span>
         </div>
         <div class="status_wifi">
           <span>Wifi:
-            <span class="status_wifi_info"> </span>
+            <span class="status_wifi_info">&ZeroWidthSpace;</span>
           </span>
           <span class="wifi-icon-span" title="">
-            <svg width="20px" height="18px" viewBox="0 5 110 95">
+            <svg width="20" height="18" viewBox="0 5 110 95">
               <g class="wifi-icon" strength="a">
                 <circle class="wifi-none" cx="56" cy="77" r="5" stroke="blue" stroke-width="1" fill="black" />
                 <path class="wifi-low" fill="none" stroke-width="10" stroke="lightgrey"
@@ -753,9 +788,8 @@ video {
       <span id="synctext" style="padding-left:20px;"></span>
       <p>
       <button class="group2" onclick="startspeedtest(this);" id="speedtestbutton">Run network speed test</button>
-      <span height="25px">
-        <span style="padding-left:10px;"></span>
-        <svg id="speedspinner" width="20px" height="20px" style="vertical-align:middle;visibility:hidden;" viewBox="-12 -12 24 24">
+      <span>
+        <svg id="speedspinner" width="20" height="20" style="margin-left: 10px; vertical-align:middle;visibility:hidden;" viewBox="-12 -12 24 24">
           <g stroke-linecap="round" stroke-width="2">
             <path id="a" d="M0 5 0 10"/>
             <use transform="rotate(0)"   xlink:href="#a" stroke="#f0f0f0"/>
@@ -784,6 +818,11 @@ video {
   </div>
 
   <div class="tab content6">
+    <div id="musicbrowser" style="width:100%;height:calc(100% - 4px);">
+    </div>
+  </div>
+
+  <div class="tab content7">
     <div style="width:100%;height:100%;background:#333;" onmousemove="showcontrols()">
       <div class="navbar">
         <div class="noclips">Loading...</div>
@@ -798,7 +837,7 @@ video {
         </div>
 
         <div class="subnav layoutbtn" style="float:right;">
-          <svg class="layoutsvg" width="52px" height="26px" viewBox="0 0 26 13">
+          <svg class="layoutsvg" width="52" height="26" viewBox="0 0 26 13">
             <path d="M 2 6 L 8 6 L 8 2 L 2 2 z M 10 6 L 16 6 L 16 2 L 10 2 z M 18 6 L 24 6 L 24 2 L 18 2 z M 2 12 L 8 12 L 8 8 L 2 8 z M 10 12 L 16 12 L 16 8 L 10 8 z M 18 12 L 24 12 L 24 8 L 18 8 z"/>
           </svg>
           <div id="layouts" class="subnav-content">
@@ -918,6 +957,14 @@ function log(what) {
 function hideRecordingParent() {
   var i = document.querySelector(".recordings");
   if (i.contentWindow.location.pathname === "/TeslaCam/") {
+    var parentlink = i.contentDocument.querySelector("#list tbody tr");
+    parentlink.parentElement.removeChild(parentlink);
+  }
+}
+
+function hideMusicParent() {
+  var i = document.querySelector(".music");
+  if (i.contentWindow.location.pathname === "/Music/") {
     var parentlink = i.contentDocument.querySelector("#list tbody tr");
     parentlink.parentElement.removeChild(parentlink);
   }
@@ -1327,7 +1374,7 @@ function rebootfunc (button) {
   rebootbuttonresetter=setTimeout(function() { restorerebootbutton(button); }, 10000);
 }
 
-function refreshdiagnostics() {
+async function refreshdiagnostics() {
   var btn1=document.getElementById('diagrefreshbtn');
   var btn2=document.getElementById('diagdwnbtn');
   var pre=document.getElementById('diagnosticspre');
@@ -1493,6 +1540,16 @@ function showstatus() {
     }});
   }
   setTimeout(updateuptimeonly, 1000);
+}
+
+function readconfig() {
+  readfile({url:'cgi-bin/config.sh', callback:function(value) {
+    statusvals=JSON.parse(value);
+    var musictab = document.querySelector(".tablabel6");
+    if (statusvals.has_music == "yes" && musictab.style.display == "") {
+      musictab.style.display = "inline-block";
+    }
+  }});
 }
 
 function initialize() {
@@ -2390,6 +2447,8 @@ function flipdropdownsfromclick() {
   flipdropdowns();
 }
 
+readconfig();
+
 readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   var newest="0-";
   var newestsequence;
@@ -2533,6 +2592,9 @@ function slidermousemove(e) {
   // TODO maybe: interpolate to show the exact time of the cursor
   bub.innerText = secondstostring(secondsinday);
 }
+
+var fb = document.querySelector("#musicbrowser");
+new FileBrowser(fb, "fs/Music" /* relative path */, "Music" /* label */);
 
 </script>
 </body>
