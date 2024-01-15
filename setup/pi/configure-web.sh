@@ -19,6 +19,7 @@ apt-get -y --force-yes install nginx fcgiwrap libnginx-mod-http-fancyindex fuse 
 systemctl stop nginx.service &> /dev/null || true
 mkdir -p /var/www
 umount /var/www/html/TeslaCam &> /dev/null || true
+umount /var/www/html/fs/Music &> /dev/null || true
 rm -rf /var/www/html
 cp -r "$SOURCE_DIR/teslausb-www/html" /var/www/
 ln -s /boot/teslausb-headless-setup.log /var/www/html/
