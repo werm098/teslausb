@@ -20,12 +20,12 @@ systemctl stop nginx.service &> /dev/null || true
 mkdir -p /var/www
 umount /var/www/html/TeslaCam &> /dev/null || true
 umount /var/www/html/fs/Music &> /dev/null || true
-rm -rf /var/www/html
+find /var/www/html \( -type f -o -type l \) -mount -print0 | xargs -0 rm
 cp -r "$SOURCE_DIR/teslausb-www/html" /var/www/
-ln -s /boot/teslausb-headless-setup.log /var/www/html/
-ln -s /mutable/archiveloop.log /var/www/html/
-ln -s /tmp/diagnostics.txt /var/www/html/
-mkdir /var/www/html/TeslaCam
+ln -sf /boot/teslausb-headless-setup.log /var/www/html/
+ln -sf /mutable/archiveloop.log /var/www/html/
+ln -sf /tmp/diagnostics.txt /var/www/html/
+mkdir -p /var/www/html/TeslaCam
 cp -rf "$SOURCE_DIR/teslausb-www/teslausb.nginx" /etc/nginx/sites-available
 ln -sf /etc/nginx/sites-available/teslausb.nginx /etc/nginx/sites-enabled/default
 
