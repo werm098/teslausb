@@ -58,3 +58,14 @@ find -L /backingfiles/snapshots/ -type f -name \*.mp4 | sort -r | {
     fi
   done
 }
+
+find /mutable/TeslaCam -xtype l | {
+  while read -r path
+  do
+    echo "link target for '$path' does not exist"
+    if [ "$REPAIR" = "true" ]
+    then
+      rm "$path"
+    fi
+  done
+}
