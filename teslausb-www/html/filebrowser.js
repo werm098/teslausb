@@ -857,7 +857,9 @@ class FileBrowser {
       // Use DataTransferItemList interface to access the file(s)
       [...ev.dataTransfer.items].forEach((item, i) => {
         var entry = item.webkitGetAsEntry();
-        queue.push(entry);
+        if (entry != null) {
+          queue.push(entry);
+        }
       });
     }
 
