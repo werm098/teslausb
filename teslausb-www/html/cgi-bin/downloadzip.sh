@@ -13,7 +13,6 @@ done
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
 echo "HTTP/1.0 200 OK"
 echo "Content-type: application/zip"
-echo "Content-disposition: attachment; filename=TeslaUSB-files.zip"
 echo
 for i in "${urlargs[@]:1}"
 do

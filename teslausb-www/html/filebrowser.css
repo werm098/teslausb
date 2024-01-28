@@ -267,7 +267,7 @@ details > ul.fb-droptarget {
   transform: translate(-50%, -50%);
 }
 
-.dropinfo-holder {
+.fb-dropinfo-holder {
   position: fixed;
   visibility:  hidden;
   z-index: 98;
@@ -278,7 +278,7 @@ details > ul.fb-droptarget {
   background: rgba(0,0,0,0);
 }
 
-.dropinfo {
+.fb-dropinfo {
   width: 350px;
   height: 150px;
   top: calc(100% / 2 - 75px);
@@ -295,13 +295,13 @@ details > ul.fb-droptarget {
   outline: none !important;
 }
 
-.dropinfo-line1 {
+.fb-dropinfo-line1 {
   position: absolute;
   top: 16px;
   left: 20px;
 }
 
-.dropinfo-line2 {
+.fb-dropinfo-line2 {
   position: absolute;
   left: 20px;
   top: 40px;
@@ -314,11 +314,11 @@ details > ul.fb-droptarget {
   -ms-overflow-style: none;
 }
 
-.dropinfo-line2::-webkit-scrollbar {
+.fb-dropinfo-line2::-webkit-scrollbar {
   display: none;
 }
 
-.dropinfo-closebutton {
+.fb-dropinfo-closebutton {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -328,19 +328,69 @@ details > ul.fb-droptarget {
   text-align: center;
 }
 
-.dropinfo-closebutton:hover {
+.fb-dropinfo-closebutton:hover {
   font-weight: bold;
 }
 
-.dropinfo-cancel {
+.fb-dropinfo-cancel {
   position: absolute;
   bottom: 8px;
   right: 8px;
 }
 
-.dropinfo-progress {
+.fb-dropinfo-progress {
   position: absolute;
   left: 8px;
   width: calc(350px - 16px);
   top: 90px;
+}
+
+.fb-barbutton {
+  float: left;
+  width: 48px;
+  height: 48px;
+  border: none;
+  padding: 0;
+  z-index: 3;
+}
+
+.fb-trashbutton {
+  background-image: url(icons/trash.svg);
+}
+
+.fb-pencilbutton {
+  background-image: url(icons/pencil.svg);
+}
+
+.fb-uploadbutton {
+  background-image: url(icons/upload.svg);
+}
+
+.fb-downloadbutton {
+  background-image: url(icons/download.svg);
+}
+
+.fb-newfolderbutton {
+  background-image: url(icons/newfolder.svg);
+}
+
+.fb-locksoundbutton {
+  background-image: url(icons/locksound.svg);
+}
+
+.fb-buttonbar {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  height: 48px;
+  padding: 0 8px 0 8px;
+  background: lightgrey;
+  z-index: 2;
+  border-radius: 24px;
+}
+
+@media(hover: hover) {
+  .uploadbutton {
+    display: none;
+  }
 }

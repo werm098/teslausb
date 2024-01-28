@@ -20,14 +20,22 @@ class FileBrowser {
     this.anchor_elem.innerHTML =
     `
       <div class="cm-holder"></div>
-      <div class="dropinfo-holder">
-        <div class="dropinfo">
-          <div class="dropinfo-line1"></div>
-          <div class="dropinfo-closebutton">&#x2716</div>
-          <div class="dropinfo-line2"></div>
-          <progress class="dropinfo-progress" value="0" max="100"></progress>
-          <button class="dropinfo-cancel">Cancel</button>
+      <div class="fb-dropinfo-holder">
+        <div class="fb-dropinfo">
+          <div class="fb-dropinfo-line1"></div>
+          <div class="fb-dropinfo-closebutton">&#x2716</div>
+          <div class="fb-dropinfo-line2"></div>
+          <progress class="fb-dropinfo-progress" value="0" max="100"></progress>
+          <button class="fb-dropinfo-cancel">Cancel</button>
         </div>
+      </div>
+      <div class="fb-buttonbar">
+      <div class="fb-pencilbutton fb-barbutton"></div>
+      <div class="fb-locksoundbutton fb-barbutton"></div>
+      <div class="fb-newfolderbutton fb-barbutton"></div>
+      <div class="fb-downloadbutton fb-barbutton"></div>
+      <div class="fb-uploadbutton fb-barbutton"></div>
+      <div class="fb-trashbutton fb-barbutton"></div>
       </div>
       <canvas class="fb-dragimage"></canvas>
       <div class="fb-treediv">
@@ -68,7 +76,24 @@ class FileBrowser {
     var rootlabel = this.anchor_elem.querySelector(".fb-treerootpath");
     rootlabel.innerText = this.root_label;
 
+    this.buttonbar = this.anchor_elem.querySelector(".fb-buttonbar");
+    this.buttonbar.querySelector(".fb-uploadbutton").onclick = (e) => { this.pickFile(); };
+    this.buttonbar.querySelector(".fb-downloadbutton").onclick = (e) => { this.downloadSelection(); };
+    this.buttonbar.querySelector(".fb-newfolderbutton").onclick = (e) => { this.newFolder(); };
+    this.buttonbar.querySelector(".fb-trashbutton").onclick = (e) => { this.deleteItems(this.selection()); };
+    this.buttonbar.querySelector(".fb-pencilbutton").onclick = (e) => {
+      const item = this.selection()[0];
+      item.scrollIntoView({block: "nearest"});
+      this.renameItem(item);
+    };
+    this.buttonbar.querySelector(".fb-locksoundbutton").onclick = (e) => {
+      const item = this.selection()[0];
+      this.makeLockChime(item);
+    };
+
+
     this.ls(".", true);
+    this.updateButtonBar();
   }
 
   log(msg) {
@@ -140,6 +165,21 @@ class FileBrowser {
     this.deleteItems([item]);
   }
 
+  downloadSelection() {
+    const url = this.downloadURLForSelection().substr(1);
+    const name = url.substr(0, url.indexOf(":"));
+    const url2 = url.substr(url.indexOf(":") + 1);
+    console.log(`name: ${name}, url: ${url2}`);
+    
+    var elem = document.createElement('a');
+    elem.setAttribute('href', url2);
+    elem.setAttribute('download', name);
+    elem.style.display = 'none';
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
+  }
+
   selectItemContent(item) {
     var range,selection;
     if(document.createRange)
@@ -172,6 +212,7 @@ class FileBrowser {
     item.onblur = undefined;
     item.contentEditable = false;
     item.onkeydown = undefined;
+    item.oncontextmenu = undefined;
     if (item.textContent != oldValue) {
       this.applyRename(item);
     }
@@ -192,6 +233,10 @@ class FileBrowser {
     item.onblur = (e) => {
       this.stopEditingItem(item, oldValue);
     };
+    // Tapping on the selected text to position the cursor
+    // on mobile results in a context menu event, so intercept
+    // that while editing.
+    item.oncontextmenu = (e) => { e.stopPropagation(); };
     item.focus();
   }
 
@@ -206,31 +251,59 @@ class FileBrowser {
       });
   }
 
+  showButton(name, show) {
+    this.buttonbar.querySelector(name).style.display =
+      show ? "block" : "none";
+  }
+
+  updateButtonBar() {
+    var numsel = this.numSelected();
+    this.showButton(".fb-trashbutton", numsel > 0);
+    this.showButton(".fb-pencilbutton", numsel == 1);
+    this.showButton(".fb-uploadbutton", numsel == 0);
+    this.showButton(".fb-downloadbutton", numsel > 0);
+    this.showButton(".fb-newfolderbutton", numsel == 0);
+    this.showButton(".fb-locksoundbutton", numsel == 1 && this.isPotentialLockChime(this.selection()[0]));
+  }
+
+  eventCoordinates(e) {
+    if (e.targetTouches && e.targetTouches.length > 1) {
+      const t = e.targetTouches[0]
+      return [t.clientX, t.clientY];
+    }
+    return [e.x, e.y];
+  }
+
   makeMultiSelectContextMenu(event) {
     new ContextMenu(
       [
+        new ContextMenuItem("Download selected items",
+          () => {
+            this.downloadSelection();
+          }, null),
         new ContextMenuItem("Delete selected items",
           () => {
             this.deleteItems(this.selection());
           }, null)
-      ]).show(event.x, event.y);
+
+      ]).show(...this.eventCoordinates(event));
   }
 
   makeListContextMenu(event) {
     new ContextMenu(
       [
         new ContextMenuItem("New folder", () => { this.newFolder(); }, null)
-      ]).show(event.x, event.y);
+      ]).show(...this.eventCoordinates(event));
   }
 
   makeDirContextMenu(event) {
     const e = event;
     new ContextMenu(
       [
-        new ContextMenuItem("Open", () => { e.target.ondblclick(null); }, null),
         new ContextMenuItem("Rename", () => { this.renameItem(e.target); }, null),
+        new ContextMenuItem("Download", () => { this.downloadSelection(); }, null),
         new ContextMenuItem("Delete", () => { this.deleteItem(e.target); }, null)
-      ]).show(event.x, event.y);
+      ]).show(...this.eventCoordinates(event));
   }
 
   makeFileContextMenu(event) {
@@ -238,15 +311,14 @@ class FileBrowser {
     const e = event;
     new ContextMenu(
       [
-        ...this.isPlayable(filename) ? [ new ContextMenuItem("Play", () => { e.target.ondblclick(null); }, null) ] : [],
         ...this.isPotentialLockChime(event.target) ? [ new ContextMenuItem("Use as lock sound", () => { this.makeLockChime(e.target); }, null) ] : [],
         new ContextMenuItem("Rename", () => { this.renameItem(e.target); }, null),
+        new ContextMenuItem("Download", () => { this.downloadSelection(); }, null),
         new ContextMenuItem("Delete", () => { this.deleteItem(e.target); }, null)
-      ]).show(event.x, event.y);
+      ]).show(...this.eventCoordinates(event));
   }
 
   hideContextMenu() {
-    console.trace();
     var contextmenu = document.querySelector(".cm-holder");
     if (contextmenu == null) {
       return;
@@ -323,10 +395,12 @@ class FileBrowser {
         item.classList.remove("fb-selected");
       }
     } );
+    this.updateButtonBar();
   }
 
   unselectAll() {
     this.selection().forEach((e) => { e.classList.remove("fb-selected");});
+    this.updateButtonBar();
   }
 
   isSelected(elem) {
@@ -335,6 +409,7 @@ class FileBrowser {
 
   selectItem(elem) {
     elem.classList.add("fb-selected");
+    this.updateButtonBar();
   }
 
   selection() {
@@ -552,6 +627,7 @@ class FileBrowser {
       this.unselectAll();
     }
     ev.target.classList.toggle("fb-selected");
+    this.updateButtonBar();
   }
 
   createFileEntry(isdir, name, path, size) {
@@ -604,7 +680,7 @@ class FileBrowser {
     }
     var lines = paths.split('\n');
     if (switchtopath) {
-      this.anchor_elem.querySelector('.fb-fileslist').innerHTML = '';
+      this.anchor_elem.querySelector('.fb-fileslist').querySelectorAll(".fb-direntry,.fb-fileentry").forEach((entry) => entry.remove());
     }
     for (var line of lines) {
       if (line.indexOf("d:") == 0 || line.indexOf("D:") == 0) {
@@ -614,6 +690,7 @@ class FileBrowser {
         this.addFileEntry(line);
       }
     }
+    this.updateButtonBar();
   }
 
   makeOnClick(thiz, path) {
@@ -735,6 +812,11 @@ class FileBrowser {
   }
 
   hasExternalFiles(ev) {
+    console.log(`${ev.dataTransfer.items.length} items dropped`);
+    console.log(ev.dataTransfer.items.length);
+    console.log(...ev.dataTransfer.items);
+    console.log(ev.dataTransfer);
+    console.log(ev);
     if (ev.dataTransfer.items.length > 0) {
       return true;
     }
@@ -778,21 +860,21 @@ class FileBrowser {
   }
 
   showDropInfo() {
-    var di = document.querySelector(".dropinfo-holder");
+    var di = document.querySelector(".fb-dropinfo-holder");
     di.style.visibility = "visible";
-    var cb = document.querySelector(".dropinfo-closebutton");
+    var cb = document.querySelector(".fb-dropinfo-closebutton");
     cb.onmousedown = (e) => { this.cancelDrop(); };
-    var cb = document.querySelector(".dropinfo-cancel");
+    var cb = document.querySelector(".fb-dropinfo-cancel");
     cb.onclick = (e) => { this.cancelDrop(); };
-    var l1 = document.querySelector(".dropinfo-line1");
+    var l1 = document.querySelector(".fb-dropinfo-line1");
     l1.innerText = "Building file list...";
     l1.style.visibility="inherit";
-    var p = document.querySelector(".dropinfo-progress");
+    var p = document.querySelector(".fb-dropinfo-progress");
     p.style.visibility="hidden";
   }
 
   updateDropInfo(numfiles, totalsize) {
-    var l2 = document.querySelector(".dropinfo-line2");
+    var l2 = document.querySelector(".fb-dropinfo-line2");
     var str = `${numfiles} file`;
     if (numfiles != 1) {
       str += "s";
@@ -812,13 +894,16 @@ class FileBrowser {
   }
 
   hideDropInfo() {
-    var di = document.querySelector(".dropinfo-holder");
+    var di = document.querySelector(".fb-dropinfo-holder");
     di.style.visibility = "hidden";
     this.refreshLists();
   }
 
   async getFilePromise(entry) {
     try {
+      if (entry instanceof File) {
+        return entry;
+      }
       return await new Promise((resolve, reject) => {
         entry.file(resolve, reject);
       });
@@ -847,20 +932,23 @@ class FileBrowser {
     return entries;
   }
 
-  async handleExternalDrop(ev) {
+  async handleExternalDrop(targetpath, datatransferitems, files) {
     this.cancelUpload = false;
     this.uploading = true;
     var totalBytes = 0;
     var fileList = [];
     var queue = [];
-    if (ev.dataTransfer.items) {
+    if (datatransferitems) {
       // Use DataTransferItemList interface to access the file(s)
-      [...ev.dataTransfer.items].forEach((item, i) => {
+      [...datatransferitems].forEach((item, i) => {
         var entry = item.webkitGetAsEntry();
+        console.log(entry);
         if (entry != null) {
           queue.push(entry);
         }
       });
+    } else if (files) {
+      queue.push(...files);
     }
 
     while (queue.length > 0) {
@@ -870,7 +958,9 @@ class FileBrowser {
       }
       //this.log(`processing... (${fileList.length})`);
       var entry = queue.shift();
-      if (entry.isFile) {
+      if (entry.isDirectory) {
+        queue.push(...await this.readAllDirectoryEntries(entry.createReader()));
+      } else {
         fileList.push(entry);
         if (fileList.length == 1) {
           this.showDropInfo();
@@ -878,27 +968,38 @@ class FileBrowser {
         var file = await this.getFilePromise(entry);
         totalBytes += file.size;
         this.updateDropInfo(fileList.length, totalBytes);
-      } else if (entry.isDirectory) {
-        queue.push(...await this.readAllDirectoryEntries(entry.createReader()));
       }
     }
-    var l1 = document.querySelector(".dropinfo-line1");
+    console.log(`total size: ${totalBytes}`);
+    var l1 = document.querySelector(".fb-dropinfo-line1");
     l1.numitems = fileList.length;
 
-    var p = document.querySelector(".dropinfo-progress");
+    var p = document.querySelector(".fb-dropinfo-progress");
     p.style.visibility="inherit";
     p.max = totalBytes;
     p.value = 0;
-    this.uploadFiles(this.stringDecode(ev.target.dataset.fullpath), fileList);
+    this.uploadFiles(targetpath, fileList);
+  }
+
+  pickFile() {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+    input.onchange = (e) => {
+      if (input.files.length > 0) {
+        this.handleExternalDrop(this.current_path, null, input.files);
+      }
+    };
+    input.click();
   }
 
   uploadFiles(destpath, fileList) {
     var lastLoaded = 0;
     if (fileList.length > 0 && ! this.cancelUpload) {
       var f = fileList.shift();
-      var l1 = document.querySelector(".dropinfo-line1");
+      var l1 = document.querySelector(".fb-dropinfo-line1");
       l1.innerText = `${l1.numitems - fileList.length}/${l1.numitems}`;
-      var l2 = document.querySelector(".dropinfo-line2");
+      var l2 = document.querySelector(".fb-dropinfo-line2");
       l2.innerText = f.name;
       this.uploadFile(destpath, f,
         (status) => {
@@ -912,7 +1013,7 @@ class FileBrowser {
       },
       (e, request) => {
         // progress function
-        var p = document.querySelector(".dropinfo-progress");
+        var p = document.querySelector(".fb-dropinfo-progress");
         p.value += (e.loaded - lastLoaded);
         lastLoaded = e.loaded;
         if (this.cancelUpload) {
@@ -928,7 +1029,7 @@ class FileBrowser {
   async uploadFile(destpath, entry, completionCallback, progressCallback) {
     var sent = 0;
     var file = await this.getFilePromise(entry);
-    var relpath = entry.fullPath.substr(1);
+    var relpath = (entry instanceof File) ? file.name : entry.fullPath.substr(1);
 
     const request = new XMLHttpRequest();
     request.open("POST", `cgi-bin/upload.sh?${encodeURIComponent(this.root_path + "/" + destpath)}&${encodeURIComponent(relpath)}`);
@@ -981,6 +1082,7 @@ class FileBrowser {
   }
 
   drop(ev) {
+    console.log(ev);
     ev.preventDefault();
     ev.target.classList.remove("fb-droptarget");
     if (this.dragged_path == ev.dataTransfer.getData("text/plain")) {
@@ -988,7 +1090,7 @@ class FileBrowser {
       return;
     }
     if (this.hasExternalFiles(ev)) {
-      this.handleExternalDrop(ev);
+      this.handleExternalDrop(this.stringDecode(ev.target.dataset.fullpath), ev.dataTransfer.items, null);
       return;
     }
     this.log("internal path inconsistency");
@@ -1077,7 +1179,7 @@ class FileBrowser {
       const selected = selection[0];
       downloadName = selected.innerText;
       if (filesOnly) {
-        const fullpath = this.stringDecode(selected.dataset.fullpath)
+        const fullpath = encodeURIComponent(this.stringDecode(selected.dataset.fullpath));
         const root = encodeURIComponent(this.root_path);
         return `:${downloadName}:${document.location.href}cgi-bin/download.sh?${root}&${fullpath}`;
       }
