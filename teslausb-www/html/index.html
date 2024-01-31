@@ -105,7 +105,91 @@ iframe {
   height: 32px;
   padding-top: 3px;
   white-space: nowrap;
-  overflow: auto;
+}
+
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 32px;
+  border: none;
+  background: url(icons/hamburger.svg);
+  z-index: 15;
+}
+
+.currenttabname {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 22px;
+}
+
+.settingsbuttondiv {
+  padding-left: 8px;
+  flex: 0 0 22px;
+  height: 22px;
+  top: 6px;
+  right: 2px;
+  position: relative;
+}
+
+.tablabel {
+  display: inline-block;
+  margin: 0 2px 0 2px;
+  padding: 3px 12px;
+  position: relative;
+  top: -3px;
+  color: #444;
+}
+
+@media(hover: none) {
+  .hamburger {
+    display: block;
+  }
+
+  .tabheaderholder {
+    visibility: hidden;
+    flex-direction: column;
+    height: unset;
+    top: 32px;
+    background: #f8f8f8;
+    position: fixed;
+    z-index: 20;
+  }
+
+  .tablabel {
+    font-size: 20px;
+    padding: 10px 12px 0px 20px;
+  }
+
+  .hamburger[open="true"] ~ .tabheaderholder {
+    display: flex;
+    visibility: visible;
+  }
+  .currenttabname {
+    display: block;
+  }
+
+  .githublink {
+    position: fixed;
+    top: 14px;
+    right: 32px;
+    /* overlaps with tab name, so hide for now */
+    visibility: hidden;
+  }
+  .settingsbuttondiv {
+    position: fixed;
+    flex: unset;
+    right: 2px;
+    top: 6px;
+    visibility: visible;
+  }
 }
 
 .stretchable {
@@ -135,15 +219,6 @@ iframe {
   display: none;
 }
 
-.tablabel {
-  display: inline-block;
-  margin: 0 2px 0 2px;
-  padding: 3px 12px;
-  position: relative;
-  top: -3px;
-  color: #444;
-}
-
 #tab1:checked ~ .tab.content1,
 #tab2:checked ~ .tab.content2,
 #tab3:checked ~ .tab.content3,
@@ -165,16 +240,18 @@ iframe {
   display: none;
 }
 
-#tab1:checked ~ .tabheaderholder .tablabel1,
-#tab2:checked ~ .tabheaderholder .tablabel2,
-#tab3:checked ~ .tabheaderholder .tablabel3,
-#tab4:checked ~ .tabheaderholder .tablabel4,
-#tab5:checked ~ .tabheaderholder .tablabel5,
-#tab6:checked ~ .tabheaderholder .tablabel6,
-#tab7:checked ~ .tabheaderholder .tablabel7 {
-  border-bottom: 3px solid red;
-  color: #000;
-  z-index:11;
+@media(hover: hover) {
+  #tab1:checked ~ .tabheaderholder .tablabel1,
+  #tab2:checked ~ .tabheaderholder .tablabel2,
+  #tab3:checked ~ .tabheaderholder .tablabel3,
+  #tab4:checked ~ .tabheaderholder .tablabel4,
+  #tab5:checked ~ .tabheaderholder .tablabel5,
+  #tab6:checked ~ .tabheaderholder .tablabel6,
+  #tab7:checked ~ .tabheaderholder .tablabel7 {
+    border-bottom: 3px solid red;
+    color: #000;
+    z-index:11;
+  }
 }
 
 button {
@@ -530,15 +607,6 @@ video {
   transition: opacity 0.5s;
 }
 
-.settingsbuttondiv {
-  padding-left: 8px;
-  flex: 0 0 22px;
-  height: 22px;
-  top: 6px;
-  right: 2px;
-  position: relative;
-}
-
 .settingsbutton {
   width: 100%;
   height: 100%;
@@ -695,6 +763,8 @@ video {
 </head>
 <body>
 <div class="tabholder">
+  <div class="hamburger" onclick="toggleHamburgerMenu();"></div>
+  <div class="currenttabname" onclick="toggleHamburgerMenu();"></div>
   <input class="tabradiobtn" type="radio" name="tabs" id="tab1">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab2">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab3">
@@ -2592,6 +2662,37 @@ function slidermousemove(e) {
   // TODO maybe: interpolate to show the exact time of the cursor
   bub.innerText = secondstostring(secondsinday);
 }
+
+function toggleHamburgerMenu() {
+  const brgr = document.querySelector(".hamburger");
+  if (brgr.getAttribute("open") != "true") {
+    brgr.setAttribute("open", "true");;
+  } else {
+    brgr.setAttribute("open", "false");;
+  }
+  const menu = document.querySelector(".tabheaderholder");
+  menu.onclick = (e) => {
+    if (e.target.classList.contains("tablabel")) {
+      const tabname = document.querySelector(".currenttabname");
+      tabname.innerText = e.target.innerText;
+    }
+    brgr.setAttribute("open", "false");;
+    menu.onclick = null;
+  }
+}
+
+function setCurrentTabName() {
+  const checkedradio = document.querySelector(".tabradiobtn:checked");
+  const checkedlabel = document.querySelector(`label[for=${checkedradio.id}]`).textContent;
+  const tabname = document.querySelector(".currenttabname");
+  tabname.innerText = checkedlabel;
+}
+
+setCurrentTabName();
+
+const mediaQuery = window.matchMedia('(hover: hover)');
+mediaQuery.addListener(setCurrentTabName);
+
 
 var fb = document.querySelector("#musicbrowser");
 new FileBrowser(fb, "fs/Music" /* relative path */, "Music" /* label */);
