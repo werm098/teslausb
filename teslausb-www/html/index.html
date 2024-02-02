@@ -148,7 +148,8 @@ iframe {
   color: #444;
 }
 
-@media(hover: none) {
+/* switch to dropdown tab navigation on narrow screens */
+@media screen and (max-width: 824px) {
   .hamburger {
     display: block;
   }
@@ -156,16 +157,26 @@ iframe {
   .tabheaderholder {
     visibility: hidden;
     flex-direction: column;
-    height: unset;
+    height: 100%;
     top: 32px;
     background: #f8f8f8;
     position: fixed;
     z-index: 20;
+    padding-right: 34px;
+    border-right: 1000px solid rgba(0, 0, 0, 0.7);
+    background-clip: padding-box;
   }
 
   .tablabel {
     font-size: 20px;
-    padding: 10px 12px 0px 20px;
+    padding: 10px 12px 10px 20px;
+    width: 100%;
+    z-index:10;
+  }
+
+  .tablabel:hover {
+    background: #444;
+    color: #fff;
   }
 
   .hamburger[open="true"] ~ .tabheaderholder {
@@ -178,10 +189,8 @@ iframe {
 
   .githublink {
     position: fixed;
-    top: 14px;
-    right: 32px;
-    /* overlaps with tab name, so hide for now */
-    visibility: hidden;
+    bottom: 14px;
+    left: 16px;
   }
   .settingsbuttondiv {
     position: fixed;
@@ -229,18 +238,13 @@ iframe {
   visibility: visible;
 }
 
-.tablabel:hover {
-  border-bottom: 3px solid #AAA;
-  color: #000;
-  z-index:10;
-}
+@media screen and (min-width: 825px) {
+  .tablabel:hover {
+    border-bottom: 3px solid #AAA;
+    color: #000;
+    z-index:10;
+  }
 
-/*hide music tab by default */
-.tablabel6 {
-  display: none;
-}
-
-@media(hover: hover) {
   #tab1:checked ~ .tabheaderholder .tablabel1,
   #tab2:checked ~ .tabheaderholder .tablabel2,
   #tab3:checked ~ .tabheaderholder .tablabel3,
@@ -252,6 +256,11 @@ iframe {
     color: #000;
     z-index:11;
   }
+}
+
+/*hide music tab by default */
+.tablabel6 {
+  display: none;
 }
 
 button {
@@ -2682,6 +2691,7 @@ function toggleHamburgerMenu() {
 }
 
 function setCurrentTabName() {
+  console.log("setCurrentTabName");
   const checkedradio = document.querySelector(".tabradiobtn:checked");
   const checkedlabel = document.querySelector(`label[for=${checkedradio.id}]`).textContent;
   const tabname = document.querySelector(".currenttabname");
@@ -2690,7 +2700,7 @@ function setCurrentTabName() {
 
 setCurrentTabName();
 
-const mediaQuery = window.matchMedia('(hover: hover)');
+const mediaQuery = window.matchMedia('screen and (max-width: 824px)');
 mediaQuery.addListener(setCurrentTabName);
 
 
