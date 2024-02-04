@@ -57,41 +57,6 @@ iframe {
   border: 0;
 }
 
-.scrollshadows {
-  background:
-    /* left cover, scrolls with view */
-    linear-gradient(
-      0.25turn,
-      white 30%,
-      rgba(255, 255, 255, 0)
-    ) center left,
-
-    /* right cover, scrolls with view */
-    linear-gradient(
-      0.25turn,
-      rgba(255, 255, 255, 0),
-      white 70%
-    ) center right,
-
-    /* left shadow, revealed when left cover scrolls away*/
-    linear-gradient(
-      0.25turn,
-      rgba(0, 0, 0, 0.4),
-      rgba(0, 0, 0, 0)
-    ) center left,
-
-    /* right shadow, revealed when right cover scrolls away */
-    linear-gradient(
-      0.75turn,
-      rgba(0, 0, 0, 0.4),
-      rgba(0, 0, 0, 0)
-    ) center right;
-
-  background-repeat: no-repeat;
-  background-size: 60px 100%, 60px 100%, 20px 100%, 20px 100%;
-  background-attachment: local, local, scroll, scroll;
-}
-
 .tabholder {
   position: relative;
   width:100%;
@@ -101,8 +66,13 @@ iframe {
 
 .tabheaderholder {
   display: flex;
-  align-items: baseline;
+  flex-direction: row;
+  position: fixed;
+  top: 0;
+  left: 0;
   height: 32px;
+  width: 100%;
+  align-items: baseline;
   padding-top: 3px;
   white-space: nowrap;
 }
@@ -155,12 +125,21 @@ iframe {
   }
 
   .tabheaderholder {
-    visibility: hidden;
+    // Changing the visibility to hide and show the menu in response
+    // to a click appears to trigger a bug in Chrome that makes it
+    // consume lots of CPU and makes some page interactions very
+    // sluggish until the user performs another interaction like
+    // toggling menu again with the hamburger button or clicking
+    // on the filebrowser splitter.
+    // Hiding and showing the menu by changing its position appears
+    // to avoid the bug.
+    //visibility: hidden;
+    left: 100%;
     flex-direction: column;
     height: 100%;
+    width: unset;
     top: 32px;
     background: #f8f8f8;
-    position: fixed;
     z-index: 20;
     padding-right: 34px;
     border-right: 1000px solid rgba(0, 0, 0, 0.7);
@@ -179,19 +158,20 @@ iframe {
     color: #fff;
   }
 
-  .hamburger[open="true"] ~ .tabheaderholder {
-    display: flex;
-    visibility: visible;
+  .hamburger.brgropen ~ .tabheaderholder {
+    //visibility: visible;
+    left: 0;
   }
   .currenttabname {
     display: block;
   }
 
-  .githublink {
+  .hamburger.brgropen ~ .tabheaderholder > .githublink {
     position: fixed;
     bottom: 14px;
     left: 16px;
   }
+
   .settingsbuttondiv {
     position: fixed;
     flex: unset;
@@ -215,7 +195,7 @@ iframe {
 }
 
 .tab {
-  position: absolute;
+  position: fixed;
   top: 33px;
   bottom: 0;
   left: 0;
@@ -781,7 +761,7 @@ video {
   <input class="tabradiobtn" type="radio" name="tabs" id="tab5">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab6">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab7" checked>
-  <div class="tabheaderholder scrollshadows">
+  <div class="tabheaderholder">
     <label for="tab1" class="tablabel tablabel1">Diagnostics</label>
     <label for="tab2" class="tablabel tablabel2">Archiveloop log</label>
     <label for="tab3" class="tablabel tablabel3">Setup log</label>
@@ -2674,18 +2654,14 @@ function slidermousemove(e) {
 
 function toggleHamburgerMenu() {
   const brgr = document.querySelector(".hamburger");
-  if (brgr.getAttribute("open") != "true") {
-    brgr.setAttribute("open", "true");;
-  } else {
-    brgr.setAttribute("open", "false");;
-  }
+  brgr.classList.toggle("brgropen");
   const menu = document.querySelector(".tabheaderholder");
   menu.onclick = (e) => {
     if (e.target.classList.contains("tablabel")) {
       const tabname = document.querySelector(".currenttabname");
       tabname.innerText = e.target.innerText;
     }
-    brgr.setAttribute("open", "false");;
+    brgr.classList.remove("brgropen");
     menu.onclick = null;
   }
 }
