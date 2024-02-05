@@ -43,6 +43,7 @@ class FileBrowser {
         <ul class="fb-tree"></ul>
       </div>
       <div class="fb-splitter"></div>
+      <div class="fb-splitterflag"></div>
       <div class="fb-filesdiv">
         <div class="fb-dirpath"></div>
         <div class="fb-fileslist"></div>
@@ -66,6 +67,9 @@ class FileBrowser {
 
     const splitter = this.anchor_elem.querySelector(".fb-splitter");
     splitter.onpointerdown = (e) => { this.splitterPointerDown(e); };
+    const splitterflag = this.anchor_elem.querySelector(".fb-splitterflag");
+    splitterflag.onpointerdown = (e) => { this.splitterPointerDown(e); };
+    this.splitterSetFlagPos();
 
     const fileList = this.anchor_elem.querySelector('.fb-fileslist');
     fileList.onpointerdown = (e) => { this.listPointerDown(e); };
@@ -354,13 +358,23 @@ class FileBrowser {
     }
   }
 
+  splitterSetFlagPos() {
+    const splitter = this.anchor_elem.querySelector(".fb-splitter");
+    const splitterflag = this.anchor_elem.querySelector(".fb-splitterflag");
+    splitterflag.style.left = (splitter.getBoundingClientRect().x - 
+      splitterflag.getBoundingClientRect().width + 1) + "px";
+  }
+
   splitterPointerMove(event) {
-    var treediv = this.anchor_elem.querySelector(".fb-splitter").previousElementSibling;
-    treediv.style.width = `${event.clientX - this.splitter_clickoffset - 2}px`;
+    const treediv = this.anchor_elem.querySelector(".fb-splitter").previousElementSibling;
+    const treedivrect = treediv.getBoundingClientRect();
+    const newwidth = event.clientX + this.splitter_clickoffset - treedivrect.x;
+    treediv.style.width = `${newwidth}px`;
+    this.splitterSetFlagPos();
   }
 
   splitterPointerUp(event) {
-    var splitter = event.target;
+    const splitter = event.target;
     splitter.removeEventListener("pointermove", this.splitterPointerMove);
     splitter.removeEventListener("pointerup", this.splitterPointerUp);
     splitter.releasePointerCapture(event.pointerId);
@@ -372,7 +386,9 @@ class FileBrowser {
     splitter.addEventListener("pointermove", this.splitterPointerMove);
     splitter.addEventListener("pointerup", this.splitterPointerUp);
     splitter.setPointerCapture(event.pointerId);
-    this.splitter_clickoffset = event.offsetX;
+    const treediv = this.anchor_elem.querySelector(".fb-splitter").previousElementSibling;
+    const treedivrect = treediv.getBoundingClientRect();
+    this.splitter_clickoffset = treedivrect.x + treedivrect.width - event.clientX;
     this.splitter_active = true;
   }
 

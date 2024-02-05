@@ -1,9 +1,3 @@
-@media(hover: none) {
-  .fb-splitter {
-    width: 15px !important;
-  }
-}
-
 #musicbrowser {
   font-size: 16px;
 }
@@ -26,6 +20,25 @@
   margin-left: 1px;
   margin-right: 1px;
   touch-action: none;
+}
+
+.fb-splitterflag {
+  position: fixed;
+  width: 40px;
+  height: 64px;
+  top: 50%;
+  background: #ccc;
+  border-style: solid;
+  border-color: #444;
+  border-width: 1px 0px 1px 1px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+@media(hover: hover) {
+  .fb-splitterflag {
+    visibility: hidden;
+  }
 }
 
 .fb-selection-rect {
