@@ -805,6 +805,17 @@ then
   fi
 fi
 
+# Turn on all leds in case they're still flashing
+# from pre-setup.
+for led in /sys/class/leds/*
+do
+  if [ -e "$led/trigger" ]
+  then
+    echo none > "$led/trigger" || true
+    echo 1 > "$led/brightness" || true
+  fi
+done
+
 # Update config.txt if needed
 if [ -f "$PICONFIG_PATH" ]
 then
