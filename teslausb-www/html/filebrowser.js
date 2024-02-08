@@ -26,6 +26,7 @@ class FileBrowser {
           <div class="fb-dropinfo-closebutton">&#x2716</div>
           <div class="fb-dropinfo-line2"></div>
           <progress class="fb-dropinfo-progress" value="0" max="100"></progress>
+          <div class="fb-dropinfo-line3"></div>
           <button class="fb-dropinfo-cancel">Cancel</button>
         </div>
       </div>
@@ -173,7 +174,7 @@ class FileBrowser {
     const url = this.downloadURLForSelection().substr(1);
     const name = url.substr(0, url.indexOf(":"));
     const url2 = url.substr(url.indexOf(":") + 1);
-    console.log(`name: ${name}, url: ${url2}`);
+    this.log(`name: ${name}, url: ${url2}`);
     
     var elem = document.createElement('a');
     elem.setAttribute('href', url2);
@@ -828,11 +829,11 @@ class FileBrowser {
   }
 
   hasExternalFiles(ev) {
-    console.log(`${ev.dataTransfer.items.length} items dropped`);
-    console.log(ev.dataTransfer.items.length);
-    console.log(...ev.dataTransfer.items);
-    console.log(ev.dataTransfer);
-    console.log(ev);
+    this.log(`${ev.dataTransfer.items.length} items dropped`);
+    this.log(ev.dataTransfer.items.length);
+    this.log(...ev.dataTransfer.items);
+    this.log(ev.dataTransfer);
+    this.log(ev);
     if (ev.dataTransfer.items.length > 0) {
       return true;
     }
@@ -889,13 +890,8 @@ class FileBrowser {
     p.style.visibility="hidden";
   }
 
-  updateDropInfo(numfiles, totalsize) {
-    var l2 = document.querySelector(".fb-dropinfo-line2");
-    var str = `${numfiles} file`;
-    if (numfiles != 1) {
-      str += "s";
-    }
-    str += ", ";
+  niceNumber(totalsize) {
+    var str = "";
     if (totalsize < 100000) {
       str += `${totalsize} bytes`
     } else if (totalsize < 2000000) {
@@ -905,6 +901,16 @@ class FileBrowser {
     } else {
       str += `${(totalsize / (1024 * 1024 * 1024)).toFixed(2)} GB`
     }
+    return str;
+  }
+
+  updateDropInfo(numfiles, totalsize) {
+    var l2 = document.querySelector(".fb-dropinfo-line2");
+    var str = `${numfiles} file`;
+    if (numfiles != 1) {
+      str += "s";
+    }
+    str += ", " + this.niceNumber(totalsize);
     l2.innerText = str;
 
   }
@@ -958,7 +964,7 @@ class FileBrowser {
       // Use DataTransferItemList interface to access the file(s)
       [...datatransferitems].forEach((item, i) => {
         var entry = item.webkitGetAsEntry();
-        console.log(entry);
+        this.log(entry);
         if (entry != null) {
           queue.push(entry);
         }
@@ -986,7 +992,7 @@ class FileBrowser {
         this.updateDropInfo(fileList.length, totalBytes);
       }
     }
-    console.log(`total size: ${totalBytes}`);
+    this.log(`total size: ${totalBytes}`);
     var l1 = document.querySelector(".fb-dropinfo-line1");
     l1.numitems = fileList.length;
 
@@ -1014,7 +1020,7 @@ class FileBrowser {
     if (fileList.length > 0 && ! this.cancelUpload) {
       var f = fileList.shift();
       var l1 = document.querySelector(".fb-dropinfo-line1");
-      l1.innerText = `${l1.numitems - fileList.length}/${l1.numitems}`;
+      l1.innerText = `File ${l1.numitems - fileList.length} / ${l1.numitems}`;
       var l2 = document.querySelector(".fb-dropinfo-line2");
       l2.innerText = f.name;
       this.uploadFile(destpath, f,
@@ -1029,8 +1035,15 @@ class FileBrowser {
       },
       (e, request) => {
         // progress function
-        var p = document.querySelector(".fb-dropinfo-progress");
+        const p = document.querySelector(".fb-dropinfo-progress");
         p.value += (e.loaded - lastLoaded);
+        const size1 = this.niceNumber(p.value);
+        const size2 = this.niceNumber(p.max);
+        const s = `${size1} / ${size2}`;
+        const l3 = document.querySelector(".fb-dropinfo-line3");
+        if (l3.innerText != s) {
+          l3.innerText = s;
+        }
         lastLoaded = e.loaded;
         if (this.cancelUpload) {
           this.log("cancelling upload");
@@ -1098,7 +1111,7 @@ class FileBrowser {
   }
 
   drop(ev) {
-    console.log(ev);
+    this.log(ev);
     ev.preventDefault();
     ev.target.classList.remove("fb-droptarget");
     if (this.dragged_path == ev.dataTransfer.getData("text/plain")) {

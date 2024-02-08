@@ -317,6 +317,7 @@ details > ul.fb-droptarget {
 .fb-dropinfo-line2 {
   position: absolute;
   left: 20px;
+  right: 20px;
   top: 40px;
   height: 30px;
   white-space: nowrap;
@@ -328,6 +329,24 @@ details > ul.fb-droptarget {
 }
 
 .fb-dropinfo-line2::-webkit-scrollbar {
+  display: none;
+}
+
+.fb-dropinfo-line3 {
+  position: absolute;
+  left: 20px;
+  right: 60px;
+  bottom: 5px;
+  height: 30px;
+  white-space: nowrap;
+  overflow: auto;
+  text-align: left;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.fb-dropinfo-line3::-webkit-scrollbar {
   display: none;
 }
 
@@ -353,8 +372,8 @@ details > ul.fb-droptarget {
 
 .fb-dropinfo-progress {
   position: absolute;
-  left: 8px;
-  width: calc(350px - 16px);
+  left: 20px;
+  width: calc(100% - 28px);
   top: 90px;
 }
 
