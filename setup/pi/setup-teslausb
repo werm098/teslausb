@@ -306,11 +306,12 @@ function create_usb_drive_backing_files () {
   then
     setup_progress "Creating backing disk files."
     copy_script setup/pi/create-backingfiles.sh /tmp
-    /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$BOOMBOX_SIZE" "$BACKINGFILES_MOUNTPOINT" "$USE_EXFAT"
+    /tmp/create-backingfiles.sh "$CAM_SIZE" "$MUSIC_SIZE" "$LIGHTSHOW_SIZE" "$BOOMBOX_SIZE" "$BACKINGFILES_MOUNTPOINT" "$USE_EXFAT"
   fi
 
   update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/cam_disk.bin /mnt/cam
   update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/music_disk.bin /mnt/music
+  update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/lightshow_disk.bin /mnt/lightshow
   update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/boombox_disk.bin /mnt/boombox
 
   # mount cam image and make sure the right directories exist
@@ -343,6 +344,13 @@ function create_usb_drive_backing_files () {
     then
       touch /mnt/music/.metadata_never_index
       umount /mnt/music
+    fi
+
+    if mount /mnt/lightshow
+    then
+      mkdir -p /mnt/lightshow/LightShow
+      touch /mnt/lightshow/.metadata_never_index
+      umount /mnt/lightshow
     fi
 
     if mount /mnt/boombox
@@ -509,6 +517,7 @@ function cmd_upgrade_prepare {
     service autofs stop || true
     umount /backingfiles/snapshots/snap*/mnt || true
     umount /mnt/cam /mnt/music || true
+    umount /mnt/lightshow || true
     umount /mnt/boombox || true
     umount /mnt/archive /mnt/musicarchive || true
     /root/bin/disable_gadget.sh || true
@@ -698,6 +707,13 @@ function diagnose {
       parted -s /backingfiles/music_disk.bin print || true
     else
       echo "no music disk image found"
+    fi
+    if [ -f /backingfiles/lightshow_disk.bin ]
+    then
+      echo "lightshow disk image has $(filefrag /backingfiles/lightshow_disk.bin | awk '{print $2}') extents"
+      parted -s /backingfiles/lightshow_disk.bin print || true
+    else
+      echo "no lightshow disk image found"
     fi
     if [ -f /backingfiles/boombox_disk.bin ]
     then

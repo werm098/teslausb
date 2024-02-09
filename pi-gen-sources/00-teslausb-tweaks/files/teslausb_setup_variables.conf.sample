@@ -90,9 +90,11 @@ export SHARE_PASSWORD='password'
 #     size and not get the warning.
 #   * MUSIC_SIZE should be large enough to hold your music library, obviously.
 #   * If no music size is specified, no music drive will be created.
+#   * If no lightshow size is specified, no lightshow drive will be created.
 #   * If no boombox size is specified, no boombox drive will be created.
 export CAM_SIZE=30G
 #export MUSIC_SIZE=4G
+#export LIGHTSHOW_SIZE=1G
 #export BOOMBOX_SIZE=100M
 
 # If you want to automatically copy music from a CIFS share every time
