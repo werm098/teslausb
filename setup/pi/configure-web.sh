@@ -20,6 +20,8 @@ systemctl stop nginx.service &> /dev/null || true
 mkdir -p /var/www
 umount /var/www/html/TeslaCam &> /dev/null || true
 umount /var/www/html/fs/Music &> /dev/null || true
+umount /var/www/html/fs/LightShow &> /dev/null || true
+umount /var/www/html/fs/Boombox &> /dev/null || true
 find /var/www/html -mount \( -type f -o -type l \) -print0 | xargs -0 rm
 cp -r "$SOURCE_DIR/teslausb-www/html" /var/www/
 ln -sf /boot/teslausb-headless-setup.log /var/www/html/
