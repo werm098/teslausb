@@ -215,4 +215,5 @@ then
 	EOF
 fi
 
-. /root/.bashrc
+# exec bash to print the above message
+exec bash
