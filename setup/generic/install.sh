@@ -215,5 +215,5 @@ then
 	EOF
 fi
 
-# exec bash to print the above message
-exec bash
+# hack to print the above message without duplicating it here
+grep -A 12 SETUP_FINISHED .bashrc  | grep echo | while read line; do eval "$line"; done
