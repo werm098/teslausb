@@ -31,6 +31,7 @@ function flash_rapidly {
 rootpart=$(findmnt -n -o SOURCE /)
 rootname=$(lsblk -no pkname "${rootpart}")
 rootdev="/dev/${rootname}"
+marker="/root/RESIZE_ATTEMPTED"
 
 # Check that the root partition is the last one.
 lastpart=$(sfdisk -l "$rootdev" | tail -1 | awk '{print $1}')
@@ -61,6 +62,12 @@ then
   partnumsectors=$(sfdisk -l -o Sectors "${rootdev}" | tail -1)
   if [ "$partnumsectors" -le "$fsnumsectors" ]
   then
+    if [ -f "$marker" ]
+    then
+      error_exit "Previous resize attempt failed. Delete $marker before retrying."
+    fi
+    touch "$marker"
+
     echo "insufficient unpartitioned space, attempting to shrink root file system"
 
     cat <<- EOF > /etc/rc.local
@@ -105,6 +112,7 @@ then
     } | bash -s 3G
     exit 0
   fi
+  rm "$marker"
   # shrink root partition to match root file system size
   echo "shrinking root partition to match root fs, $fsnumsectors sectors"
   sleep 3
