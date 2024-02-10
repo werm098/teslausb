@@ -181,7 +181,7 @@ flash_rapidly
 DEFUSER=$(grep ":1000:1000:" /etc/passwd | awk -F : '{print $1}')
 if [ -n "$DEFUSER" ]
 then
-  if [ ! -e "/home/$DEFUSER/.bashrc" ] || ! grep "SETUP_FINISHED" "/home/$DEFUSER/.bashrc"
+  if [ ! -e "/home/$DEFUSER/.bashrc" ] || ! grep -q "SETUP_FINISHED" "/home/$DEFUSER/.bashrc"
   then
     cat <<- EOF >> "/home/$DEFUSER/.bashrc"
 		if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
@@ -195,7 +195,7 @@ then
   fi
 fi
 
-if ! grep "SETUP_FINISHED" /root/.bashrc
+if ! grep -q "SETUP_FINISHED" /root/.bashrc
 then
   cat <<- EOF >> /root/.bashrc
 	if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
@@ -214,3 +214,5 @@ then
 	fi
 	EOF
 fi
+
+. /root/.bashrc
