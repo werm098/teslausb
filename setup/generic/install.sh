@@ -57,9 +57,9 @@ then
 
   devsectorsize=$(cat "/sys/block/${rootname}/queue/hw_sector_size")
   read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ' | (cat; echo))
-  fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize + 1))
-
+  fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize))
   partnumsectors=$(sfdisk -l -o Sectors "${rootdev}" | tail -1)
+  partnumsector=$((partnumsectors - 1));
   if [ "$partnumsectors" -le "$fsnumsectors" ]
   then
     if [ -f "$marker" ]
