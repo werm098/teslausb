@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 
 function log_progress () {
   if declare -F setup_progress > /dev/null
@@ -78,8 +78,21 @@ fi
 
 readonly LAST_PARTITION_DEVICE=$(sfdisk -l "$BOOT_DISK" | tail -1 | awk '{print $1}')
 readonly LAST_PART_NUM=${LAST_PARTITION_DEVICE:0-1}
-readonly BACKINGFILES_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((LAST_PART_NUM + 1))"
-readonly MUTABLE_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((LAST_PART_NUM + 2))"
+readonly SECOND_TO_LAST_PART_NUM=$((LAST_PART_NUM - 1))
+readonly SECOND_TO_LAST_PARTITION_DEVICE=${LAST_PARTITION_DEVICE:0:-1}${SECOND_TO_LAST_PART_NUM}
+if [ /dev/disk/by-label/mutable -ef "$LAST_PARTITION_DEVICE" ]
+then
+  readonly MUTABLE_DEVICE="$LAST_PARTITION_DEVICE"
+else
+  readonly MUTABLE_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((LAST_PART_NUM + 2))"
+fi
+if [ /dev/disk/by-label/backingfiles -ef "$SECOND_TO_LAST_PARTITION_DEVICE" ]
+then
+  readonly BACKINGFILES_DEVICE="$SECOND_TO_LAST_PARTITION_DEVICE"
+else
+  readonly BACKINGFILES_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((LAST_PART_NUM + 1))"
+fi
+
 # If the backingfiles partition follows the root partition, is type xfs,
 # and is in turn followed by the mutable partition, type ext4, then return early.
 if [ /dev/disk/by-label/backingfiles -ef "${BACKINGFILES_DEVICE}" ] && \
