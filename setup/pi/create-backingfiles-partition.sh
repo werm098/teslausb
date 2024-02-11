@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 function log_progress () {
   if declare -F setup_progress > /dev/null
