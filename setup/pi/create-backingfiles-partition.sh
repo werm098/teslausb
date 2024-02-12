@@ -17,17 +17,36 @@ fi
 
 function partition_prefix_for {
   case $1 in
-    /dev/mmcblk* | /dev/nvme*)
+    /dev/mmcblk* | /dev/nvme* | /dev/loop*)
       echo p
       ;;
     /dev/sd*)
       echo
       ;;
     *)
-      setup_progress "STOP: can't determine partition naming scheme for '$1'"
+      log_progress "STOP: can't determine partition naming scheme for '$1'"
       exit 1
       ;;
   esac
+}
+
+BACKINGFILES_MOUNTPOINT="${1:-none}"
+MUTABLE_MOUNTPOINT="${2:-none}"
+function update_fstab {
+  if grep -q "LABEL=backingfiles" /etc/fstab
+  then
+    log_progress "backingfiles already defined in /etc/fstab. Not modifying /etc/fstab."
+  elif [ "$BACKINGFILES_MOUNTPOINT" != "none" ]
+  then
+    echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
+  fi
+  if grep -q 'LABEL=mutable' /etc/fstab
+  then
+    log_progress "mutable already defined in /etc/fstab. Not modifying /etc/fstab."
+  elif [ "$MUTABLE_MOUNTPOINT" != "none" ]
+  then
+    echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
+  fi
 }
 
 # Will check for USB Drive before running sd card
@@ -56,20 +75,7 @@ then
     mkfs.xfs -f -m reflink=1 -L backingfiles "$P2"
   fi
 
-  BACKINGFILES_MOUNTPOINT="$1"
-  MUTABLE_MOUNTPOINT="$2"
-  if grep -q backingfiles /etc/fstab
-  then
-    log_progress "backingfiles already defined in /etc/fstab. Not modifying /etc/fstab."
-  else
-    echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
-  fi
-  if grep -q 'mutable' /etc/fstab
-  then
-    log_progress "mutable already defined in /etc/fstab. Not modifying /etc/fstab."
-  else
-    echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
-  fi
+  update_fstab
   log_progress "Done."
   exit 0
 else
@@ -104,6 +110,7 @@ then
     # assume these were either created previously by the setup scripts,
     # or manually by the user, and that they're big enough
     log_progress "using existing backingfiles and mutable partitions"
+    update_fstab
     return &> /dev/null || exit 0
   elif blkid "${BACKINGFILES_DEVICE}" | grep -q 'TYPE="ext4"'
   then
@@ -144,9 +151,6 @@ then
   log_progress "please delete them and re-run setup"
   exit 1
 fi
-
-BACKINGFILES_MOUNTPOINT="$1"
-MUTABLE_MOUNTPOINT="$2"
 
 log_progress "Checking existing partitions..."
 
@@ -202,5 +206,4 @@ log_progress "Formatting new partitions..."
 mkfs.xfs -f -m reflink=1 -L backingfiles "${BACKINGFILES_DEVICE}"
 mkfs.ext4 -F -N "$NUM_MUTABLE_INODES" -L mutable "${MUTABLE_DEVICE}"
 
-echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
-echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
+update_fstab
