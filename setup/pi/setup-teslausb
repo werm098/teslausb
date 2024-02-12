@@ -137,7 +137,6 @@ export BOOT_DEVICE_PARTITION_PREFIX
 ROOT_PARTITION_DEVICE=$(lsblk -dpno name "$(findmnt -D -no SOURCE --target /)")
 declare -rx ROOT_PARTITION_DEVICE
 readonly ROOT_PART_NUM=${ROOT_PARTITION_DEVICE:0-1}
-export ROOT_PART_NUM;
 INCREASE_ROOT_SIZE=$(($(dehumanize "$INCREASE_ROOT_SIZE") / 512))
 
 if [ "$INCREASE_ROOT_SIZE" != "0" ] && [ ! -e "${BOOT_DEVICE_PARTITION_PREFIX}$((ROOT_PART_NUM+1))" ]
