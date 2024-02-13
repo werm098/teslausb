@@ -157,18 +157,19 @@ function isRadxaZero {
 }
 export -f isRadxaZero
 
-for STATUSLED in \
-  /sys/class/leds/led0 \
-  /sys/class/leds/ACT \
-  /sys/class/leds/user-led2 \
-  /sys/class/leds/radxa-zero:green \
-  /tmp/fakeled
+STATUSLED=/tmp/fakeled
+
+while read -r led
 do
-  if [ -d  "$STATUSLED" ]
-  then
-    break;
-  fi
-done
+  case "$led" in
+    *status | */led0 | */ACT | */user-led2 | */radxa-zero:green)
+      STATUSLED="$led"
+      break;
+      ;;
+    *)
+      ;;
+    esac
+done < <(find /sys/class/leds -type l)
 
 if [ ! -d "$STATUSLED" ]
 then
