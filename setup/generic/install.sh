@@ -173,6 +173,12 @@ then
   apt install -y sntp
 fi
 
+if [ ! -x "$(command -v parted)" ]
+then
+  apt install -y parted
+fi
+
+
 # indicate we're waiting for the user to log in and finish setup
 flash_rapidly
 
