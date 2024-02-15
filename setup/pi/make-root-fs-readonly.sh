@@ -11,6 +11,12 @@ function log_progress () {
   echo "make-root-fs-readonly: $1"
 }
 
+if [ -n "${SKIP_READONLY:+x}" ]
+then
+  log_progress "Skipping"
+  exit 0
+fi
+
 log_progress "start"
 
 function append_cmdline_txt_param() {
