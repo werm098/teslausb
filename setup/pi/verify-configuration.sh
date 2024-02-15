@@ -86,7 +86,7 @@ function check_available_space_sd () {
   if [ -e /dev/disk/by-label/backingfiles ] && [ -e /dev/disk/by-label/mutable ]
   then
     backingfiles_size=$(blockdev --getsize64 /dev/disk/by-label/backingfiles)
-    if [ "$backingfiles_size" -lt  $(( (1<<30) * 39)) ]
+    if [ "$backingfiles_size" -lt  $(( (1<<30) * 32)) ]
     then
       setup_progress "STOP: Existing backingfiles partition is too small"
       exit 1
@@ -101,7 +101,7 @@ function check_available_space_sd () {
     available_space=$(sfdisk -F "$BOOT_DISK" | grep -o '[0-9]* bytes' | head -1 | awk '{print $1}')
  
     # Require at least 40 GB of available space.
-    if [ "$available_space" -lt  $(( (1<<30) * 40)) ]
+    if [ "$available_space" -lt  $(( (1<<30) * 32)) ]
     then
       setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
       setup_progress "$(parted "${BOOT_DISK}" print)"
