@@ -11,7 +11,7 @@ function log_progress () {
   echo "make-root-fs-readonly: $1"
 }
 
-if [ -n "${SKIP_READONLY:+x}" ]
+if [ "${SKIP_READONLY:-false}" = "true" ]
 then
   log_progress "Skipping"
   exit 0
