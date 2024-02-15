@@ -44,6 +44,7 @@ systemctl disable apt-daily-upgrade.timer
 
 # adb service exists on some distributions and interferes with mass storage emulation
 systemctl disable amlogic-adbd &> /dev/null || true
+systemctl disable radxa-adbd radxa-usbnet &> /dev/null || true
 
 # don't restore the led state from the time the root fs was made read-only
 systemctl disable armbian-led-state &> /dev/null || true
