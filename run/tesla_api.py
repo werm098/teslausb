@@ -14,6 +14,7 @@ from pprint import pprint
 
 
 # Global vars for use by various functions.
+list_url = 'https://owner-api.teslamotors.com/api/1/products'
 base_url = 'https://owner-api.teslamotors.com/api/1/vehicles'
 SETTINGS = {
     'DEBUG': False,
@@ -266,7 +267,7 @@ def _error(msg, flush=True):
 # API GET Functions
 ######################################
 def list_vehicles():
-    return _execute_request(base_url, None, None, False)
+    return _execute_request(list_url, None, None, False)
 
 
 def get_service_data():
