@@ -102,7 +102,7 @@ class FileBrowser {
   }
 
   log(msg) {
-    if (DEBUG) {
+    if (this.DEBUG) {
       console.log(msg);
     }
   }
@@ -452,6 +452,11 @@ class FileBrowser {
     fileList.append(div);
 
     function resize(event) {
+      thiz.log("resize");
+      if (event.buttons == 0) {
+        cancelSelectionRectangle(event);
+        return;
+      }
       if (event.target != fileList) return;
 
       const offX = event.offsetX + fileList.scrollLeft;
@@ -477,14 +482,20 @@ class FileBrowser {
     event.target.addEventListener("pointermove", resize);
 
     function cancelSelectionRectangle(event) {
+      thiz.log("cancelSelectionRectangle");
       event.target.removeEventListener("pointermove", resize);
-      fileList.releasePointerCapture(event.pointerId);
+      try {
+        fileList.releasePointerCapture(event.pointerId);
+      } catch(error) {
+        thiz.log("release error");
+      }
       event.target.removeEventListener("pointerup", pointerup);
       event.target.removeEventListener("cancelselectionrect", cancelSelectionRectangle);
       div.remove();
     }
 
     function pointerup(event) {
+      thiz.log("pointerup");
       cancelSelectionRectangle(event);
     }
 
