@@ -457,10 +457,15 @@ class FileBrowser {
         cancelSelectionRectangle(event);
         return;
       }
-      if (event.target != fileList) return;
+      if (event.target != fileList) {
+        return;
+      }
 
-      const offX = event.offsetX + fileList.scrollLeft;
-      const offY = event.offsetY + fileList.scrollTop;
+      const rect = fileList.getBoundingClientRect();
+      const offX = (event.touches ? event.touches[0].clientX - rect.left :
+                    event.offsetX) + fileList.scrollLeft;
+      const offY = (event.touches ? event.touches[0].clientY - rect.top :
+                    event.offsetY) + fileList.scrollTop;
       const maxX = fileList.clientWidth + fileList.scrollLeft;
       const maxY = fileList.clientHeight + fileList.scrollTop;
       const curX = offX > maxX ? maxX : offX;
@@ -478,9 +483,6 @@ class FileBrowser {
       this.unselectAll();
     }
 
-    fileList.setPointerCapture(event.pointerId);
-    event.target.addEventListener("pointermove", resize);
-
     function cancelSelectionRectangle(event) {
       thiz.log("cancelSelectionRectangle");
       event.target.removeEventListener("pointermove", resize);
@@ -489,8 +491,11 @@ class FileBrowser {
       } catch(error) {
         thiz.log("release error");
       }
-      event.target.removeEventListener("pointerup", pointerup);
-      event.target.removeEventListener("cancelselectionrect", cancelSelectionRectangle);
+      fileList.removeEventListener("touchmove", resize);
+      fileList.removeEventListener("touchend", pointerup);
+      fileList.removeEventListener("pointermove", resize);
+      fileList.removeEventListener("pointerup", pointerup);
+      fileList.removeEventListener("cancelselectionrect", cancelSelectionRectangle);
       div.remove();
     }
 
@@ -499,8 +504,15 @@ class FileBrowser {
       cancelSelectionRectangle(event);
     }
 
-    event.target.addEventListener("pointerup", pointerup);
-    event.target.addEventListener("cancelselectionrect", cancelSelectionRectangle);
+    fileList.setPointerCapture(event.pointerId);
+    if (event.pointerType == "touch") {
+      fileList.addEventListener("touchmove", resize);
+      fileList.addEventListener("touchend", pointerup);
+    } else {
+      fileList.addEventListener("pointermove", resize);
+      fileList.addEventListener("pointerup", pointerup);
+    }
+    fileList.addEventListener("cancelselectionrect", cancelSelectionRectangle);
   }
 
   listPointerDown(event) {
