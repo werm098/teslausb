@@ -125,7 +125,7 @@ class FileBrowser {
   }
 
   newFolder() {
-    var fl = document.querySelector(".fb-fileslist");
+    var fl = this.anchor_elem.querySelector(".fb-fileslist");
     for (var i = 1; i < 100; i++) {
       var str = `${this.current_path == "." ? "" : this.current_path + "/"}New folder${i == 1 ? '' : " (" + i + ")"}`;
       this.log(str);
@@ -324,7 +324,7 @@ class FileBrowser {
   }
 
   hideContextMenu() {
-    var contextmenu = document.querySelector(".cm-holder");
+    var contextmenu = this.anchor_elem.querySelector(".cm-holder");
     if (contextmenu == null) {
       return;
     }
@@ -430,7 +430,7 @@ class FileBrowser {
   }
 
   selection() {
-    var fl = document.querySelector(".fb-fileslist");
+    var fl = this.anchor_elem.querySelector(".fb-fileslist");
     return fl.querySelectorAll(".fb-selected");
   }
 
@@ -877,16 +877,16 @@ class FileBrowser {
   }
 
   showDropInfo() {
-    var di = document.querySelector(".fb-dropinfo-holder");
+    var di = this.anchor_elem.querySelector(".fb-dropinfo-holder");
     di.style.visibility = "visible";
-    var cb = document.querySelector(".fb-dropinfo-closebutton");
+    var cb = this.anchor_elem.querySelector(".fb-dropinfo-closebutton");
     cb.onmousedown = (e) => { this.cancelDrop(); };
-    var cb = document.querySelector(".fb-dropinfo-cancel");
+    var cb = this.anchor_elem.querySelector(".fb-dropinfo-cancel");
     cb.onclick = (e) => { this.cancelDrop(); };
-    var l1 = document.querySelector(".fb-dropinfo-line1");
+    var l1 = this.anchor_elem.querySelector(".fb-dropinfo-line1");
     l1.innerText = "Building file list...";
     l1.style.visibility="inherit";
-    var p = document.querySelector(".fb-dropinfo-progress");
+    var p = this.anchor_elem.querySelector(".fb-dropinfo-progress");
     p.style.visibility="hidden";
   }
 
@@ -905,7 +905,7 @@ class FileBrowser {
   }
 
   updateDropInfo(numfiles, totalsize) {
-    var l2 = document.querySelector(".fb-dropinfo-line2");
+    var l2 = this.anchor_elem.querySelector(".fb-dropinfo-line2");
     var str = `${numfiles} file`;
     if (numfiles != 1) {
       str += "s";
@@ -916,7 +916,7 @@ class FileBrowser {
   }
 
   hideDropInfo() {
-    var di = document.querySelector(".fb-dropinfo-holder");
+    var di = this.anchor_elem.querySelector(".fb-dropinfo-holder");
     di.style.visibility = "hidden";
     this.refreshLists();
   }
@@ -993,10 +993,10 @@ class FileBrowser {
       }
     }
     this.log(`total size: ${totalBytes}`);
-    var l1 = document.querySelector(".fb-dropinfo-line1");
+    var l1 = this.anchor_elem.querySelector(".fb-dropinfo-line1");
     l1.numitems = fileList.length;
 
-    var p = document.querySelector(".fb-dropinfo-progress");
+    var p = this.anchor_elem.querySelector(".fb-dropinfo-progress");
     p.style.visibility="inherit";
     p.max = totalBytes;
     p.value = 0;
@@ -1019,9 +1019,9 @@ class FileBrowser {
     var lastLoaded = 0;
     if (fileList.length > 0 && ! this.cancelUpload) {
       var f = fileList.shift();
-      var l1 = document.querySelector(".fb-dropinfo-line1");
+      var l1 = this.anchor_elem.querySelector(".fb-dropinfo-line1");
       l1.innerText = `File ${l1.numitems - fileList.length} / ${l1.numitems}`;
-      var l2 = document.querySelector(".fb-dropinfo-line2");
+      var l2 = this.anchor_elem.querySelector(".fb-dropinfo-line2");
       l2.innerText = f.name;
       this.uploadFile(destpath, f,
         (status) => {
@@ -1035,12 +1035,12 @@ class FileBrowser {
       },
       (e, request) => {
         // progress function
-        const p = document.querySelector(".fb-dropinfo-progress");
+        const p = this.anchor_elem.querySelector(".fb-dropinfo-progress");
         p.value += (e.loaded - lastLoaded);
         const size1 = this.niceNumber(p.value);
         const size2 = this.niceNumber(p.max);
         const s = `${size1} / ${size2}`;
-        const l3 = document.querySelector(".fb-dropinfo-line3");
+        const l3 = this.anchor_elem.querySelector(".fb-dropinfo-line3");
         if (l3.innerText != s) {
           l3.innerText = s;
         }
