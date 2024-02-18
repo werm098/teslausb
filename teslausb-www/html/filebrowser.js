@@ -280,7 +280,7 @@ class FileBrowser {
   }
 
   makeMultiSelectContextMenu(event) {
-    new ContextMenu(
+    new ContextMenu(this.anchor_elem,
       [
         new ContextMenuItem("Download selected items",
           () => {
@@ -295,7 +295,7 @@ class FileBrowser {
   }
 
   makeListContextMenu(event) {
-    new ContextMenu(
+    new ContextMenu(this.anchor_elem,
       [
         new ContextMenuItem("New folder", () => { this.newFolder(); }, null)
       ]).show(...this.eventCoordinates(event));
@@ -303,7 +303,7 @@ class FileBrowser {
 
   makeDirContextMenu(event) {
     const e = event;
-    new ContextMenu(
+    new ContextMenu(this.anchor_elem,
       [
         new ContextMenuItem("Rename", () => { this.renameItem(e.target); }, null),
         new ContextMenuItem("Download", () => { this.downloadSelection(); }, null),
@@ -314,7 +314,7 @@ class FileBrowser {
   makeFileContextMenu(event) {
     const filename = event.target.innerText;
     const e = event;
-    new ContextMenu(
+    new ContextMenu(this.anchor_elem,
       [
         ...this.isPotentialLockChime(event.target) ? [ new ContextMenuItem("Use as lock sound", () => { this.makeLockChime(e.target); }, null) ] : [],
         new ContextMenuItem("Rename", () => { this.renameItem(e.target); }, null),

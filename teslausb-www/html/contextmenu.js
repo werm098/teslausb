@@ -12,14 +12,14 @@ class ContextMenuItem {
 class ContextMenu {
   contextmenu = undefined;
 
-  constructor(items) {
-    this.contextmenuholder = document.querySelector(".cm-holder");
+  constructor(anchor, items) {
+    this.contextmenuholder = anchor.querySelector(".cm-holder");
     if (this.contextmenuholder == null) {
       console.log("context menu not found");
       return undefined;
     }
     this.contextmenuholder.innerHTML = '<div class="cm-menu"></div>';
-    this.contextmenupanel = document.querySelector(".cm-menu");
+    this.contextmenupanel = this.contextmenuholder.querySelector(".cm-menu");
 //    this.hide = this.hide.bind(this);
 //    this.blur = this.blur.bind(this);
     items.forEach((item) => {
