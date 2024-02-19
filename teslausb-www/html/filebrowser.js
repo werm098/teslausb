@@ -336,6 +336,12 @@ class FileBrowser {
       this.hideContextMenu();
       return;
     }
+    if (event.pointerType == "touch") {
+      // long press triggered context menu
+      this.log("touch context menu");
+      event.preventDefault();
+      return;
+    }
     var target = event.target;
     try {
       if (target.classList.contains("fb-fileslist")) {
@@ -477,6 +483,9 @@ class FileBrowser {
       div.style.width = Math.abs(dX) + "px";
       div.style.height = Math.abs(dY) + "px";
       thiz.updateSelection(div);
+      if (event.cancelable) {
+        event.preventDefault();
+      }
     }
 
     if (! event.ctrlKey) {
