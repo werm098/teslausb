@@ -1021,14 +1021,6 @@ function hideRecordingParent() {
   }
 }
 
-function hideMusicParent() {
-  var i = document.querySelector(".music");
-  if (i.contentWindow.location.pathname === "/Music/") {
-    var parentlink = i.contentDocument.querySelector("#list tbody tr");
-    parentlink.parentElement.removeChild(parentlink);
-  }
-}
-
 function showDebugInfo() {
   if (DEBUG == false) {
     return;
