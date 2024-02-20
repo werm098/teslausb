@@ -1,5 +1,5 @@
 class FileBrowser {
-  DEBUG = false;
+  DEBUG = true;
   splitter_active = false;
   splitter_clickoffset = 0;
   root_path = '';
@@ -8,11 +8,14 @@ class FileBrowser {
   dragged_path = undefined;
   cancelUpload = false;
   uploading = false;
+  drives = [];
+  curdrive = 0;
 
-  constructor(anchor, path, label) {
+  constructor(anchor, drives) {
     this.anchor_elem = anchor;
-    this.root_path = path;
-    this.root_label = label;
+    this.drives = drives;
+    this.root_path = drives[this.curdrive].path;
+    this.root_label = drives[this.curdrive].label;
 
     this.anchor_elem.style.position = "relative";
     this.anchor_elem.style.display = "flex";
@@ -78,8 +81,26 @@ class FileBrowser {
     fileList.addEventListener("dragstart", this.dragStart);
     this.anchor_elem.addEventListener("dragend", this.dragEnd);
 
-    var rootlabel = this.anchor_elem.querySelector(".fb-treerootpath");
-    rootlabel.innerText = this.root_label;
+    const rootlabel = this.anchor_elem.querySelector(".fb-treerootpath");
+    if (this.drives.length > 1) {
+      var rootlabeldropdown = '<select name="drive" class="fb-driveselector">';
+      for (var i = 0; i < this.drives.length; i++) {
+        rootlabeldropdown += `<option value="${i}">${this.drives[i].label}</option>`
+      }
+      rootlabeldropdown += "</select>"
+      rootlabel.innerHTML = rootlabeldropdown;
+      const selector = this.anchor_elem.querySelector(".fb-driveselector");
+      selector.onchange = (e) => {
+        this.curdrive = selector.value;
+        this.root_path = this.drives[this.curdrive].path;
+        this.root_label = this.drives[this.curdrive].label;
+        this.ls(".", false);
+        this.ls(".", true);
+        this.updateButtonBar();
+      };
+    } else {
+      rootlabel.innerHTML = `<span class="fb-treerootpathsinglelabel">${this.drives[0].label}</span>`;
+    }
 
     this.buttonbar = this.anchor_elem.querySelector(".fb-buttonbar");
     this.buttonbar.querySelector(".fb-uploadbutton").onclick = (e) => { this.pickFile(); };
@@ -95,7 +116,6 @@ class FileBrowser {
       const item = this.selection()[0];
       this.makeLockChime(item);
     };
-
 
     this.ls(".", true);
     this.updateButtonBar();
@@ -332,6 +352,7 @@ class FileBrowser {
   }
 
   showContextMenu(event) {
+    this.log("context menu");
     if (event.ctrlKey) {
       this.hideContextMenu();
       return;

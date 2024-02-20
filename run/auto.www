@@ -7,6 +7,9 @@ case "$1" in
   LightShow)
     diskimage="/backingfiles/lightshow_disk.bin"
     ;;
+  Boombox)
+    diskimage="/backingfiles/boombox_disk.bin"
+    ;;
   *)
     exit 1
     ;;

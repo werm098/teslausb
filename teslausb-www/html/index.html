@@ -49,10 +49,6 @@ iframe {
   height:100%;
 }
 
-.lightshow {
-  width:100%;
-  height:100%;
-}
 
 /* The map doesn't resize properly in Firefox sometimes, ending up with scrollbars. Use Chrome instead. */
 #sentrymap {
@@ -218,8 +214,7 @@ iframe {
 #tab4:checked ~ .tab.content4,
 #tab5:checked ~ .tab.content5,
 #tab6:checked ~ .tab.content6,
-#tab7:checked ~ .tab.content7,
-#tab8:checked ~ .tab.content8 {
+#tab7:checked ~ .tab.content7 {
   visibility: visible;
 }
 
@@ -236,8 +231,7 @@ iframe {
   #tab4:checked ~ .tabheaderholder .tablabel4,
   #tab5:checked ~ .tabheaderholder .tablabel5,
   #tab6:checked ~ .tabheaderholder .tablabel6,
-  #tab7:checked ~ .tabheaderholder .tablabel7,
-  #tab8:checked ~ .tabheaderholder .tablabel8 {
+  #tab7:checked ~ .tabheaderholder .tablabel7 {
     border-bottom: 3px solid red;
     color: #000;
     z-index:11;
@@ -766,17 +760,15 @@ video {
   <input class="tabradiobtn" type="radio" name="tabs" id="tab4">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab5">
   <input class="tabradiobtn" type="radio" name="tabs" id="tab6">
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab7">
-  <input class="tabradiobtn" type="radio" name="tabs" id="tab8" checked>
+  <input class="tabradiobtn" type="radio" name="tabs" id="tab7" checked>
   <div class="tabheaderholder">
     <label for="tab1" class="tablabel tablabel1">Diagnostics</label>
     <label for="tab2" class="tablabel tablabel2">Archiveloop log</label>
     <label for="tab3" class="tablabel tablabel3">Setup log</label>
     <label for="tab4" class="tablabel tablabel4">Tools</label>
     <label for="tab5" class="tablabel tablabel5">Recordings</label>
-    <label for="tab6" class="tablabel tablabel6">Music</label>
-    <label for="tab7" class="tablabel tablabel7">LightShow</label>
-    <label for="tab8" class="tablabel tablabel8">Viewer</label>
+    <label for="tab6" class="tablabel tablabel6">Files</label>
+    <label for="tab7" class="tablabel tablabel7">Viewer</label>
 
     <div class="stretchable"></div>
 
@@ -885,16 +877,11 @@ video {
   </div>
 
   <div class="tab content6">
-    <div id="musicbrowser" style="width:100%;height:calc(100% - 4px);">
+    <div id="filebrowser" style="width:100%;height:calc(100% - 4px);">
     </div>
   </div>
 
   <div class="tab content7">
-    <div id="lightshowbrowser" style="width:100%;height:calc(100% - 4px);">
-    </div>
-  </div>
-
-  <div class="tab content8">
     <div style="width:100%;height:100%;background:#333;" onmousemove="showcontrols()">
       <div class="navbar">
         <div class="noclips">Loading...</div>
@@ -1606,16 +1593,30 @@ function showstatus() {
   setTimeout(updateuptimeonly, 1000);
 }
 
+var config;
 function readconfig() {
   readfile({url:'cgi-bin/config.sh', callback:function(value) {
-    statusvals=JSON.parse(value);
-    var musictab = document.querySelector(".tablabel6");
-    var lightshowtab = document.querySelector(".tablabel7");
-    if (statusvals.has_music == "yes" && musictab.style.display == "") {
-      musictab.style.display = "inline-block";
+    config = JSON.parse(value);
+    const filestab = document.querySelector(".tablabel6");
+    var numdrives = 0;
+    if (config.has_music == "yes") numdrives++;
+    if (config.has_lightshow == "yes") numdrives++;
+    if (config.has_boombox == "yes") numdrives++;
+    if (numdrives == 1) {
+      var filestabname = "Music"
+      if (config.has_lightshow == "yes") filestabname = "LightShow";
+      if (config.has_boombox == "yes") filestabname = "Boombox";
+      filestab.innerText = filestabname;
     }
-    if (statusvals.has_lightshow == "yes" && lightshowtab.style.display == "") {
-      lightshowtab.style.display = "inline-block";
+    if (numdrives > 0 && filestab.style.display == "") {
+      filestab.style.display = "inline-block";
+
+      const fb = document.querySelector("#filebrowser");
+      new FileBrowser(fb, [
+        ...config.has_music == "yes" ? [{ path: "fs/Music", label: "Music" }] : [],
+        ...config.has_lightshow == "yes" ? [{ path: "fs/LightShow", label: "LightShow" }] : [],
+        ...config.has_boombox == "yes" ? [{ path: "fs/Boombox", label: "Boombox" }] : []
+      ]);
     }
   }});
 }
@@ -2687,12 +2688,6 @@ setCurrentTabName();
 const mediaQuery = window.matchMedia('screen and (max-width: 824px)');
 mediaQuery.addListener(setCurrentTabName);
 
-
-var fb = document.querySelector("#musicbrowser");
-new FileBrowser(fb, "fs/Music" /* relative path */, "Music" /* label */);
-
-var fb = document.querySelector("#lightshowbrowser");
-new FileBrowser(fb, "fs/LightShow" /* relative path */, "LightShow" /* label */);
 
 </script>
 </body>

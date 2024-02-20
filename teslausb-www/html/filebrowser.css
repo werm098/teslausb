@@ -136,15 +136,21 @@ details > ul.fb-droptarget {
 }
 
 .fb-treerootpath {
-  padding: 2px;
+  padding: 0 2px 0 2px;
   font-weight: bold;
   font-size: larger;
   border-bottom: 1px solid #888;
   overflow: hidden;
   white-space: nowrap;
+  min-height: 25px;
+  max-height: 25px;
+  margin: auto 5px auto 5px;
+}
+
+.fb-treerootpath:has(.fb-treerootpathsinglelabel) {
+  padding: 2px;
   min-height: 21px;
   max-height: 21px;
-  margin: auto 5px auto 5px;
 }
 
 .fb-dirpath {
@@ -429,4 +435,17 @@ details > ul.fb-droptarget {
   .uploadbutton {
     display: none;
   }
+}
+
+.fb-driveselector {
+  font-size: 18px;
+  background: transparent;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(118, 118, 118);
+  padding: 0 4px 0 4px;
+}
+
+.fb-driveselector:focus {
+  outline: none;
 }
