@@ -1,5 +1,5 @@
 class FileBrowser {
-  DEBUG = true;
+  DEBUG = false;
   splitter_active = false;
   splitter_clickoffset = 0;
   root_path = '';
