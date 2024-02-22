@@ -178,7 +178,7 @@ function headless_setup_mark_setup_success () {
 function flash () {
   local ON=0
   local OFF=1
-  if isPi4
+  if isPi4 || isPi5
   then
     ON=1
     OFF=0
@@ -587,7 +587,7 @@ function diagnose {
       echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
     fi
 
-    if [[ "$DATA_DRIVE" != "" ]] && isPi4
+    if [[ "$DATA_DRIVE" != "" ]] && (isPi4 || isPi5)
     then
       echo "DATA_DRIVE=$DATA_DRIVE: consider booting from USB instead."
     fi

@@ -138,6 +138,11 @@ function isRaspberryPi {
   grep -q "Raspberry Pi" /sys/firmware/devicetree/base/model
 }
 
+function isPi5 {
+  grep -q "Raspberry Pi 5" /sys/firmware/devicetree/base/model
+}
+export -f isPi5
+
 function isPi4 {
   grep -q "Raspberry Pi 4" /sys/firmware/devicetree/base/model
 }

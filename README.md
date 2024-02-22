@@ -29,7 +29,7 @@ Required:
 
 - [A Raspberry Pi or other SBC that supports USB OTG](https://github.com/marcone/teslausb/wiki/Hardware).
 - A Micro SD card, at least 64 GB in size, and an adapter (if necessary) to connect the card to your computer.
-- Cable(s) to connect the SBC to the Tesla (USB A/Micro B cable for the Pi Zero, USB A/Micro C cable for Pi 4, other SBCs vary)
+- Cable(s) to connect the SBC to the Tesla (USB A/Micro B cable for the Pi Zero, USB A/C cable for the Pi 4 and 5, other SBCs vary)
 
 Optional:
 
