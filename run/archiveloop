@@ -289,11 +289,14 @@ function trim_free_space() {
 }
 
 function fix_errors_in_images () {
-  fix_errors_in_image /backingfiles/cam_disk.bin
-  if [ -e /backingfiles/music_disk.bin ]
-  then
-    fix_errors_in_image /backingfiles/music_disk.bin
-  fi
+  for i in cam music boombox lightshow
+  do
+    img="/backingfiles/${i}_disk.bin"
+    if [ -e "$img" ]
+    then
+      fix_errors_in_image "$img"
+    fi
+  done
 }
 
 function disconnect_usb_drives_from_host () {
