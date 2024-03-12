@@ -20,9 +20,9 @@ fi
 echo > "$gadget_root/UDC" || true
 rmdir "$gadget_root"/configs/*/strings/* || true
 rm -f "$gadget_root"/configs/*/mass_storage.0 || true
-rmdir "$gadget_root"/functions/mass_storage.0/lun.1 || true
-rmdir "$gadget_root"/functions/mass_storage.0/lun.2 || true
-rmdir "$gadget_root"/functions/mass_storage.0/lun.3 || true
+rmdir "$gadget_root"/functions/mass_storage.0/lun.1 &> /dev/null || true
+rmdir "$gadget_root"/functions/mass_storage.0/lun.2 &> /dev/null || true
+rmdir "$gadget_root"/functions/mass_storage.0/lun.3 &> /dev/null || true
 rmdir "$gadget_root"/functions/mass_storage.0 || true
 rmdir "$gadget_root"/configs/* || true
 rmdir "$gadget_root"/strings/* || true
