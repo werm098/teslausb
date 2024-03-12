@@ -45,7 +45,12 @@ function curlwrapper () {
     if [ "$attempts" -ge 20 ]
     then
       setup_progress "giving up after 20 tries"
-      setup_progress "$(cat /tmp/curl.err)"
+      if [ -e /tmp/curl.err ]
+      then
+        setup_progress "$(cat /tmp/curl.err)"
+      else
+        setup_progress '(no reason given)'
+      fi
       exit 1
     fi
     setup_progress "'curl $*' failed, retrying" > /dev/null
