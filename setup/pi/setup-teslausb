@@ -618,16 +618,14 @@ function diagnose {
     then
       echo "ERROR: cam disk image not in fstab"
     fi
-    LUN0=/sys/kernel/config/usb_gadget/teslausb/functions/mass_storage.0/lun.0/file
-    if [ -e "$LUN0" ]
-    then
-      echo "lun0 connected, from file $(cat "$LUN0")"
-    fi
-    LUN1=/sys/kernel/config/usb_gadget/teslausb/functions/mass_storage.0/lun.1/file
-    if [ -e "$LUN1" ]
-    then
-      echo "lun1 connected, from file $(cat "$LUN1")"
-    fi
+    for i in 0 1 2 3 4 5 6
+    do
+      LUN="/sys/kernel/config/usb_gadget/teslausb/functions/mass_storage.0/lun.${i}/file"
+      if [ -e "$LUN" ]
+      then
+        echo "lun${i} connected, from file $(cat "$LUN")"
+      fi
+    done
     if ! blkid -L mutable > /dev/null
     then
       echo "ERROR: mutable partition does not exist"
