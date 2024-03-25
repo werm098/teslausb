@@ -394,6 +394,11 @@ details > ul.fb-droptarget {
   border: none;
   padding: 0;
   z-index: 3;
+  display: none;
+}
+
+.fb-barbutton.fb-visiblebarbutton {
+  display: block;
 }
 
 .fb-trashbutton {

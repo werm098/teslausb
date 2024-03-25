@@ -10,7 +10,10 @@ do
   urlargs[i]="$(echo -e "${val//%/\\x}")"
 done
 
-cd "$DOCUMENT_ROOT/${urlargs[0]}"
+if ! cd "$DOCUMENT_ROOT/${urlargs[0]}"
+then
+  exit
+fi
 
 lspath="${urlargs[@]:1}"
 if [[ -z "$lspath" ]]

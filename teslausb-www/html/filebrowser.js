@@ -277,18 +277,27 @@ class FileBrowser {
   }
 
   showButton(name, show) {
-    this.buttonbar.querySelector(name).style.display =
-      show ? "block" : "none";
+    if (show) {
+      this.buttonbar.querySelector(name).classList.add("fb-visiblebarbutton");
+    } else {
+      this.buttonbar.querySelector(name).classList.remove("fb-visiblebarbutton");
+    }
   }
 
   updateButtonBar() {
-    var numsel = this.numSelected();
-    this.showButton(".fb-trashbutton", numsel > 0);
-    this.showButton(".fb-pencilbutton", numsel == 1);
-    this.showButton(".fb-uploadbutton", numsel == 0);
-    this.showButton(".fb-downloadbutton", numsel > 0);
-    this.showButton(".fb-newfolderbutton", numsel == 0);
-    this.showButton(".fb-locksoundbutton", numsel == 1 && this.isPotentialLockChime(this.selection()[0]));
+    const numsel = this.numSelected();
+    const enabled = this.valid;
+    this.showButton(".fb-trashbutton", enabled && numsel > 0);
+    this.showButton(".fb-pencilbutton", enabled && numsel == 1);
+    this.showButton(".fb-uploadbutton", enabled && numsel == 0);
+    this.showButton(".fb-downloadbutton", enabled && numsel > 0);
+    this.showButton(".fb-newfolderbutton", enabled && numsel == 0);
+    this.showButton(".fb-locksoundbutton", enabled && numsel == 1 && this.isPotentialLockChime(this.selection()[0]));
+    if (this.buttonbar.querySelector(".fb-visiblebarbutton") == null) {
+      this.buttonbar.style.display = "none";
+    } else {
+      this.buttonbar.style.display = "block";
+    }
   }
 
   eventCoordinates(e) {
@@ -353,7 +362,7 @@ class FileBrowser {
 
   showContextMenu(event) {
     this.log("context menu");
-    if (event.ctrlKey) {
+    if (!this.valid || event.ctrlKey) {
       this.hideContextMenu();
       return;
     }
@@ -547,7 +556,7 @@ class FileBrowser {
 
   listPointerDown(event) {
     /* only respond to left mouse button */
-    if (event.button != 0) {
+    if (!this.valid || event.button != 0) {
       event.preventDefault();
       return;
     }
@@ -677,12 +686,18 @@ class FileBrowser {
     var request = new XMLHttpRequest();
     request.open('GET', url);
     request.onreadystatechange = function () {
-      if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-        var type = request.getResponseHeader('Content-Type');
-        if (type.indexOf("text") !== 1) {
-          if (callback != null) {
-            callback(request.responseText, callbackarg);
+      if (request.readyState === XMLHttpRequest.DONE) {
+        if (request.status === 200) {
+          var type = request.getResponseHeader('Content-Type');
+          if (type.indexOf("text") !== 1) {
+            if (callback != null) {
+              callback(request.responseText, callbackarg);
+            }
           }
+        } else if (request.status > 400) {
+            if (callback != null) {
+              callback(null, null);
+            }
         }
       }
     }
@@ -741,7 +756,12 @@ class FileBrowser {
     switchtopath=true: update the right-hand side
   */
   readPaths(path, paths, switchtopath) {
-    paths = paths.trimEnd();
+    this.valid = (paths != null && switchtopath != null);
+    if (!this.valid) {
+      var pathdiv = this.anchor_elem.querySelector(".fb-dirpath");
+      pathdiv.innerText = "<< error retrieving file list >>";
+    }
+    paths = this.valid ? paths.trimEnd() : "";
     var root = this.anchor_elem.querySelector(".fb-tree");
     root.dataset.fullpath=".";
     this.addCommonDragHooks(root);
@@ -749,7 +769,7 @@ class FileBrowser {
       root.innerHTML = '';
     }
     var lines = paths.split('\n');
-    if (switchtopath) {
+    if (! this.valid || switchtopath) {
       this.anchor_elem.querySelector('.fb-fileslist').querySelectorAll(".fb-direntry,.fb-fileentry").forEach((entry) => entry.remove());
     }
     for (var line of lines) {
