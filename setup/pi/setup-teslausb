@@ -543,6 +543,13 @@ function cmd_upgrade_finish {
   reboot
 }
 
+function checkmounted() {
+  if ! findmnt "$1" &> /dev/null
+  then
+    echo "ERROR: $1 is not mounted"
+  fi
+}
+
 function checkfsrw() {
   local -r opts=$(findmnt -n -o options "$1")
   local -r rw=${opts:0:2}
@@ -690,6 +697,8 @@ function diagnose {
     fi
     checkfsrw /backingfiles rw
     checkfsrw /mutable rw
+    checkmounted /var/www/html/TeslaCam
+    checkmounted /var/www/html/fs
 
     echo -e "====== disk / images ======"
     parted -s "${BOOT_DISK}" print || true
@@ -737,6 +746,9 @@ function diagnose {
     else
       echo "no fstab found"
     fi
+
+    echo -e "====== mounts ======"
+    mount
 
     echo -e "====== initial setup boot log ======"
     mkdir /tmp/root$$
