@@ -279,6 +279,19 @@ function update_backingfiles_fstab_entry () {
   fi
 }
 
+function mount_with_retry () {
+  for i in {1..5}
+  do
+    if mount "$@"
+    then
+      return
+    fi
+    setup_progress "'mount $*' failed, retrying"
+    sleep 1
+  done
+  return 1
+}
+
 function create_usb_drive_backing_files () {
   if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
   then
@@ -323,7 +336,7 @@ function create_usb_drive_backing_files () {
   umount /mnt/cam > /dev/null || true
   local ret=0
   /root/bin/disable_gadget.sh || ret=$?
-  if (( (ret == 0) || (ret == 2) )) && mount /mnt/cam
+  if (( (ret == 0) || (ret == 2) )) && mount_with_retry /mnt/cam
   then
     mkdir -p /mnt/cam/TeslaCam
     mkdir -p /mnt/cam/TeslaTrackMode
@@ -345,20 +358,20 @@ function create_usb_drive_backing_files () {
 
     umount /mnt/cam
 
-    if mount /mnt/music
+    if [ -e /backingfiles/music_disk.bin ] && mount_with_retry /mnt/music
     then
       touch /mnt/music/.metadata_never_index
       umount /mnt/music
     fi
 
-    if mount /mnt/lightshow
+    if [ -e /backingfiles/lightshow_disk.bin ] && mount_with_retry /mnt/lightshow
     then
       mkdir -p /mnt/lightshow/LightShow
       touch /mnt/lightshow/.metadata_never_index
       umount /mnt/lightshow
     fi
 
-    if mount /mnt/boombox
+    if [ -e /backingfiles/boombox_disk.bin ] && mount_with_retry /mnt/boombox
     then
       mkdir -p /mnt/boombox/Boombox
       touch /mnt/boombox/.metadata_never_index

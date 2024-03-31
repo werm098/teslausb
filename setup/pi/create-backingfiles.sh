@@ -96,7 +96,7 @@ function add_drive () {
   local partition_offset
   partition_offset=$(first_partition_offset "$filename")
 
-  loopdev=$(losetup -o "$partition_offset" -f --show "$filename")
+  loopdev=$(losetup_find_show -o "$partition_offset" "$filename")
   log_progress "Creating filesystem with label '$label'"
   if [ "$useexfat" = true  ]
   then
