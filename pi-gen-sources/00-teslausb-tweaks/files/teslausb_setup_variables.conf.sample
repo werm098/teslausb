@@ -271,15 +271,19 @@ export WIFIPASS='your_pass'
 # Android: https://play.google.com/store/apps/details?id=net.leveugle.teslatokens
 # iOS: https://apps.apple.com/us/app/auth-app-for-tesla/id1552058613#?platform=iphone
 #
-# TeslaFi Subscriber?
-#   If you're a TeslaFi user, you may consider keeping the car wake using
-#   TeslaFi API instead. The advantage is not having to expose Tesla's Token
+# TeslaFi or Tessie Subscriber?
+#   If you're a TeslaFi or Tessie user, you may consider keeping the car awake using
+#   one of their APIs instead. The advantage is not having to expose Tesla's Token
 #   and other info in this file as plain text, which is a vulnerability (as
 #   noted above. 'PIN to Drive' is not necessary in this case.
-#   The TeslaFi API token can easily be revoked and a new one generated at
+#   TeslaFi and Tessie's API token can easily be revoked and a new one generated at
 #   anytime. TeslaFi also allows selective command(s) enablement (e.g. disable
 #   uneeded commands), further decreasing vulnerability.
 # 
+# IMPORTANT: Only ONE API should be used at the same time. 
+# Do not include API tokens for more than one of TeslaFi, Tessie or Tesla.
+# 
+# How to generate TeslaFi API Tokens
 # GENERATE/REVOKE TESLAFI API TOKEN: Log into your TeslaFi account.
 #   Navigate to Settings -> Tesla API -> API Token (tab)
 #
@@ -287,12 +291,20 @@ export WIFIPASS='your_pass'
 #   command is enabled. Do not confused this with the 'Wake Vehicle' command.
 #   Navigate to Settings -> Tesla API -> Commands (tab)
 #
-# NOTE: Both APIs should NOT be used at the same time. Choose only one.
+# How to generate Tessie API Tokens
+# GENERATE/REVOKE TESSIE API TOKEN: Log into your Tessie account.
+#   Navigate to Settings -> Developer API -> Generate access token
 #
 # export TESLA_REFRESH_TOKEN='YOUR_REFRESH_TOKEN_GOES_HERE'
 # export TESLAFI_API_TOKEN='YOUR_TESLAFI_API_TOKEN_GOES_HERE'
-
-# TESLA API ONLY (Do not configure if using TeslaFi API):
+# export TESSIE_API_TOKEN='YOUR_TESSIE_API_TOKEN_GOES_HERE'
+#
+# TESSIE API ONLY (Do not configure if using TeslaFi/Tesla API):
+# The Tessie API requires the vehicle's VIN number to issue commands to it,
+# regardless of whether you only have one vehicle on the account or not.
+# export TESSIE_VIN=5YJ3E1EA4JF000001
+#
+# TESLA API ONLY (Do not configure if using TeslaFi/Tessie API):
 # If you have more than one Tesla vehicle on the account, you must also provide
 # the name or VIN for the vehicle for which this TeslaUSB install will be used,
 # so that TeslaUSB can keep the correct vehicle awake.
@@ -300,7 +312,7 @@ export WIFIPASS='your_pass'
 # export TESLA_NAME="Elon's CyberTruck"
 # export TESLA_VIN=5YJ3E1EA4JF000001
 #
-# TESLA API ONLY (Do not configure if using TeslaFi API):
+# TESLA API ONLY (Do not configure if using TeslaFi/Tessie API):
 # By default, TeslaUSB uses a combination of APIs to keep the car awake,
 # similar to how to the Tesla app can wake up the car.
 # If you find your car isn't staying awake, you can try setting the
