@@ -185,8 +185,8 @@ def _get_id():
     # Call list_vehicles() and use the provided name or VIN to get the vehicle ID.
     result = list_vehicles()
     for vehicle_dict in result['response']:
-        if ( vehicle_dict['vin'] == SETTINGS['tesla_vin']
-          or vehicle_dict['display_name'] == SETTINGS['tesla_name']
+        if ( ( SETTINGS['tesla_vin'] != '' && vehicle_dict['vin'] == SETTINGS['tesla_vin'] )
+          or ( SETTINGS['tesla_name'] != '' && vehicle_dict['display_name'] == SETTINGS['tesla_name'] )
           or ( SETTINGS['tesla_vin'] == '' and SETTINGS['tesla_name'] == '')):
             tesla_api_json['id'] = vehicle_dict['id_s']
             tesla_api_json['vehicle_id'] = vehicle_dict['vehicle_id']
