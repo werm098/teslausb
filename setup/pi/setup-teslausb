@@ -992,6 +992,8 @@ then
 		cat << TESLAUSB_TIP1
 		Run 'sudo -i' if you need to make changes.
 
+		The TeslaUSB web interface is at http://$(hostname -s) or http://$(hostname -I | awk '{print $1}')
+
 		TESLAUSB_TIP1
 	fi
 	EOC
