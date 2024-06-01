@@ -112,7 +112,7 @@ then
     } | bash -s 3G
     exit 0
   fi
-  rm "$marker"
+  rm -f "$marker"
   # shrink root partition to match root file system size
   echo "shrinking root partition to match root fs, $fsnumsectors sectors"
   sleep 3
