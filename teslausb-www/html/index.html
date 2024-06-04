@@ -597,7 +597,7 @@ video {
 }
 
 .settingsbutton {
-  width: 100%;
+  width: 22px;
   height: 100%;
   fill: grey;
   stroke: grey;
@@ -606,7 +606,7 @@ video {
 }
 
 .settingsbutton:hover {
-  width: 100%;
+  width: 22px;
   height: 100%;
   fill: black;
   stroke: black;
@@ -1005,6 +1005,7 @@ if (document.referrer.includes("/new/")) {
 }
 
 var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+var isWebkit = navigator.userAgent.toLowerCase().indexOf('applewebkit') > -1;
 
 var DEBUG = false;
 function log(what) {
@@ -2022,7 +2023,7 @@ class VideoSequence {
     this.isplaying = false;
     var b = document.getElementById('playpause');
     b.classList.remove("pause");
-    if (isFirefox) {
+    if (isFirefox || isWebkit) {
       b.firstElementChild.firstChild.setAttribute('d', 'M 8,30 30,18 8,6 z');
     }
   }
@@ -2296,7 +2297,7 @@ class VideoSequence {
     segment.play();
     var b = document.getElementById('playpause');
     b.classList.add("pause");
-    if (isFirefox) {
+    if (isFirefox || isWebkit) {
       b.firstElementChild.firstChild.setAttribute('d', 'M 8,30 14,30 14,6 8,6 z M 24,30 30,30 30,6 24,6 z');
     }
   }
@@ -2307,7 +2308,7 @@ class VideoSequence {
     segment.pause();
     var b = document.getElementById('playpause');
     b.classList.remove("pause");
-    if (isFirefox) {
+    if (isFirefox || isWebkit) {
       b.firstElementChild.firstChild.setAttribute('d', 'M 8,30 30,18 8,6 z');
     }
   }
