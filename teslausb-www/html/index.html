@@ -1481,7 +1481,9 @@ function dateFromSeconds(seconds) {
 function dayNameFromDateString(datestr) {
   /* force javascript's Date class to parse using local time
      by using yyyy/mm/dd notation instead of yyyy-mm-dd */
+
   var d = new Date(datestr.replaceAll("-", "/"));
+
   return dayNameFormat.format(d);
 }
 
@@ -2574,6 +2576,14 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
     var d=document.getElementById(i);
     for (c in videos[i]) {
+      // Regular expression to match the date format
+      var datePattern = /^\d{4}-\d{2}-\d{2}(_\d{2}-\d{2}-\d{2})?$/;
+
+      // Check if c matches the date pattern
+      if (!datePattern.test(c)) {
+        log("skipping invalid date format " + i + "/" + c);
+        continue;
+      }
       if (videos[i][c].getSegmentByIndex(0) == undefined) {
         log("skipping empty " + i + "/" + c);
         continue;
