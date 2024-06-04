@@ -67,6 +67,10 @@
   position: relative;
 }
 
+details summary::-webkit-details-marker {
+  display:none;
+}
+
 .fb-tree summary {
   display: block; /* delete the default triangle expander */
   cursor: pointer;
