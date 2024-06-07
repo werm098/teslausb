@@ -26,8 +26,12 @@ function check_supported_hardware () {
   then
     return
   fi
+  if grep -q 'Raspberry Pi 5' /sys/firmware/devicetree/base/model
+  then
+    return
+  fi
   setup_progress "STOP: unsupported hardware: '$(cat /sys/firmware/devicetree/base/model)'"
-  setup_progress "(only Pi Zero W and Pi 4 have the necessary hardware to run teslausb)"
+  setup_progress "(only Pi Zero W, Pi 4, and Pi 5 have the necessary hardware to run teslausb)"
   exit 1
 }
 
@@ -86,7 +90,7 @@ function check_available_space_sd () {
   if [ -e /dev/disk/by-label/backingfiles ] && [ -e /dev/disk/by-label/mutable ]
   then
     backingfiles_size=$(blockdev --getsize64 /dev/disk/by-label/backingfiles)
-    if [ "$backingfiles_size" -lt  $(( (1<<30) * 39)) ]
+    if [ "$backingfiles_size" -lt  $(( (1<<30) * 32)) ]
     then
       setup_progress "STOP: Existing backingfiles partition is too small"
       exit 1
@@ -101,7 +105,7 @@ function check_available_space_sd () {
     available_space=$(sfdisk -F "$BOOT_DISK" | grep -o '[0-9]* bytes' | head -1 | awk '{print $1}')
  
     # Require at least 40 GB of available space.
-    if [ "$available_space" -lt  $(( (1<<30) * 40)) ]
+    if [ "$available_space" -lt  $(( (1<<30) * 32)) ]
     then
       setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
       setup_progress "$(parted "${BOOT_DISK}" print)"

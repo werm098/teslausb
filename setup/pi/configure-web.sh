@@ -19,12 +19,15 @@ apt-get -y --force-yes install nginx fcgiwrap libnginx-mod-http-fancyindex fuse 
 systemctl stop nginx.service &> /dev/null || true
 mkdir -p /var/www
 umount /var/www/html/TeslaCam &> /dev/null || true
-rm -rf /var/www/html
+umount /var/www/html/fs/Music &> /dev/null || true
+umount /var/www/html/fs/LightShow &> /dev/null || true
+umount /var/www/html/fs/Boombox &> /dev/null || true
+find /var/www/html -mount \( -type f -o -type l \) -print0 | xargs -0 rm
 cp -r "$SOURCE_DIR/teslausb-www/html" /var/www/
-ln -s /boot/teslausb-headless-setup.log /var/www/html/
-ln -s /mutable/archiveloop.log /var/www/html/
-ln -s /tmp/diagnostics.txt /var/www/html/
-mkdir /var/www/html/TeslaCam
+ln -sf /boot/teslausb-headless-setup.log /var/www/html/
+ln -sf /mutable/archiveloop.log /var/www/html/
+ln -sf /tmp/diagnostics.txt /var/www/html/
+mkdir -p /var/www/html/TeslaCam
 cp -rf "$SOURCE_DIR/teslausb-www/teslausb.nginx" /etc/nginx/sites-available
 ln -sf /etc/nginx/sites-available/teslausb.nginx /etc/nginx/sites-enabled/default
 
@@ -33,6 +36,7 @@ if [ -n "${WEB_USERNAME:-}" ] && [ -n "${WEB_PASSWORD:-}" ]
 then
   apt-get -y --force-yes install apache2-utils
   htpasswd -bc /etc/nginx/.htpasswd "$WEB_USERNAME" "$WEB_PASSWORD"
+  sed -i 's/auth_basic off/auth_basic "Restricted Content"/' /etc/nginx/sites-available/teslausb.nginx
 else
   sed -i 's/auth_basic "Restricted Content"/auth_basic off/' /etc/nginx/sites-available/teslausb.nginx
 fi
@@ -70,5 +74,13 @@ chmod 440 /etc/sudoers.d/010_www-data-nopasswd
 cat > /etc/default/fcgiwrap << EOF
 DAEMON_OPTS="-c 4 -f"
 EOF
+
+if [ -e /backingfiles/music_disk.bin ] || [ -e /backingfiles/lightshow_disk.bin ] || [ -e /backingfiles/boombox_disk.bin ]
+then
+  mkdir -p /var/www/html/fs
+  copy_script run/auto.www /root/bin
+  echo "/var/www/html/fs  /root/bin/auto.www" > /etc/auto.master.d/www.autofs
+  apt-get -y --force-yes install zip
+fi
 
 setup_progress "done configuring nginx"

@@ -17,17 +17,36 @@ fi
 
 function partition_prefix_for {
   case $1 in
-    /dev/mmcblk* | /dev/nvme*)
+    /dev/mmcblk* | /dev/nvme* | /dev/loop*)
       echo p
       ;;
     /dev/sd*)
       echo
       ;;
     *)
-      setup_progress "STOP: can't determine partition naming scheme for '$1'"
+      log_progress "STOP: can't determine partition naming scheme for '$1'"
       exit 1
       ;;
   esac
+}
+
+BACKINGFILES_MOUNTPOINT="${1:-none}"
+MUTABLE_MOUNTPOINT="${2:-none}"
+function update_fstab {
+  if grep -q "LABEL=backingfiles" /etc/fstab
+  then
+    log_progress "backingfiles already defined in /etc/fstab. Not modifying /etc/fstab."
+  elif [ "$BACKINGFILES_MOUNTPOINT" != "none" ]
+  then
+    echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
+  fi
+  if grep -q 'LABEL=mutable' /etc/fstab
+  then
+    log_progress "mutable already defined in /etc/fstab. Not modifying /etc/fstab."
+  elif [ "$MUTABLE_MOUNTPOINT" != "none" ]
+  then
+    echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
+  fi
 }
 
 # Will check for USB Drive before running sd card
@@ -56,28 +75,30 @@ then
     mkfs.xfs -f -m reflink=1 -L backingfiles "$P2"
   fi
 
-  BACKINGFILES_MOUNTPOINT="$1"
-  MUTABLE_MOUNTPOINT="$2"
-  if grep -q backingfiles /etc/fstab
-  then
-    log_progress "backingfiles already defined in /etc/fstab. Not modifying /etc/fstab."
-  else
-    echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
-  fi
-  if grep -q 'mutable' /etc/fstab
-  then
-    log_progress "mutable already defined in /etc/fstab. Not modifying /etc/fstab."
-  else
-    echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
-  fi
+  update_fstab
   log_progress "Done."
   exit 0
 else
   echo "DATA_DRIVE not set. Proceeding to SD card setup"
 fi
 
-readonly BACKINGFILES_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((ROOT_PART_NUM + 1))"
-readonly MUTABLE_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((ROOT_PART_NUM + 2))"
+readonly LAST_PARTITION_DEVICE=$(sfdisk -l "$BOOT_DISK" | tail -1 | awk '{print $1}')
+readonly LAST_PART_NUM=${LAST_PARTITION_DEVICE:0-1}
+readonly SECOND_TO_LAST_PART_NUM=$((LAST_PART_NUM - 1))
+readonly SECOND_TO_LAST_PARTITION_DEVICE=${LAST_PARTITION_DEVICE:0:-1}${SECOND_TO_LAST_PART_NUM}
+if [ /dev/disk/by-label/mutable -ef "$LAST_PARTITION_DEVICE" ]
+then
+  readonly MUTABLE_DEVICE="$LAST_PARTITION_DEVICE"
+else
+  readonly MUTABLE_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((LAST_PART_NUM + 2))"
+fi
+if [ /dev/disk/by-label/backingfiles -ef "$SECOND_TO_LAST_PARTITION_DEVICE" ]
+then
+  readonly BACKINGFILES_DEVICE="$SECOND_TO_LAST_PARTITION_DEVICE"
+else
+  readonly BACKINGFILES_DEVICE="${BOOT_DEVICE_PARTITION_PREFIX}$((LAST_PART_NUM + 1))"
+fi
+
 # If the backingfiles partition follows the root partition, is type xfs,
 # and is in turn followed by the mutable partition, type ext4, then return early.
 if [ /dev/disk/by-label/backingfiles -ef "${BACKINGFILES_DEVICE}" ] && \
@@ -89,6 +110,7 @@ then
     # assume these were either created previously by the setup scripts,
     # or manually by the user, and that they're big enough
     log_progress "using existing backingfiles and mutable partitions"
+    update_fstab
     return &> /dev/null || exit 0
   elif blkid "${BACKINGFILES_DEVICE}" | grep -q 'TYPE="ext4"'
   then
@@ -130,18 +152,15 @@ then
   exit 1
 fi
 
-BACKINGFILES_MOUNTPOINT="$1"
-MUTABLE_MOUNTPOINT="$2"
-
 log_progress "Checking existing partitions..."
 
 DISK_SECTORS=$(blockdev --getsz "${BOOT_DISK}")
 LAST_DISK_SECTOR=$((DISK_SECTORS - 1))
 # mutable partition is 100MB at the end of the disk, calculate its start sector
 FIRST_MUTABLE_SECTOR=$((LAST_DISK_SECTOR-204800+1))
-# backingfiles partition sits between the root and mutable partition, calculate its start sector and size
-LAST_ROOT_SECTOR=$(sfdisk -l "${BOOT_DISK}" | grep "${ROOT_PARTITION_DEVICE}" | awk '{print $3}')
-FIRST_BACKINGFILES_SECTOR=$((LAST_ROOT_SECTOR + 1))
+# backingfiles partition sits between the last and mutable partition, calculate its start sector and size
+LAST_PART_SECTOR=$(sfdisk -l "${BOOT_DISK}" | grep "${LAST_PARTITION_DEVICE}" | awk '{print $3}')
+FIRST_BACKINGFILES_SECTOR=$((LAST_PART_SECTOR + 1))
 BACKINGFILES_NUM_SECTORS=$((FIRST_MUTABLE_SECTOR - FIRST_BACKINGFILES_SECTOR))
 
 echo firstbackingfilesmutable $FIRST_BACKINGFILES_SECTOR
@@ -157,15 +176,15 @@ NUM_MUTABLE_INODES=$((BACKINGFILES_NUM_SECTORS / 20000))
 ORIGINAL_DISK_IDENTIFIER=$( fdisk -l "${BOOT_DISK}" | grep -e "^Disk identifier" | sed "s/Disk identifier: 0x//" )
 
 log_progress "Modifying partition table for backing files partition..."
-echo "$FIRST_BACKINGFILES_SECTOR,$BACKINGFILES_NUM_SECTORS" | sfdisk --force "${BOOT_DISK}" -N $((ROOT_PART_NUM + 1))
+echo "$FIRST_BACKINGFILES_SECTOR,$BACKINGFILES_NUM_SECTORS" | sfdisk --force "${BOOT_DISK}" -N $((LAST_PART_NUM + 1))
 
 log_progress "Modifying partition table for mutable (writable) partition for script usage..."
-echo "$FIRST_MUTABLE_SECTOR," | sfdisk --force "${BOOT_DISK}" -N $((ROOT_PART_NUM + 2))
+echo "$FIRST_MUTABLE_SECTOR," | sfdisk --force "${BOOT_DISK}" -N $((LAST_PART_NUM + 2))
 
 # manually adding the partitions to the kernel's view of things is sometimes needed
 if [ ! -e "${BACKINGFILES_DEVICE}" ] || [ ! -e "${MUTABLE_DEVICE}" ]
 then
-  partx --add --nr $((ROOT_PART_NUM + 1)):$((ROOT_PART_NUM + 2)) "${BOOT_DISK}"
+  partx --add --nr $((LAST_PART_NUM + 1)):$((LAST_PART_NUM + 2)) "${BOOT_DISK}"
 fi
 if [ ! -e "${BACKINGFILES_DEVICE}" ] || [ ! -e "${MUTABLE_DEVICE}" ]
 then
@@ -187,5 +206,4 @@ log_progress "Formatting new partitions..."
 mkfs.xfs -f -m reflink=1 -L backingfiles "${BACKINGFILES_DEVICE}"
 mkfs.ext4 -F -N "$NUM_MUTABLE_INODES" -L mutable "${MUTABLE_DEVICE}"
 
-echo "LABEL=backingfiles $BACKINGFILES_MOUNTPOINT xfs auto,rw,noatime 0 2" >> /etc/fstab
-echo "LABEL=mutable $MUTABLE_MOUNTPOINT ext4 auto,rw 0 2" >> /etc/fstab
+update_fstab

@@ -208,7 +208,7 @@ function snapshot {
   # /dev/loop0p1
 
   # Use -p repair arg. It works with vfat and exfat.
-  LOOP=$(losetup --show -P -f "$newsnapname")
+  LOOP=$(losetup_find_show -P "$newsnapname")
   PARTLOOP=${LOOP}p1
 
   if [ "$1" = "fsck" ]

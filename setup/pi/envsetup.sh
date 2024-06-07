@@ -117,6 +117,7 @@ function read_setup_variables {
   export CAM_SIZE=${CAM_SIZE:-90%}
   export MUSIC_SIZE=${MUSIC_SIZE:-0}
   export BOOMBOX_SIZE=${BOOMBOX_SIZE:-0}
+  export LIGHTSHOW_SIZE=${LIGHTSHOW_SIZE:-0}
   export DATA_DRIVE=${DATA_DRIVE:-''}
   export USE_EXFAT=${USE_EXFAT:-false}
 }
@@ -136,6 +137,11 @@ fi
 function isRaspberryPi {
   grep -q "Raspberry Pi" /sys/firmware/devicetree/base/model
 }
+
+function isPi5 {
+  grep -q "Raspberry Pi 5" /sys/firmware/devicetree/base/model
+}
+export -f isPi5
 
 function isPi4 {
   grep -q "Raspberry Pi 4" /sys/firmware/devicetree/base/model
@@ -157,18 +163,19 @@ function isRadxaZero {
 }
 export -f isRadxaZero
 
-for STATUSLED in \
-  /sys/class/leds/led0 \
-  /sys/class/leds/ACT \
-  /sys/class/leds/user-led2 \
-  /sys/class/leds/radxa-zero:green \
-  /tmp/fakeled
+STATUSLED=/tmp/fakeled
+
+while read -r led
 do
-  if [ -d  "$STATUSLED" ]
-  then
-    break;
-  fi
-done
+  case "$led" in
+    *status | */led0 | */ACT | */user-led2 | */radxa-zero:green)
+      STATUSLED="$led"
+      break;
+      ;;
+    *)
+      ;;
+    esac
+done < <(find /sys/class/leds -type l)
 
 if [ ! -d "$STATUSLED" ]
 then
@@ -195,3 +202,31 @@ else
   export PICONFIG_PATH=/dev/null
 fi
 
+# losetup sometimes fails because of a mismatch between kernel and user land
+# (https://lore.kernel.org/lkml/8bed44f2-273c-856e-0018-69f127ea4258@linux.ibm.com/)
+# but even when it fails like that, testing shows the loop device gets created anyway
+function losetup_find_show {
+  local lastarg="${@:$#}"
+  local loop=$(losetup -n -O NAME -j "$lastarg")
+  if losetup -f --show "$@"
+  then
+    return
+  fi
+  if [ -n "$loop" ]
+  then
+    # losetup failed, and there was already a previous loop device for the
+    # given file.
+    # Rather than trying to determine if a new loop device was created, just return
+    # an error.
+    return 1
+  fi
+  local newloop=$(losetup -n -O NAME -j "$lastarg")
+  if [ -z "$newloop" ]
+  then
+    # losetup truly failed and didn't even create a loop device
+    return 1
+  fi
+  echo "$newloop"
+}
+
+export -f losetup_find_show

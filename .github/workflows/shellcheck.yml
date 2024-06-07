@@ -6,9 +6,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Run ShellCheck
-      shell: bash
-      run: |
-        cd "${GITHUB_WORKSPACE}"
-        ./check.sh
+      - uses: actions/checkout@v1
+      - name: Run ShellCheck
+        shell: bash
+        run: |
+          cd "${GITHUB_WORKSPACE}"
+          ./check.sh

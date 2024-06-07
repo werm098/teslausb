@@ -90,7 +90,7 @@ function timestamp () {
 function fix_errors_in_image () {
   local image="$1"
   log "Running fsck on $image..."
-  loopback=$(losetup --show -f -P "$image")
+  loopback=$(losetup_find_show -P "$image")
   # Use -p repair arg. It works with vfat and exfat.
   /sbin/fsck "${loopback}p1" -- -p |& timestamp '| ' >> "$LOG_FILE" || echo ""
   losetup -d "$loopback"
@@ -289,11 +289,14 @@ function trim_free_space() {
 }
 
 function fix_errors_in_images () {
-  fix_errors_in_image /backingfiles/cam_disk.bin
-  if [ -e /backingfiles/music_disk.bin ]
-  then
-    fix_errors_in_image /backingfiles/music_disk.bin
-  fi
+  for i in cam music boombox lightshow
+  do
+    img="/backingfiles/${i}_disk.bin"
+    if [ -e "$img" ]
+    then
+      fix_errors_in_image "$img"
+    fi
+  done
 }
 
 function disconnect_usb_drives_from_host () {
@@ -352,7 +355,7 @@ function clean_cam_mount {
   log "cleaning cam mount"
   # Delete the files that fsck "recovered". These are generally files
   # that were deleted previously by the car or teslausb
-  find "${CAM_MOUNT}" \( \( -type f -name FSCK\*.REC \) -o \( -type d -name \*.M \) \) -print0 | xargs -0 rm -rf
+  find "${CAM_MOUNT}" \( \( -type f -name FSCK\*.REC \) -o \( -type f -name "*~[0-9].MP4" \) \) -print0 | xargs -0 rm -rf
 
   # Remove files, oldest first, until there is at least 20GB of free space
 

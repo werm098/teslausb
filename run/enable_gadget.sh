@@ -38,15 +38,13 @@ echo TeslaUSB > "$gadget_root/strings/$lang/manufacturer"
 echo "TeslaUSB Composite Gadget" > "$gadget_root/strings/$lang/product"
 echo "TeslaUSB Config" > "$gadget_root/configs/$cfg.1/strings/$lang/configuration"
 
-# A bare Raspberry Pi 4 can peak at at over 700 mA during boot, but idles around
-# 450 mA, while a Raspberry Pi 4 with a USB drive can peak at over 1 A during boot
-# and idle around 550 mA.
-# A Raspberry Pi Zero 2 W can peak at over 300 mA during boot, and has an idle power
-# use of about 100 mA.
-# A Raspberry Pi Zero W can peak up to 220 mA during boot, and has an idle power
-# use of about 80 mA.
-# The largest power demand the gadget can report is 500 mA.
-if isPi4
+# A bare Raspberry Pi 4 or 5 can peak at at over 1 A during boot, but idles around 500 mA.
+# A Raspberry Pi Zero 2 W can peak at over 300 mA during boot, but idles around 100 mA.
+# A Raspberry Pi Zero W can peak up to 220 mA during boot, but idles around 80 mA.
+if isPi5
+then
+  echo 600 > "$gadget_root/configs/$cfg.1/MaxPower"
+elif isPi4
 then
   echo 500 > "$gadget_root/configs/$cfg.1/MaxPower"
 elif isPi2
@@ -63,6 +61,7 @@ echo "/backingfiles/cam_disk.bin" > "$gadget_root/functions/mass_storage.0/lun.0
 echo "TeslaUSB CAM $(du -h /backingfiles/cam_disk.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
 
 lun="lun.1"
+
 # one lun is created by default, so we only need to create the 2nd one
 if [ -e "/backingfiles/music_disk.bin" ]
 then
@@ -72,7 +71,22 @@ then
   lun="lun.2"
 fi
 
-# boombox drive is either lun 1 or 2, depending on whether music drive is used
+# one lun is created by default, so we only need to create the 3nd one
+if [ -e "/backingfiles/lightshow_disk.bin" ]
+then
+  mkdir -p "$gadget_root/functions/mass_storage.0/${lun}"
+  echo "/backingfiles/lightshow_disk.bin" > "$gadget_root/functions/mass_storage.0/${lun}/file"
+  echo "TeslaUSB LIGHTSHOW $(du -h /backingfiles/lightshow_disk.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/${lun}/inquiry_string"
+  if [[ $lun == "lun.1" ]]
+  then
+    lun="lun.2"
+  elif [[ $lun == "lun.2" ]]
+  then
+    lun="lun.3"
+  fi
+fi
+
+# boombox drive is either lun 1,2 or 3, depending on whether music drive or lightbox is used
 if [ -e "/backingfiles/boombox_disk.bin" ]
 then
   mkdir -p "$gadget_root/functions/mass_storage.0/${lun}"

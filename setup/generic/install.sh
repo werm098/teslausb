@@ -31,33 +31,43 @@ function flash_rapidly {
 rootpart=$(findmnt -n -o SOURCE /)
 rootname=$(lsblk -no pkname "${rootpart}")
 rootdev="/dev/${rootname}"
+marker="/root/RESIZE_ATTEMPTED"
 
 # Check that the root partition is the last one.
 lastpart=$(sfdisk -l "$rootdev" | tail -1 | awk '{print $1}')
 
-if [ "$rootpart" != "$lastpart" ]
-then
-  error_exit "root partition is not the last partition."
-fi
-
-# Check if there is sufficient unpartitioned space after the root
+# Check if there is sufficient unpartitioned space after the last
 # partition to create the backingfiles and mutable partitions.
 # TODO: provide a way to skip this, to support having boot+root on
 # eMMC or sd card, and storage elsewhere
 unpart=$(sfdisk -F "$rootdev" | grep -o '[0-9]* bytes' | head -1 | awk '{print $1}')
-if [ "$unpart" -lt  $(( (1<<30) * 40)) ]
+if [ "$unpart" -lt  $(( (1<<30) * 32)) ]
 then
+  # This script will only shrink the root partition, and if there's another
+  # partition following the root partition, we won't be able to grow the
+  # unpartitioned space at the end of the disk by shrinking the root partition.
+  if [ "$rootpart" != "$lastpart" ]
+  then
+    error_exit "Insufficient unpartioned space, and root partition is not the last partition."
+  fi
+
   # There is insufficient unpartitioned space.
   # Check if we've already shrunk the root filesystem, and shrink the root
   # partition to match if it hasn't been already
 
   devsectorsize=$(cat "/sys/block/${rootname}/queue/hw_sector_size")
   read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ' | (cat; echo))
-  fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize + 1))
-
+  fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize))
   partnumsectors=$(sfdisk -l -o Sectors "${rootdev}" | tail -1)
+  partnumsector=$((partnumsectors - 1));
   if [ "$partnumsectors" -le "$fsnumsectors" ]
   then
+    if [ -f "$marker" ]
+    then
+      error_exit "Previous resize attempt failed. Delete $marker before retrying."
+    fi
+    touch "$marker"
+
     echo "insufficient unpartitioned space, attempting to shrink root file system"
 
     cat <<- EOF > /etc/rc.local
@@ -102,6 +112,7 @@ then
     } | bash -s 3G
     exit 0
   fi
+  rm -f "$marker"
   # shrink root partition to match root file system size
   echo "shrinking root partition to match root fs, $fsnumsectors sectors"
   sleep 3
@@ -162,6 +173,12 @@ then
   apt install -y sntp
 fi
 
+if [ ! -x "$(command -v parted)" ]
+then
+  apt install -y parted
+fi
+
+
 # indicate we're waiting for the user to log in and finish setup
 flash_rapidly
 
@@ -170,7 +187,7 @@ flash_rapidly
 DEFUSER=$(grep ":1000:1000:" /etc/passwd | awk -F : '{print $1}')
 if [ -n "$DEFUSER" ]
 then
-  if [ ! -e "/home/$DEFUSER/.bashrc" ] || ! grep "SETUP_FINISHED" "/home/$DEFUSER/.bashrc"
+  if [ ! -e "/home/$DEFUSER/.bashrc" ] || ! grep -q "SETUP_FINISHED" "/home/$DEFUSER/.bashrc"
   then
     cat <<- EOF >> "/home/$DEFUSER/.bashrc"
 		if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
@@ -184,7 +201,7 @@ then
   fi
 fi
 
-if ! grep "SETUP_FINISHED" /root/.bashrc
+if ! grep -q "SETUP_FINISHED" /root/.bashrc
 then
   cat <<- EOF >> /root/.bashrc
 	if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
@@ -203,3 +220,6 @@ then
 	fi
 	EOF
 fi
+
+# hack to print the above message without duplicating it here
+grep -A 12 SETUP_FINISHED .bashrc  | grep echo | while read line; do eval "$line"; done

@@ -14,6 +14,7 @@ from pprint import pprint
 
 
 # Global vars for use by various functions.
+list_url = 'https://owner-api.teslamotors.com/api/1/products'
 base_url = 'https://owner-api.teslamotors.com/api/1/vehicles'
 SETTINGS = {
     'DEBUG': False,
@@ -184,8 +185,8 @@ def _get_id():
     # Call list_vehicles() and use the provided name or VIN to get the vehicle ID.
     result = list_vehicles()
     for vehicle_dict in result['response']:
-        if ( vehicle_dict['vin'] == SETTINGS['tesla_vin']
-          or vehicle_dict['display_name'] == SETTINGS['tesla_name']
+        if ( ( SETTINGS['tesla_vin'] != '' and vehicle_dict['vin'] == SETTINGS['tesla_vin'] )
+          or ( SETTINGS['tesla_name'] != '' and vehicle_dict['display_name'] == SETTINGS['tesla_name'] )
           or ( SETTINGS['tesla_vin'] == '' and SETTINGS['tesla_name'] == '')):
             tesla_api_json['id'] = vehicle_dict['id_s']
             tesla_api_json['vehicle_id'] = vehicle_dict['vehicle_id']
@@ -266,7 +267,7 @@ def _error(msg, flush=True):
 # API GET Functions
 ######################################
 def list_vehicles():
-    return _execute_request(base_url, None, None, False)
+    return _execute_request(list_url, None, None, False)
 
 
 def get_service_data():
