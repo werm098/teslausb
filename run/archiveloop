@@ -726,8 +726,14 @@ function snapshotloop {
 function logrotator {
   while true
   do
-    mv -f /var/log/nginx/access.log /var/log/nginx/access.log.prev || true
-    mv -f /var/log/nginx/error.log /var/log/nginx/error.log.prev || true
+    if [ -s /var/log/nginx/access.log ]
+    then
+      mv -f /var/log/nginx/access.log /var/log/nginx/access.log.prev || true
+    fi
+    if [ -s /var/log/nginx/error.log ]
+    then
+      mv -f /var/log/nginx/error.log /var/log/nginx/error.log.prev || true
+    fi
     if [ -e /var/run/nginx.pid ]
     then
       kill -USR1 "$(cat /var/run/nginx.pid)"
