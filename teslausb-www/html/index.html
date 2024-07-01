@@ -2549,7 +2549,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       sequence=new VideoSequence(group, sequencename);
       videos[group][sequencename]=sequence;
     }
-    if (filename.includes(".mp4")) {
+    if (filename != "event.mp4" && filename.includes(".mp4")) {
       videotime=filename.substring(0, 19);
       segment=sequence.getSegmentByName(videotime);
       segment.addVideo(filename);
