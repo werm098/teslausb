@@ -368,6 +368,8 @@ function clean_cam_mount {
   if [ -s /tmp/rmcandidates.txt ]
   then
     (cd "${CAM_MOUNT}"; xargs -a /tmp/rmcandidates.txt -0 ls -cr1) > /tmp/rmcandidatesbytime.txt
+  else
+    true > /tmp/rmcandidatesbytime.txt
   fi
 
   local freespace
