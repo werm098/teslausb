@@ -32,7 +32,8 @@ Gotify is a self-hosted notification service. The android client is available on
 
 # IFTTT
 
-IFTTT is a completely free alternative that can be configured to send notifications. It requires an account and the IFTTT app to be installed but is available for both [iOS](https://itunes.apple.com/app/apple-store/id660944635) and [Android](https://play.google.com/store/apps/details?id=com.ifttt.ifttt).
+IFTTT was formerly a completely free alternative that can be configured to send notifications. They have since moved the Webhooks service behind their [pro tier plan](https://ifttt.com/plans). 
+It requires an account and the IFTTT app to be installed but is available for both [iOS](https://itunes.apple.com/app/apple-store/id660944635) and [Android](https://play.google.com/store/apps/details?id=com.ifttt.ifttt). 
 
 1. Connect the [Webhooks service](https://ifttt.com/maker_webhooks)
 2. Create a new applet
