@@ -613,7 +613,7 @@ class FileBrowser {
       div.style.background = "#0008";
       div.onclick = (e) => { if (e.target === div) div.remove(); };
       document.firstElementChild.append(div);
-      div.innerHTML = `<div class="fb-player"><div class="fb-playertitle">${displaypath}</div><audio autoplay controls src="${this.root_path}/${path}"></div>`;
+      div.innerHTML = `<div class="fb-player"><div class="fb-playertitle">${displaypath}</div><audio autoplay controls src="${encodeURIComponent(this.root_path + "/" + path)}"></div>`;
       div.querySelector(".fb-playertitle").scrollLeft=1000;
     }
   }
