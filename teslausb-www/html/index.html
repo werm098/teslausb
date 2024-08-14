@@ -2173,11 +2173,40 @@ class VideoSequence {
         var s = segment.datetime;
         eventSegmentStartMs = Date.parse(
                 s.substring(0,10) + "T" + s.substring(11,13) + ":" + s.substring(14,16) + ":" + s.substring(17, 19));
-        if (eventSegmentStartMs <= eventTimeMs) {
+        if (eventSegmentStartMs <= eventTimeMs || segmentIdx == 0) {
           break;
         }
       }
       var offsetIntoSegment = eventTimeMs - eventSegmentStartMs;
+      if (offsetIntoSegment < 0) {
+        /* The event time is before the first video segment. This can
+           happen if there are two sentry events in short succession */
+        log("negative sentry offset");
+        if (offsetIntoSegment > -60000) {
+          /* add one segment to the start of the sequence */
+          //return drawTickForIndex(idx);
+          var segment = this.getSegmentByIndex(0);
+          var s = segment.datetime.substring(0,10);
+          var dayclips = videos["RecentClips"][s];
+          if (dayclips != undefined) {
+            var prevseg;
+            for (var seg of dayclips.segments) {
+              if (seg.datetime == segment.datetime) {
+                break;
+              }
+              prevseg = seg;
+            }
+            if (prevseg != undefined) {
+              /* add found segment to start of this sequence */
+              log(this);
+              this.segments.unshift(prevseg);
+              log(this);
+              return this.select();
+            }
+          }
+        }
+        offsetIntoSegment = 0;
+      }
       var eventOffsetMs = (segmentIdx * 60 * 1000) + offsetIntoSegment;
       var sequenceLengthMs = this.length() * 60 * 1000;
       var reloffset = eventOffsetMs / sequenceLengthMs;
