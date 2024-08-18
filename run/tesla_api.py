@@ -374,7 +374,7 @@ def streaming_ping():
       'Authorization': 'Bearer {}'.format(_get_api_token()),
       'Connection': 'Upgrade',
       'Upgrade': 'websocket',
-      'Sec-WebSocket-Key': base64.b64encode(bytes([random.randrange(0, 256) for _ in range(0, 13)])).decode('utf-8'),
+      'Sec-WebSocket-Key': base64.b64encode(bytes([random.randrange(0, 256) for _ in range(0, 16)])).decode('utf-8'),
       'Sec-WebSocket-Version': '13',
     }
 
