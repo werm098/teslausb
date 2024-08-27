@@ -4,6 +4,12 @@
 # the main Raspberry Pi centric install scripts expect.
 #
 
+if [[ $EUID -ne 0 ]]
+then
+  echo "STOP: Run sudo -i."
+  exit 1
+fi
+
 function error_exit {
   echo "STOP: $*"
   exit 1
