@@ -65,7 +65,7 @@ then
   read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ' | (cat; echo))
   fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize))
   partnumsectors=$(sfdisk -l -o Sectors "${rootdev}" | tail -1)
-  partnumsector=$((partnumsectors - 1));
+  partnumsectors=$((partnumsectors - 1));
   if [ "$partnumsectors" -le "$fsnumsectors" ]
   then
     if [ -f "$marker" ]
