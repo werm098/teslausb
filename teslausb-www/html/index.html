@@ -376,7 +376,7 @@ video {
   border: none;
   outline: none;
   color: white;
-  padding: 14px 13px;
+  padding: 14px 12px;
   background-color: inherit;
   font-family: inherit;
   margin: 0;
@@ -1008,6 +1008,8 @@ var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 var isWebkit = navigator.userAgent.toLowerCase().indexOf('applewebkit') > -1;
 
 var DEBUG = false;
+var WORK_AROUND_WEBKIT_QUIRKS = true;
+
 function log(what) {
   if (DEBUG) {
     console.log(what);
@@ -2603,6 +2605,11 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     }
   }
 
+  var nr = document.querySelector(".noclips");
+  if (WORK_AROUND_WEBKIT_QUIRKS) {
+    nr.style.display="none";
+    nr.style.display='';
+  }
   for (i of ["RecentClips", "SavedClips", "SentryClips"]) {
     var d=document.getElementById(i);
     for (c in videos[i]) {
@@ -2634,8 +2641,12 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     if ((d.childElementCount / cols) < 3) {
       cols = Math.ceil(d.childElementCount / 3);
     }
+    if (WORK_AROUND_WEBKIT_QUIRKS) {
+      d.parentElement.style.display="none";
+      d.parentElement.style.display='';
+    }
     if (cols < 2) {
-      d.style.left = d.parentElement.getBoundingClientRect().left - 8 + "px";
+      d.style.left = Math.max(2, d.parentElement.getBoundingClientRect().left - 8) + "px";
     }
     d.style.width = (cols * 156) + "px";
     d.parentElement.onmouseenter = function(ev) {
@@ -2649,7 +2660,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   if (newestsequence != undefined) {
     newestsequence.select();
   }
-  document.querySelector(".noclips").innerHTML = "No recordings";
+  nr.innerHTML = "No recordings";
   initialize();
 }
 });
