@@ -18,7 +18,7 @@ list_url = 'https://owner-api.teslamotors.com/api/1/products'
 base_url = 'https://owner-api.teslamotors.com/api/1/vehicles'
 SETTINGS = {
     'DEBUG': False,
-    'REFRESH_TOKEN': False,
+    'refresh_token': False,
     'tesla_email': 'dummy@local',
     'tesla_password': '',
     'tesla_access_token': '',
@@ -62,8 +62,8 @@ def _execute_request(url=None, method=None, data=None, require_vehicle_online=Tr
 
             # Tesla REST Service sometimes misbehaves... this seems to be caused by an invalid/expired auth token
             # TODO: Remove auth token and retry?
-            if result['response'] is None:
-                _error("Fatal Error: Tesla REST Service returned an invalid response")
+            if result.get('response') is None:
+                _error(f"Fatal Error: Tesla REST Service returned an invalid response: {result}")
                 sys.exit(1)
 
             vehicle_online = result['response']['state'] == "online"
@@ -146,12 +146,24 @@ def _get_api_token():
         if now.year < 2019: # This script was written in 2019.
             return tesla_api_json['access_token']
 
-        tesla = teslapy.Tesla(SETTINGS['tesla_email'], None)
-        if SETTINGS['REFRESH_TOKEN'] or 0 < tesla.expires_at < time.time():
-            _log('Refreshing api token')
-            tesla.refresh_token()
-            tesla_api_json['access_token'] = tesla.token.get('access_token')
+        if not SETTINGS.get('refresh_token'):
+            _log('No refreshing token available. Using existing access token.')
+            return tesla_api_json['access_token']
 
+        tesla = teslapy.Tesla(SETTINGS['tesla_email'], None)
+        # For some reason, the `expires_at` timestamp doesn't exactly match the `exp` field in the JWT body.
+        # The `expires_at` is typically about 1 minute ahead of the `exp` value in the JWT payload.
+        # Access token usually expires after a few hours, so refresh the token if it has less than `expiration_buffer_s` seconds remaining.
+        expiration_buffer_s = 60 * 30
+        if tesla.expires_at <= time.time() - expiration_buffer_s:
+            _log("Refreshing expired access token...")
+            tesla.token['refresh_token'] = SETTINGS.get('refresh_token')
+            tesla.refresh_token()
+
+        if tesla_api_json['access_token'] != tesla.token.get('access_token'):
+            _log("Syncing access token...")
+            tesla_api_json['access_token'] = tesla.token.get('access_token')
+            _write_tesla_api_json()
         return tesla_api_json['access_token']
 
     # If the access token is not already stored in tesla_api_json AND
@@ -531,7 +543,7 @@ def main():
     args = _get_arg_parser().parse_args()
 
     SETTINGS['DEBUG'] = args.debug
-    SETTINGS['REFRESH_TOKEN'] = args.refresh_token
+    SETTINGS['refresh_token'] = args.refresh_token
 
     if args.vin:
         SETTINGS['tesla_vin'] = args.vin
