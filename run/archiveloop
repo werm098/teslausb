@@ -353,9 +353,14 @@ function intersect {
 
 function clean_cam_mount {
   log "cleaning cam mount"
+  ensure_cam_file_is_mounted
+
   # Delete the files that fsck "recovered". These are generally files
   # that were deleted previously by the car or teslausb
   find "${CAM_MOUNT}" \( \( -type f -name FSCK\*.REC \) -o \( -type f -name "*~[0-9].MP4" \) \) -print0 | xargs -0 rm -rf
+
+  # Delete short recordings
+  (cd "${CAM_MOUNT}"; find . -type f -name \*.mp4 -size -100000c -printf '%P\n' ) | xargs rm -rf
 
   # Remove files, oldest first, until there is at least 20GB of free space
 
@@ -363,6 +368,8 @@ function clean_cam_mount {
   if [ -s /tmp/rmcandidates.txt ]
   then
     (cd "${CAM_MOUNT}"; xargs -a /tmp/rmcandidates.txt -0 ls -cr1) > /tmp/rmcandidatesbytime.txt
+  else
+    true > /tmp/rmcandidatesbytime.txt
   fi
 
   local freespace
@@ -379,6 +386,11 @@ function clean_cam_mount {
   # delete directories that are now empty
   find "$CAM_MOUNT/TeslaCam/RecentClips" "$CAM_MOUNT/TeslaCam/SavedClips" \
     "$CAM_MOUNT/TeslaCam/SentryClips" "$CAM_MOUNT/TeslaTrackMode" -mindepth 1 -type d -empty -delete || true
+
+  # Trim the camera archive to reduce the number of blocks in the snapshot.
+  trim_free_space "$CAM_MOUNT"
+
+  unmount_cam_file
 
   log "done cleaning cam mount"
 }
@@ -600,24 +612,7 @@ function archive_teslacam_clips () {
   # overlayfs behavior is undefined if the lower is changed while the overlay is active, so umount first
   umount "$overlaymerged"
 
-  ensure_cam_file_is_mounted
-
-  if [[ "$ignore_count" -gt 0 ]]
-  then
-    (
-      cd "$CAM_MOUNT/TeslaCam"
-      grep -v TeslaTrackMode "$ignorelist" | xargs rm -f
-      cd "$CAM_MOUNT"
-      grep TeslaTrackMode "$ignorelist" | xargs rm -f
-    )
-  fi
-
   clean_cam_mount
-
-  # Trim the camera archive to reduce the number of blocks in the snapshot.
-  trim_free_space "$CAM_MOUNT"
-
-  unmount_cam_file
 }
 
 function copy_music_files () {
@@ -726,8 +721,14 @@ function snapshotloop {
 function logrotator {
   while true
   do
-    mv -f /var/log/nginx/access.log /var/log/nginx/access.log.prev || true
-    mv -f /var/log/nginx/error.log /var/log/nginx/error.log.prev || true
+    if [ -s /var/log/nginx/access.log ]
+    then
+      mv -f /var/log/nginx/access.log /var/log/nginx/access.log.prev || true
+    fi
+    if [ -s /var/log/nginx/error.log ]
+    then
+      mv -f /var/log/nginx/error.log /var/log/nginx/error.log.prev || true
+    fi
     if [ -e /var/run/nginx.pid ]
     then
       kill -USR1 "$(cat /var/run/nginx.pid)"
@@ -802,6 +803,8 @@ wifichecker &
 
 fix_errors_in_images
 /root/bin/make_snapshot.sh nofsck
+
+clean_cam_mount
 
 if archive_is_reachable
 then

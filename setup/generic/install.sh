@@ -4,6 +4,12 @@
 # the main Raspberry Pi centric install scripts expect.
 #
 
+if [[ $EUID -ne 0 ]]
+then
+  echo "STOP: Run sudo -i."
+  exit 1
+fi
+
 function error_exit {
   echo "STOP: $*"
   exit 1
@@ -59,7 +65,7 @@ then
   read -r fsblockcount fsblocksize < <(tune2fs -l "${rootpart}" | grep "Block count:\|Block size:" | awk ' {print $2}' FS=: | tr -d ' ' | tr '\n' ' ' | (cat; echo))
   fsnumsectors=$((fsblockcount * fsblocksize / devsectorsize))
   partnumsectors=$(sfdisk -l -o Sectors "${rootdev}" | tail -1)
-  partnumsector=$((partnumsectors - 1));
+  partnumsectors=$((partnumsectors - 1));
   if [ "$partnumsectors" -le "$fsnumsectors" ]
   then
     if [ -f "$marker" ]

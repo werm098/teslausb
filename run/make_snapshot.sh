@@ -29,7 +29,7 @@ function linksnapshotfiletorecents {
   local recents=/mutable/TeslaCam/RecentClips
 
   filename=${file##/*/}
-  if [ "$filename" = "event.json" ]
+  if [[ ! "$filename" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}.* ]]
   then
     return
   fi
